@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: "#345847" };
+export const viewport: Viewport = { themeColor: "#345847", viewportFit: "cover", interactiveWidget: "resizes-content" };
 
 // Applies the saved theme before first paint to avoid a light flash.
 const THEME_INIT = "try{var t=localStorage.getItem('scrivia:theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;}catch(e){}"

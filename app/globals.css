@@ -250,3 +250,61 @@
 .update-banner button{color:inherit;background:#ffffff26;border-radius:5px;padding:6px 10px;font-weight:700;white-space:nowrap}
 .update-banner button[aria-label]{background:none;padding:4px;display:inline-flex}
 @media print{.update-banner{display:none!important}}
+/* Modalità semplice per telefoni (.app.simple, app/mobile.tsx): testo grande, tocchi da 44px, barra in basso sopra la tastiera, pannelli dal basso. */
+.app{height:var(--app-height,100dvh)}
+.m-btn,.m-toolbar,.m-proposal,.m-close,.sheet-backdrop,.drawer-backdrop{display:none}
+.m-full{display:inline-flex;align-items:center;gap:5px;height:32px;padding:0 10px;border:1px solid var(--line);border-radius:16px;font-size:11px;font-weight:600;color:var(--green);white-space:nowrap}
+.simple .menu-bar,.simple .formatbar,.simple .statusbar,.simple .page-topline,.simple .page-bottom,.simple .sidebar-toggle,.simple .header-actions>:not(.m-keep){display:none!important}
+.simple .m-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-width:44px;height:44px;border-radius:12px;color:var(--green);font-size:15px;font-weight:600;flex-shrink:0}
+.simple .m-btn:active{background:var(--soft)}
+.simple .m-install{background:var(--green);color:#fff;height:38px;padding:0 14px;border-radius:19px}
+.simple .topbar{height:calc(60px + env(safe-area-inset-top));padding:env(safe-area-inset-top) 6px 0 4px;gap:4px}
+.simple .document-heading{flex:1;gap:2px}.simple .document-heading>div{flex:1;min-width:0}
+.simple .document-heading input{width:100%;font-size:18px}
+.simple .save-state{font-size:12px;margin-top:3px}
+.simple .header-actions{gap:2px}
+.simple input:not([type=range]):not([type=color]),.simple select,.simple textarea{font-size:16px}
+.simple .canvas{padding:0;background:#fff}
+.simple .paper{border:0;border-radius:0;box-shadow:none;max-width:none;min-height:100%;padding:22px 20px 48px}
+.simple .manuscript{font-size:19px;line-height:1.7;min-height:55vh}
+.simple .manuscript h1{font-size:29px;letter-spacing:-.6px}.simple .manuscript h2{font-size:22px;margin-top:28px}
+.simple .findbar{padding:10px;gap:8px}.simple .findbar input{flex:1 1 40%;padding:10px}.simple .findbar button{padding:10px 12px;font-size:14px}
+.simple .m-toolbar{display:flex;justify-content:space-between;align-items:center;gap:2px;flex-shrink:0;padding:6px 8px calc(6px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line)}
+.simple .m-toolbar .tool{width:44px;height:44px;border-radius:12px}.simple .m-toolbar .tool svg{width:21px;height:21px}
+.m-ai{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 16px;border-radius:22px;background:var(--green);color:#fff;font-size:15px;font-weight:700;position:relative}
+.m-ai.has-proposal:after{content:'';position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#e2b84b;border:2px solid var(--green)}
+.simple .m-proposal{display:block;flex-shrink:0;max-height:42%;overflow:auto;padding:12px 16px;background:#f5f8ef;border-top:1px solid #dfe7d4;box-shadow:0 -6px 20px #2233220d}
+.m-proposal-head{display:flex;align-items:center;gap:8px;font-size:14px;color:#4d6043}.m-proposal-head button{margin-left:auto;width:40px;height:40px;display:grid;place-items:center;color:#7d877c}
+.m-proposal-text{font-family:Georgia,serif;font-size:17px;line-height:1.55;color:#3d5a3f;margin:6px 0 12px;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden}
+.m-proposal-warning{display:flex;gap:8px;font-size:14px;line-height:1.5;color:#9f6241;margin:6px 0}
+.m-proposal-actions{display:flex;gap:10px}.m-proposal-actions button{flex:1;height:46px;border-radius:12px;font-size:16px;font-weight:600;border:1px solid var(--line);background:#fff}
+.m-proposal-actions .m-accept{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--green);border-color:var(--green);color:#fff}
+.simple .drawer-backdrop{display:block;position:fixed;inset:0;background:#16261d66;z-index:65}
+.simple.m-docs .library{display:flex!important;position:fixed;top:0;left:0;bottom:0;width:min(330px,86vw);z-index:70;padding:calc(20px + env(safe-area-inset-top)) 14px env(safe-area-inset-bottom);box-shadow:8px 0 40px #0003}
+.simple.m-docs .library>*{zoom:1.2}.simple.m-docs .doc-item strong{max-width:180px}
+.simple.mobile-ai .assistant{display:block;position:fixed;inset:auto 0 0 0;width:auto;max-height:86%;z-index:70;overflow:auto;border:0;border-radius:20px 20px 0 0;padding:14px 16px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #0003}
+.simple.mobile-ai .assistant>*{zoom:1.2}
+.simple .m-close{display:grid;place-items:center;width:40px;height:40px;margin-left:6px;color:#7d877c}
+.simple .shortcuts,.simple kbd{display:none}
+.simple .sheet-backdrop{display:flex;align-items:flex-end;position:fixed;inset:0;z-index:85;background:#16261d66}
+.sheet{width:100%;max-height:88%;overflow:auto;background:#fcfdf9;border-radius:20px 20px 0 0;padding:8px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -10px 40px #0003;animation:sheet-in .2s ease-out}
+@keyframes sheet-in{from{transform:translateY(40px);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.sheet{animation:none}}
+.sheet-grip{display:block;width:40px;height:5px;border-radius:3px;background:#d4dacd;margin:2px auto 8px}
+.sheet header{display:flex;align-items:center;justify-content:space-between}.sheet h2{font-family:Georgia,serif;font-weight:400;font-size:24px;margin:4px 0 8px}
+.sheet h3{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:#8a997b;margin:20px 0 10px}
+.sheet-close{width:44px;height:44px;display:grid;place-items:center;color:#7d877c}
+.sheet-list button,.sheet-list label{display:flex;align-items:center;gap:14px;width:100%;min-height:54px;padding:0 4px;font-size:16px;text-align:left;border-bottom:1px solid var(--line);color:inherit;cursor:pointer}
+.sheet-list svg{color:var(--green);flex-shrink:0}.sheet-list small{color:#97a18b;font-size:13px;margin-left:auto}.sheet-list input{display:none}
+.sheet-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.sheet-grid button{display:flex;align-items:center;justify-content:center;gap:8px;height:50px;border:1px solid var(--line);border-radius:12px;font-size:15px;background:#fff}
+.sheet-link{display:block;width:100%;margin-top:18px;padding:12px;font-size:14px;color:var(--green);text-decoration:underline}
+.install-steps p{font-size:15px;line-height:1.6;color:#66745b;margin:0 0 14px}.install-steps ol{list-style:none;padding:0;margin:0}
+.install-steps li{display:flex;align-items:center;gap:14px;font-size:16px;line-height:1.5;padding:12px 0;border-bottom:1px solid var(--line)}
+.step-icon{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--soft);color:var(--green);flex-shrink:0;font-weight:700}
+.install-steps .install-note{font-size:13px;margin-top:14px;color:#97a18b}
+:root[data-theme=dark] .simple .canvas,:root[data-theme=dark] .simple .m-toolbar,:root[data-theme=dark] .sheet,:root[data-theme=dark] .simple.mobile-ai .assistant{background:#1b201d}
+:root[data-theme=dark] .simple .m-proposal{background:#1f2721;border-color:#2c332e}
+:root[data-theme=dark] .m-proposal-text{color:#c4dcbc}:root[data-theme=dark] .m-proposal-head{color:#b6d2ad}:root[data-theme=dark] .m-proposal-actions button,:root[data-theme=dark] .sheet-grid button{background:#202622;border-color:#323a35;color:#d8ded6}
+:root[data-theme=dark] .m-proposal-actions .m-accept{background:var(--green);border-color:var(--green);color:#fff}
+:root[data-theme=dark] .sheet-grip{background:#3a443d}:root[data-theme=dark] .install-steps p{color:#a0aa9e}
+@media print{.m-toolbar,.m-proposal,.sheet-backdrop,.drawer-backdrop{display:none!important}}
