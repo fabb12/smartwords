@@ -78,3 +78,43 @@
 @media print{:root[data-theme=dark] .paper,:root[data-theme=dark] .canvas{background:white}
 :root[data-theme=dark] .manuscript,:root[data-theme=dark] .manuscript h1,:root[data-theme=dark] .manuscript h2{color:#222}
 }
+
+/* Proposte AI ben visibili: nel testo e nel pannello assistente. */
+.manuscript .ghost-text{color:#4f6f45;background:#e7f0dc;border-radius:3px;padding:1px 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;pointer-events:none;white-space:pre-wrap}
+.manuscript .ghost-complete{color:#5d7a52;background:linear-gradient(transparent 62%,#dfead1 62%);font-style:italic}
+.manuscript .ghost-replace{margin-left:4px;color:#2f5a2c;background:#dcefd0;border-bottom:2px solid #7faa63}
+.manuscript .ghost-original{text-decoration:line-through;text-decoration-color:#c2655a;text-decoration-thickness:2px;background:#fbe9e5;color:#8c5a53;border-radius:2px}
+.manuscript .ghost-streaming{animation:ghost-pulse 1.2s ease-in-out infinite}
+@keyframes ghost-pulse{50%{opacity:.55}}
+@media(prefers-reduced-motion:reduce){.manuscript .ghost-streaming{animation:none}}
+.manuscript .ghost-hint{display:inline-block;margin-left:6px;vertical-align:2px;font-family:Arial,sans-serif;font-style:normal;font-size:10px;line-height:1.3;color:#4e6a40;background:#fff;border:1px solid #b9cba8;border-bottom-width:2px;padding:0 5px}
+.suggestion-box.has-proposal{position:sticky;bottom:0;z-index:2;border:1.5px solid #8eae74;background:#fbfdf7;box-shadow:0 -6px 24px #42602b1f}
+.suggestion-box.has-proposal>div{color:#4d6a40}
+.suggestion-box.has-proposal>div strong{font-weight:700;font-size:11px;letter-spacing:.2px}
+.suggestion-box.is-busy>div svg{animation:ghost-pulse 1.2s ease-in-out infinite}
+.suggestion-box p.proposal{font-family:Georgia,serif;font-size:15px;line-height:1.7;color:#33452f;margin:12px 0 8px;max-height:320px;overflow:auto}
+.proposal-context{color:#9aa38f}
+.proposal mark{background:#dcefd0;color:#22461f;border-radius:3px;padding:1px 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.proposal ins,.proposal-note ins{text-decoration:none;background:#d5ecc6;color:#1f4d1d;border-radius:3px;padding:0 1px}
+.proposal del,.proposal-note del{text-decoration:line-through;text-decoration-color:#c2655a;background:#fbe4df;color:#9a524a;border-radius:3px;padding:0 1px}
+.proposal-note{display:block;font-size:9px;line-height:1.6;color:#8a957f;margin:0 0 8px}
+.proposal-actions{display:flex;gap:6px;margin-top:10px}
+.proposal-actions .accept{flex:1;width:auto;background:var(--green);color:#fff;font-weight:600}
+.proposal-actions .accept:hover:not(:disabled){background:#244434}
+.proposal-actions .accept kbd{color:#4e6a40}
+.dismiss{display:flex;gap:6px;align-items:center;border:1px solid #dfe5d7;border-radius:4px;padding:8px;font-size:10px;color:#6f7c66;background:#fff}
+:root[data-theme=dark] .manuscript .ghost-text{background:#26361f;color:#bfe0a8}
+:root[data-theme=dark] .manuscript .ghost-complete{background:linear-gradient(transparent 62%,#2e4425 62%);color:#a9c99a}
+:root[data-theme=dark] .manuscript .ghost-replace{background:#284020;color:#cdeeb6;border-bottom-color:#6f9b55}
+:root[data-theme=dark] .manuscript .ghost-original{background:#3a2421;color:#e0a59c;text-decoration-color:#e07b6e}
+:root[data-theme=dark] .manuscript .ghost-hint{background:#1d2220;color:#bcd4ad;border-color:#4a5c45}
+:root[data-theme=dark] .suggestion-box.has-proposal{background:#1b231c;border-color:#5f8a52;box-shadow:0 4px 18px #0005}
+:root[data-theme=dark] .suggestion-box.has-proposal>div{color:#b6d2a5}
+:root[data-theme=dark] .suggestion-box p.proposal{color:#dbe6d4}
+:root[data-theme=dark] .proposal-context{color:#7d887a}
+:root[data-theme=dark] .proposal mark,:root[data-theme=dark] .proposal ins,:root[data-theme=dark] .proposal-note ins{background:#2c4625;color:#d2f0bd}
+:root[data-theme=dark] .proposal del,:root[data-theme=dark] .proposal-note del{background:#3e2522;color:#eba79e}
+:root[data-theme=dark] .proposal-note{color:#8d978a}
+:root[data-theme=dark] .proposal-actions .accept:hover:not(:disabled){background:#4c7559}
+:root[data-theme=dark] .dismiss{background:#202622;border-color:#323a35;color:#aab4a9}
+@media print{.manuscript .ghost-text{display:none}.manuscript .ghost-original{text-decoration:none;background:none;color:inherit}}

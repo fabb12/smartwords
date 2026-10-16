@@ -1,5 +1,5 @@
 'use client';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
@@ -9,13 +9,15 @@ import Image from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Ghost, ghostKey } from '../lib/ghost';
+import { AiGovernor, wordDiff } from '../lib/ai-governor';
 import { PROVIDERS, type Provider } from '../lib/providers';
 import { localApi, localAssist } from '../lib/local-backend';
 import { ArrowDownToLine, ArrowLeft, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, FileText, Highlighter, ImagePlus, Italic, KeyRound, Link2, List, ListOrdered, Maximize2, Monitor, Moon, MoreHorizontal, PanelLeftClose, Plus, Redo2, Search, Settings2, ShieldCheck, Sparkles, Sun, Table2, Underline, Undo2, WandSparkles, X } from 'lucide-react';
 
 type Doc = {id:string; title:string; updated:number; version:number};
 type Profile = {id:string;name:string;provider:Provider;model:string;hint:string;daily_limit:number;used:number};
-type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean};
+// base/para: paragraph text and start for completions; original: the text a rewrite would replace.
+type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean};
 type Revision = {id:string;title:string;content:string;created:number};
 const EMPTY = {type:'doc',content:[{type:'paragraph'}]};
 const WELCOME = {type:'doc',content:[{type:'heading',attrs:{level:1},content:[{type:'text',text:'Spazio alle tue idee.'}]},{type:'paragraph',content:[{type:'text',text:'Ogni grande testo comincia con un pensiero. Scrivilo qui: alle parole successive ci pensiamo insieme.'}]},{type:'heading',attrs:{level:2},content:[{type:'text',text:'La tua voce, con una marcia in più'}]},{type:'paragraph',content:[{type:'text',text:'Collega il tuo provider AI dal pannello a destra e inizia a scrivere. Scrivia suggerisce come completare la frase, oppure la rende più chiara mentre prende forma.'}]},{type:'paragraph',content:[{type:'text',text:'Premi Tab per accettare una proposta, Esc per lasciarla andare. Le tue parole restano sempre una tua scelta.',marks:[{type:'italic'}]}]}]};
@@ -41,18 +43,25 @@ export default function Workspace() {
   const editorRef=useRef<Editor|null>(null),revision=useRef(0),pending=useRef<AbortController|null>(null),aiTimer=useRef<ReturnType<typeof setTimeout>|null>(null),saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const current=useRef<{id:string;version:number;title:string}>({id:'',version:0,title:'Senza titolo'}),dirty=useRef(false),saving=useRef<Promise<boolean>|null>(null),selection=useRef<Suggestion|null>(null),suppress=useRef(false);
   const options=useRef({profile,aiOn,autoMode,tone,delay});options.current={profile,aiOn,autoMode,tone,delay};
-  const callbacks=useRef({update:()=>{},selection:()=>{},accept:():boolean=>false,cancel:()=>{}});
+  const [governor]=useState(()=>new AiGovernor());
+  const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,cancel:()=>{}});
+  const proposalDiff=useMemo(()=>suggestion?.done&&suggestion.original!==undefined?wordDiff(suggestion.original,suggestion.text):null,[suggestion]);
   const editor=useEditor({immediatelyRender:false,shouldRerenderOnTransaction:true,
     extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Placeholder.configure({placeholder:'Un pensiero, una frase… inizia a scrivere.'}),Ghost],
     content:EMPTY,editorProps:{attributes:{class:'manuscript',role:'textbox','aria-label':'Contenuto del documento',spellcheck:'true'},handleKeyDown:(_view,event)=>{
       if(event.key==='Tab' && callbacks.current.accept()){event.preventDefault();return true;}
       if(event.key==='Escape'){callbacks.current.cancel();return false;}
       return false;
-    }},onUpdate:()=>callbacks.current.update(),onSelectionUpdate:()=>callbacks.current.selection(),
+    }},onUpdate:()=>callbacks.current.update(),onSelectionUpdate:({transaction})=>callbacks.current.selection(transaction.docChanged),
   }); editorRef.current=editor;
 
   function clearSuggestion() { if(aiTimer.current)clearTimeout(aiTimer.current);pending.current?.abort();pending.current=null;selection.current=null;setSuggestion(null);setBusy(false);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,null)); }
-  function showSuggestion(s:Suggestion|null) { selection.current=s;setSuggestion(s);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,s?.mode==='complete'?{pos:s.from,text:s.text}:null)); }
+  function showSuggestion(s:Suggestion|null) { selection.current=s;setSuggestion(s);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,s?{kind:s.mode==='complete'?'complete':'replace',from:s.from,to:s.to,text:s.text,done:s.done}:null)); }
+  // Typing the first characters of a completion keeps the rest on screen instead of asking again.
+  function continued():Suggestion|null { const s=selection.current,e=editorRef.current;if(!s||!e||s.mode!=='complete'||!s.done||s.base===undefined||!e.state.selection.empty)return null;
+    const {$from}=e.state.selection;if($from.start()!==s.para)return null;const now=$from.parent.textBetween(0,$from.parentOffset,'\n');if(!now.startsWith(s.base))return null;
+    const typed=now.slice(s.base.length);if(!typed||!s.text.startsWith(typed)||s.text.length<=typed.length)return null;
+    return {...s,text:s.text.slice(typed.length),from:$from.pos,to:$from.pos,base:now}; }
   function acceptSuggestion() { const s=selection.current,e=editorRef.current;if(!s||!s.done||!e||s.revision!==revision.current)return false;
     clearSuggestion(); e.chain().focus().insertContentAt({from:s.from,to:s.to},s.text.split('\n').flatMap((line,i)=>[...(i?[{type:'hardBreak'}]:[]),...(line?[{type:'text',text:line}]:[])])).run();return true; }
 
@@ -75,23 +84,37 @@ export default function Workspace() {
     const text=mode==='complete'?$from.parent.textBetween(0,$from.parentOffset,'\n'):e.state.doc.textBetween(start,end,'\n');
     if(text.trim().length<3){if(!automatic)setAiError('Scrivi o seleziona almeno qualche parola.');return;}
     if(text.length>10000){setAiError('Seleziona un brano più breve (massimo 10.000 caratteri).');return;}
-    const rev=revision.current;const controller=new AbortController();pending.current=controller;setBusy(true);
-    try{const payload={profile:opts.profile,mode,text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,start-6000),start,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+1000),'\n'),tone:opts.tone};
-      const res=LOCAL?await localAssist(payload,controller.signal):await fetch('/api/assist',{method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,body:JSON.stringify(payload)});
-      if(!res.ok){const b:any=await res.json();throw new Error(b.error||'Provider non disponibile.');}
+    const payload={profile:opts.profile,mode,text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,start-6000),start,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+1000),'\n'),tone:opts.tone};
+    const rev=revision.current,scope=String($from.start()),key=AiGovernor.key([payload.profile,payload.mode,payload.tone,payload.text,payload.context,payload.after]);
+    const extra=mode==='complete'?{base:text,para:$from.start()}:{original:text};
+    const hit=governor.cached(key);
+    if(hit!==undefined){if(automatic)governor.asked(mode,scope,text);showSuggestion({text:hit,from:start,to:end,revision:rev,mode,done:true,cached:true,...extra});return;}
+    if(automatic&&!governor.worthAsking(mode,scope,text))return;
+    const wait=governor.wait(automatic);
+    if(wait>0){if(automatic)aiTimer.current=setTimeout(()=>void ask(mode,true),wait);else setAiError(`Pausa per rispettare i limiti del provider: riprova tra ${Math.ceil(wait/1000)} s.`);return;}
+    if(automatic)governor.asked(mode,scope,text);
+    governor.started();const controller=new AbortController();pending.current=controller;setBusy(true);
+    // Rate limits and provider/network failures pause automatic requests with exponential backoff.
+    const penalize=(rateLimited:boolean)=>` Suggerimenti automatici in pausa per ${Math.round(governor.failed(rateLimited)/1000)} s.`;
+    try{let res:Response;
+      try{res=LOCAL?await localAssist(payload,controller.signal):await fetch('/api/assist',{method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,body:JSON.stringify(payload)});}
+      catch(err){if(controller.signal.aborted)throw err;throw new Error('Connessione non riuscita.'+penalize(false));}
+      if(!res.ok){const b:any=await res.json().catch(()=>({}));const msg=b.error||'Provider non disponibile.';throw new Error(res.status===429||res.status>=500?msg+penalize(res.status===429):msg);}
       if(!res.body)throw new Error('Risposta vuota.');const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='',answer='',complete=false;
       while(true){const {value,done}=await reader.read();if(done)break;buffer+=decoder.decode(value,{stream:true});let i:number;
-        while((i=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);if(!line)continue;const data=JSON.parse(line);if(data.error)throw new Error(data.error);if(data.done)complete=true;if(data.text)answer+=data.text;
-          if(controller.signal.aborted||rev!==revision.current){await reader.cancel();return;}showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:false});}
+        while((i=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);if(!line)continue;const data=JSON.parse(line);if(data.error)throw new Error(data.error+penalize(false));if(data.done)complete=true;if(data.text)answer+=data.text;
+          if(controller.signal.aborted||rev!==revision.current){await reader.cancel();return;}showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:false,...extra});}
       }
       if(!complete||!answer.trim())throw new Error('Nessun suggerimento ricevuto. Riprova.');
-      if(!controller.signal.aborted&&rev===revision.current){showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:true});setProfiles(old=>old.map(p=>p.id===opts.profile?{...p,used:p.used+1}:p));}
+      governor.succeeded();governor.remember(key,answer);
+      if(!controller.signal.aborted&&rev===revision.current){showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:true,...extra});setProfiles(old=>old.map(p=>p.id===opts.profile?{...p,used:p.used+1}:p));}
     }catch(err){if(!controller.signal.aborted){showSuggestion(null);setAiError((err as Error).message);}}
     finally{if(pending.current===controller){pending.current=null;setBusy(false);}}
   }
-  callbacks.current={update:()=>{if(suppress.current||!loaded)return;clearSuggestion();markDirty();const e=editorRef.current;setWords(e?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(e?.getText().length||0);const opts=options.current;
+  callbacks.current={update:()=>{if(suppress.current||!loaded)return;const next=continued();if(!next)clearSuggestion();markDirty();const e=editorRef.current;setWords(e?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(e?.getText().length||0);const opts=options.current;
+    if(next){showSuggestion({...next,revision:revision.current});return;}
     if(opts.aiOn&&opts.profile)aiTimer.current=setTimeout(()=>void ask(opts.autoMode,true),opts.delay);
-  },selection:()=>{clearSuggestion();},accept:acceptSuggestion,cancel:clearSuggestion};
+  },selection:(typing)=>{if(!typing)clearSuggestion();},accept:acceptSuggestion,cancel:clearSuggestion};
 
   async function loadDocument(id:string) { if(!await save())return;clearSuggestion();setError('');try{const d=await api('documents?id='+encodeURIComponent(id));suppress.current=true;editorRef.current?.commands.setContent(JSON.parse(d.content));suppress.current=false;
     current.current={id:d.id,version:d.version,title:d.title};setActive(d.id);setTitle(d.title);dirty.current=false;revision.current++;setStatus('Tutte le modifiche salvate');setWords(editorRef.current?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(editorRef.current?.getText().length||0);
@@ -155,7 +178,7 @@ export default function Workspace() {
         <aside className="assistant"><div className="assistant-title"><span className="spark-icon"><Sparkles size={19}/></span><div><h2>Il tuo assistente</h2><p>Un passo avanti, insieme.</p></div><span className="live-dot"/></div>
           <section className="ai-card"><div className="ai-card-heading"><span>Scrittura intelligente</span><button role="switch" aria-checked={aiOn} aria-label="Suggerimenti automatici" className={'switch '+(aiOn?'on':'')} onClick={()=>setAiOn(!aiOn)}><span/></button></div><p>Le parole giuste, mentre scrivi.</p><div className="segmented"><button className={autoMode==='complete'?'active':''} onClick={()=>setAutoMode('complete')}>Completa</button><button className={autoMode==='rewrite'?'active':''} onClick={()=>setAutoMode('rewrite')}>Migliora frase</button></div><label>PROFILO AI<select value={profile} onChange={e=>setProfile(e.target.value)}><option value="">Collega un provider</option>{profiles.map(p=><option key={p.id} value={p.id}>{p.name} · {PROVIDERS[p.provider].name}</option>)}</select></label><label>TONO<select value={tone} onChange={e=>setTone(e.target.value)}><option>Naturale</option><option>Professionale</option><option>Creativo</option></select></label><label className="delay-label">Pausa prima del suggerimento <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label><div className="ai-card-footer"><span className={'tiny-dot '+(!aiOn?'off':'')}/>{!aiOn?'Suggerimenti in pausa':activeProfile?'Pronto a scrivere con te':'In attesa del tuo provider'}</div></section>
           <div className="section-label">UNA MANO AL TUO TESTO</div><div className="rewrite-actions"><button onClick={()=>void ask('rewrite')}><WandSparkles size={17}/><span>Migliora la scrittura<small>Più chiara, sempre tua</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('shorten')}><AlignLeft size={17}/><span>Rendi più conciso<small>Vai dritto al punto</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('formal')}><FileText size={17}/><span>Tono professionale<small>Il registro giusto</small></span><ChevronRight size={15}/></button></div>
-          <div className="suggestion-box" aria-live="polite"><div><Sparkles size={15}/><strong>{busy?'Sto pensando…':suggestion?'La mia proposta':'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<button aria-label="Scarta suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{suggestion?<><p>{suggestion.text}</p><button className="accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta proposta<kbd>Tab</kbd></button></>:<p>{aiError||(!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.')}</p>}{!profiles.length&&<button className="connect" onClick={()=>setSettings(true)}><Plus size={14}/>Collega il tuo provider</button>}</div>
+          <div className={'suggestion-box'+(suggestion?' has-proposal':'')+(busy?' is-busy':'')} aria-live="polite"><div><Sparkles size={15}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(suggestion.mode==='complete'?'Continuazione proposta':'Correzione proposta'):'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<button aria-label="Scarta suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{suggestion?<><p className="proposal">{suggestion.mode==='complete'?<>{suggestion.base&&<span className="proposal-context">{suggestion.base.length>70?'…'+suggestion.base.slice(-70).trimStart():suggestion.base}</span>}<mark>{suggestion.text}</mark></>:proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>{proposalDiff&&<small className="proposal-note">{proposalDiff.some(p=>p.type!=='same')?<><ins>in verde</ins> le parole nuove, <del>barrate</del> quelle rimosse</>:'Nessuna modifica necessaria: il testo va già bene.'}</small>}{suggestion.cached&&<small className="proposal-note">Dalla memoria: nessuna nuova chiamata al provider.</small>}<div className="proposal-actions"><button className="accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta<kbd>Tab</kbd></button><button className="dismiss" onClick={clearSuggestion}>Scarta<kbd>Esc</kbd></button></div></>:<p>{aiError||(!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.')}</p>}{!profiles.length&&<button className="connect" onClick={()=>setSettings(true)}><Plus size={14}/>Collega il tuo provider</button>}</div>
           <div className="assistant-footnote"><ShieldCheck size={15}/><p>Il testo viene inviato solo al provider selezionato quando l’AI è attiva. <button onClick={()=>setSettings(true)}>Gestisci le API</button></p></div><div className="shortcuts"><span><kbd>Tab</kbd> accetta</span><span><kbd>Esc</kbd> ignora</span></div>
         </aside></div>
       <footer className="statusbar"><span>{words} parole<span className="status-divider">|</span>{characters} caratteri</span><span>Controllo ortografico del browser</span><span><span className="tiny-dot"/>Scrivia AI</span></footer>
