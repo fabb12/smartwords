@@ -77,7 +77,7 @@ export const MAX_TOKENS: Record<string, number> = { directions: 2200, memory: 26
 const field = (v: unknown, max: number) => typeof v === 'string' ? v.slice(0, max) : '';
 const fieldEnd = (v: unknown, max: number) => typeof v === 'string' ? v.slice(-max) : '';
 const INSTRUCTIONS: Record<string, string> = {
-  complete: 'Continue the text immediately before the cursor with only the missing continuation, completing the current sentence naturally. Do not repeat any existing text. Respect any text after the cursor. Maximum two sentences. First infer the narrative intent of the scene (for example romantic, suspense, mystery, action, melancholic, ironic, reflective, dialogue, descriptive) and its emotional tone from the context, then continue in that register instead of offering a generic continuation.',
+  complete: 'Return the entire current sentence in text followed by its missing continuation, completing it naturally. First correct clear spelling errors, typos and accidentally repeated words in text, then continue the sentence. Make only necessary corrections: preserve meaning, facts, tense, voice and deliberate repetitions; do not rewrite for style. Copy every unchanged part of text exactly, including whitespace. If no corrections are needed, your answer must start with text verbatim. Respect afterCursor: do not repeat or replace the text after the cursor. Add at most two sentences. First infer the narrative intent of the scene (for example romantic, suspense, mystery, action, melancholic, ironic, reflective, dialogue, descriptive) and its emotional tone from the context, then continue in that register instead of offering a generic continuation.',
   rewrite: 'Improve grammar, clarity and fluency of the selected text, preserving meaning, facts and the author\'s voice. If the last sentence is incomplete, complete it naturally.',
   shorten: 'Rewrite the selected text more concisely while preserving its meaning and the author\'s voice.',
   formal: 'Rewrite the selected text in a clear professional tone without inventing facts.',
@@ -98,7 +98,9 @@ export function assistPrompts(b: Record<string, unknown>) {
     ['styleGuidance', b.style, 2500], ['project', b.brief, 1500], ['storyMemory', b.memory, 4000], ['manuscriptPassages', b.passages, 18000],
     ['direction', b.direction, 800], ['conversation', b.history, 2500, true]];
   for (const [name, value, max, fromEnd] of extra) { const v = fromEnd ? fieldEnd(value, max) : field(value, max); if (v.trim()) input[name] = v; }
-  return { system: system.replace(/\s+/g, ' ').trim(), prompt: JSON.stringify(input), maxTokens: MAX_TOKENS[mode] ?? 1024 };
+  // Completions now include the existing sentence as well as the new words.
+  const maxTokens = mode === 'complete' ? Math.max(1024, Math.ceil(input.text.length / 2) + 512) : MAX_TOKENS[mode] ?? 1024;
+  return { system: system.replace(/\s+/g, ' ').trim(), prompt: JSON.stringify(input), maxTokens };
 }
 export function providerError(status: number) {
   return status===401||status===403?'Chiave API non valida o modello non autorizzato.':status===429?'Quota del provider esaurita o troppe richieste.':`Il provider ha rifiutato la richiesta (${status}). Controlla il modello.`;

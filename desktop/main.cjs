@@ -8,7 +8,9 @@ const { pathToFileURL } = require('node:url');
 const ORIGIN = 'app://scrivia';
 const WEB = path.join(__dirname, 'web');
 // Same endpoints as lib/providers.ts: only these hosts get the CORS headers below.
-const PROVIDERS = ['https://api.openai.com/*', 'https://api.anthropic.com/*', 'https://generativelanguage.googleapis.com/*', 'https://api.groq.com/*', 'https://api.mistral.ai/*', 'https://api.deepseek.com/*', 'https://openrouter.ai/*'];
+const LOCAL_MODELS = ['http://127.0.0.1', 'http://localhost', 'http://[::1]', 'https://127.0.0.1', 'https://localhost', 'https://[::1]']
+  .flatMap(origin => ['/v1/models', '/v1/chat/completions'].map(endpoint => origin + endpoint));
+const PROVIDERS = ['https://api.openai.com/*', 'https://api.anthropic.com/*', 'https://generativelanguage.googleapis.com/*', 'https://api.groq.com/*', 'https://api.mistral.ai/*', 'https://api.deepseek.com/*', 'https://openrouter.ai/*', 'https://api.github.com/*', ...LOCAL_MODELS];
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 if (!app.requestSingleInstanceLock()) app.quit();
@@ -33,8 +35,8 @@ function allowProviders() {
   session.defaultSession.webRequest.onHeadersReceived(filter, (details, done) => {
     const headers = Object.fromEntries(Object.entries(details.responseHeaders || {}).filter(([k]) => !k.toLowerCase().startsWith('access-control-')));
     headers['Access-Control-Allow-Origin'] = [ORIGIN];
-    headers['Access-Control-Allow-Methods'] = ['POST, OPTIONS'];
-    headers['Access-Control-Allow-Headers'] = ['authorization, content-type, x-api-key, anthropic-version, anthropic-dangerous-direct-browser-access'];
+    headers['Access-Control-Allow-Methods'] = ['GET, POST, PUT, OPTIONS'];
+    headers['Access-Control-Allow-Headers'] = ['authorization, content-type, x-api-key, anthropic-version, anthropic-dangerous-direct-browser-access, accept, x-github-api-version'];
     done(details.method === 'OPTIONS' ? { responseHeaders: headers, statusLine: 'HTTP/1.1 204 No Content' } : { responseHeaders: headers });
   });
 }

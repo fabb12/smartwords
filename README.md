@@ -11,6 +11,7 @@ Se stai leggendo questo README sul repository e trovi soltanto l’archivio, sca
 GitHub Pages pubblica solo file statici: non può eseguire il backend (Workers + D1). Per questo esiste una build statica dedicata (`site/`, `vite.pages.config.ts`) in cui:
 
 - documenti, cronologia e profili API sono salvati nel `localStorage` del browser (nessun server, nessun account);
+- i documenti possono anche essere salvati e caricati da un repository GitHub per trasferirli fra dispositivi, con i comandi descritti sotto;
 - le richieste AI partono direttamente dal browser verso il provider scelto, con la tua chiave;
 - il tema chiaro/scuro/di sistema si cambia con l’icona sole/luna/monitor in alto a destra.
 
@@ -93,6 +94,7 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 ### Editor e AI
 
 - Completamento in streaming dopo una pausa configurabile di 400–1600 ms.
+- In «Completa», la continuazione include anche le correzioni di refusi, errori ortografici e ripetizioni accidentali nella frase corrente. Le modifiche sono mostrate nella proposta e applicate insieme alla continuazione solo con Tab o «Accetta»; significato, voce e ripetizioni intenzionali vanno preservati.
 - Modalità «Migliora frase» automatica: propone una riscrittura della frase che stai scrivendo; le frasi già accettate non vengono riproposte e le proposte senza modifiche non compaiono.
 - Se l’AI trova un problema (contraddizione con il contesto o la memoria, testo poco chiaro…) lo mostra come avviso separato, nella lingua del testo, e non dentro la proposta.
 - Proposte ben visibili: il completamento appare evidenziato nel testo con il tasto «Tab»; nelle correzioni il testo originale è barrato in rosso e la proposta evidenziata in verde, mentre il pannello assistente (fisso in basso) mostra la differenza parola per parola.
@@ -100,6 +102,8 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 - Tab accetta la proposta completa; Esc annulla. Le richieste obsolete vengono annullate se il testo o la selezione cambiano. Il testo non viene sostituito senza accettazione.
 - Riscrittura, sintesi e tono professionale sul testo selezionato (o sul paragrafo fino al cursore).
 - Sette provider: OpenAI, Anthropic, Google Gemini, Groq, Mistral, DeepSeek, OpenRouter. Più profili per provider, modelli modificabili e limite giornaliero di richieste.
+- Selezione del modello da un elenco per provider, comprese diverse versioni di Claude Sonnet, Haiku e Opus; resta disponibile l’identificativo personalizzato. L’accesso a ciascun modello dipende dal provider e dal proprio account; i modelli meno recenti possono essere ritirati.
+- **Ollama e LM Studio sul dispositivo**: in «Provider e chiavi API» scegli il servizio locale, indica l’indirizzo e premi «Cerca modelli locali», quindi scegli un modello e salva il profilo. Il collegamento parte direttamente dal browser o dall’app desktop anche nella versione con documenti cloud; profilo e token locale facoltativo restano su quel dispositivo. Non servono credenziali Cloudflare o una chiave di un provider cloud.
 - Chiavi cifrate AES-256-GCM sul server, associate all’utente. Solo le ultime quattro cifre vengono restituite al browser. Endpoint dei provider fissi, nessun proxy verso indirizzi arbitrari.
 - Editor Tiptap: titoli, grassetto, corsivo, sottolineato, colori, evidenziazione, allineamento, font, elenchi, collegamenti, immagini, tabelle e annulla/ripeti.
 - Salvataggio automatico in D1, isolamento per utente e controllo di versione per evitare sovrascritture tra schede.
@@ -125,6 +129,26 @@ npm run dev
 Apri l’indirizzo indicato, normalmente `http://127.0.0.1:5173`. L’accesso locale usa l’identità di sviluppo del template Sites e non è un sistema di autenticazione da esporre su Internet.
 
 Per testare i profili API localmente, configura `VAULT_MASTER_KEY` in `.dev.vars` con un valore casuale di almeno 32 caratteri e riavvia il server. Il file è ignorato da Git. In produzione configura il valore come **segreto runtime di Sites**, mai nel codice o nel manifest. Non sostituire la chiave master senza un piano di migrazione: le chiavi già cifrate richiedono quella originale.
+
+### Documenti su GitHub, da più dispositivi
+
+«Salva su GitHub» e «Carica da GitHub» sono nel menu di scrittura e, sul telefono, nel menu ⋯. Il salvataggio automatico nell’app continua normalmente; GitHub viene aggiornato solo quando premi il comando esplicito, con un commit per salvataggio.
+
+1. Apri uno dei due comandi e indica il repository (`proprietario/nome`) e il ramo. I valori iniziali sono `fabb12/smartwords` e `documenti-scrivia`; puoi scegliere un repository diverso, preferibilmente privato per i tuoi manoscritti. Su un repository pubblico anche i documenti saranno pubblici.
+2. Crea nelle impostazioni GitHub un **fine-grained personal access token** limitato a quel repository, con **Contents: Read and write**, e inseriscilo nella finestra dell’app. Il repository deve avere almeno un commit iniziale (per esempio un README). Il ramo dei documenti viene creato al primo salvataggio, se manca.
+3. Premi «Collega GitHub», poi «Salva su GitHub». Il file in `scrivia-documents/<id>.json` contiene testo, formattazione, titolo e progetto creativo, senza profili o chiavi AI.
+4. Sull’altro dispositivo collega lo stesso repository e ramo, poi scegli «Carica» dall’elenco. Per vedere le modifiche successive, aggiorna l’elenco e carica di nuovo il documento. Non è un editor collaborativo in tempo reale.
+
+I controlli di versione impediscono che un dispositivo sovrascriva una versione GitHub più recente, anche se cambia durante il salvataggio. Puoi caricare la versione aggiornata oppure usare «Salva una copia». Se sul dispositivo ci sono modifiche non ancora inviate, caricare da GitHub le conserva in un documento separato nell’app; se la copia locale non era cambiata, il documento viene aggiornato mantenendo la versione precedente nella cronologia.
+
+Il token parte direttamente dal browser o dall’app desktop verso `api.github.com`, senza passare dal backend di Scrivia. Per impostazione predefinita dura fino alla chiusura o al ricaricamento della pagina; con «Ricorda il token» resta nel browser, oppure cifrato con il portachiavi nell’app desktop. «Scollega» rimuove il token dal dispositivo senza cancellare i documenti su GitHub. Servono connessione e un token valido su ogni dispositivo; gli errori di rete o autorizzazione conservano la copia nell’app. Limiti dell’archivio: 2 MB per documento completo e meno di 1000 file nella cartella. La funzione è verificata con API GitHub simulate, senza pubblicare documenti reali durante i test.
+
+### Modelli locali: Ollama e LM Studio
+
+- **Ollama**: scarica un modello (ad esempio `ollama pull llama3.2`), avvia il servizio locale sulla porta predefinita 11434 e usa `http://127.0.0.1:11434` nel profilo. Per la versione browser, configura `OLLAMA_ORIGINS` con l’origine esatta da cui apri Scrivia e riavvia Ollama. In sviluppo è normalmente `http://127.0.0.1:5173`; su GitHub Pages è `https://<utente>.github.io` (senza `/smartwords/`).
+- **LM Studio**: scarica e carica un modello, avvia il server compatibile OpenAI (porta predefinita 1234), abilita **Enable CORS** se usi il browser e indica `http://127.0.0.1:1234`. Se hai attivato l’autenticazione del server, inserisci il suo token nel profilo.
+
+Entrambi usano `/v1/models` per la ricerca e `/v1/chat/completions` per lo streaming. Sono ammessi indirizzi loopback (`127.0.0.1`, `localhost`, `::1`) e porte personalizzate. Se il browser richiede il permesso di accesso alla rete locale, concedilo; se il browser impedisce il collegamento, usa l’app desktop. Il modello deve supportare chat e messaggi di sistema; velocità e qualità dipendono dal modello e dall’hardware. La verifica automatica usa un server locale di prova compatibile OpenAI, senza scaricare pesi né effettuare chiamate a pagamento.
 
 ## Verifiche
 
