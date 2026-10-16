@@ -12,7 +12,16 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Desktop app: dependencies, copied web build and installers.
+    "desktop/node_modules/**",
+    "desktop/web/**",
+    "desktop/release/**",
   ]),
+  {
+    // Electron's main process and preload are CommonJS scripts.
+    files: ["desktop/**/*.cjs"],
+    rules: { "@typescript-eslint/no-require-imports": "off" },
+  },
   {
     files: ["components/ui/**/*.{ts,tsx}", "hooks/use-mobile.ts"],
     rules: {

@@ -1,0 +1,34 @@
+{
+  "name": "scrivia-desktop",
+  "productName": "Scrivia",
+  "version": "0.1.0",
+  "description": "Scrivia AI — editor di scrittura con suggerimenti intelligenti, versione desktop.",
+  "author": "fabb12",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "web": "node copy-web.mjs",
+    "start": "npm run web && electron .",
+    "dist": "npm run web && electron-builder --publish never"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9"
+  },
+  "devDependencies": {
+    "electron": "44.8.0",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "io.github.fabb12.scrivia",
+    "productName": "Scrivia",
+    "icon": "web/icons/icon-512.png",
+    "directories": { "output": "release" },
+    "files": ["main.cjs", "preload.cjs", "web/**/*", "package.json"],
+    "win": { "target": "nsis" },
+    "nsis": { "artifactName": "Scrivia-Setup.${ext}", "oneClick": false, "allowToChangeInstallationDirectory": true, "shortcutName": "Scrivia" },
+    "mac": { "target": { "target": "dmg", "arch": ["universal"] }, "category": "public.app-category.productivity", "artifactName": "Scrivia.${ext}" },
+    "linux": { "target": "AppImage", "category": "Office", "artifactName": "Scrivia.${ext}" },
+    "publish": { "provider": "github", "owner": "fabb12", "repo": "smartwords" }
+  }
+}

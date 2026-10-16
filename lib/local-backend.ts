@@ -2,10 +2,11 @@
 // /api routes on top of localStorage and calls the AI providers directly.
 import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest, readTokens, type Provider } from './providers';
 import { EMPTY_PROJECT, sanitizeProject } from './project';
+import { desktop } from './desktop';
 
 type StoredDoc = { id: string; title: string; content: string; updated: number; version: number };
 type StoredRevision = { id: string; title: string; content: string; created: number };
-type StoredProfile = { id: string; name: string; provider: Provider; model: string; key: string; daily_limit: number; created: number };
+type StoredProfile = { id: string; name: string; provider: Provider; model: string; key: string; hint?: string; daily_limit: number; created: number };
 
 declare global { interface Window { __SCRIVIA_LOCAL__?: boolean } }
 // Request bodies mirror the JSON accepted by the /api routes and are validated field by field.
@@ -20,6 +21,9 @@ function write(key: string, value: unknown) {
   try { localStorage.setItem(PREFIX + key, JSON.stringify(value)); }
   catch { throw new Error('Spazio del browser esaurito: esporta e rimuovi immagini o documenti pesanti.'); }
 }
+// In the desktop app keys are stored encrypted with the system keychain ("enc:" prefix).
+function seal(key: string) { const data = desktop()?.protect(key); return data ? 'enc:' + data : key; }
+function unseal(key: string) { return key.startsWith('enc:') ? desktop()?.reveal(key.slice(4)) || '' : key; }
 const validText = (v: unknown, max: number): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= max;
 const today = () => new Date().toISOString().slice(0, 10);
 function usage(id: string) { const u = read<{ day: string; counts: Record<string, number> }>('usage', { day: today(), counts: {} }); return u.day === today() ? u.counts[id] || 0 : 0; }
@@ -59,14 +63,14 @@ export async function localApi(path: string, body?: Body, method = 'POST'): Prom
   }
   if (route === 'profiles') {
     const profiles = read<StoredProfile[]>('profiles', []);
-    if (body === undefined) return { vaultReady: true, profiles: profiles.map(({ key, ...p }) => ({ ...p, hint: key.slice(-4), used: usage(p.id) })) };
+    if (body === undefined) return { vaultReady: true, profiles: profiles.map(({ key, hint, ...p }) => ({ ...p, hint: hint ?? key.slice(-4), used: usage(p.id) })) };
     if (method === 'DELETE') { write('profiles', profiles.filter(p => p.id !== body.id)); return { ok: true }; }
     if (!validText(body.name, 80) || !isProvider(body.provider) || !validText(body.model, 150) || !Number.isInteger(body.dailyLimit) || body.dailyLimit < 1 || body.dailyLimit > 10000) throw new Error('Controlla nome, provider, modello e limite.');
     const existing = body.id ? profiles.find(p => p.id === body.id) : undefined;
     if (body.id && !existing) throw new Error('Profilo non trovato.');
     if (!body.key && (!existing || existing.provider !== body.provider)) throw new Error('Inserisci la chiave API del provider.');
     if (body.key && (!validText(body.key, 4096) || /\s/.test(body.key))) throw new Error('Chiave API non valida.');
-    const profile: StoredProfile = { id: existing?.id || crypto.randomUUID(), name: body.name, provider: body.provider, model: body.model, key: body.key || existing!.key, daily_limit: body.dailyLimit, created: existing?.created || Date.now() };
+    const profile: StoredProfile = { id: existing?.id || crypto.randomUUID(), name: body.name, provider: body.provider, model: body.model, key: body.key ? seal(body.key) : existing!.key, hint: body.key ? body.key.slice(-4) : existing!.hint ?? existing!.key.slice(-4), daily_limit: body.dailyLimit, created: existing?.created || Date.now() };
     write('profiles', existing ? profiles.map(p => p.id === profile.id ? profile : p) : [...profiles, profile]);
     return { id: profile.id };
   }
@@ -87,9 +91,11 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   const p = read<StoredProfile[]>('profiles', []).find(x => x.id === b.profile);
   if (!p || !isProvider(p.provider)) return failure('Configura e seleziona un profilo API.');
   if (usage(p.id) >= p.daily_limit) return failure('Limite giornaliero del profilo raggiunto.', 429);
+  const key = unseal(p.key);
+  if (!key) return failure('Chiave API non leggibile su questo computer: inseriscila di nuovo nel profilo.');
   bumpUsage(p.id);
   const { system, prompt, maxTokens } = assistPrompts(b);
-  const config = providerRequest(p.provider, p.model, p.key, system, prompt, maxTokens);
+  const config = providerRequest(p.provider, p.model, key, system, prompt, maxTokens);
   if (p.provider === 'anthropic') config.headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
   signal.addEventListener('abort', () => controller.abort(), { once: true });

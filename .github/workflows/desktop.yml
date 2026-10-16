@@ -1,0 +1,87 @@
+name: App desktop
+
+# Builds the desktop installers (Windows, macOS, Linux) and publishes them in a GitHub release,
+# where the «App desktop» button of the web app finds them. Runs on a tag v* (e.g. v0.2.0)
+# or by hand from Actions → App desktop → Run workflow (version from package.json).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            desktop/package-lock.json
+      - name: Versione
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v=$(node -p "require('./package.json').version"); fi
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+      - run: npm ci --ignore-scripts
+      - run: npm run build:pages
+      - run: npm ci
+        working-directory: desktop
+      - run: npm run dist -- -c.extraMetadata.version=$VERSION
+        working-directory: desktop
+        env:
+          # Unsigned builds: no code-signing certificate is configured.
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            desktop/release/*.exe
+            desktop/release/*.dmg
+            desktop/release/*.AppImage
+            desktop/release/*.blockmap
+            desktop/release/latest*.yml
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Versione
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then v="${GITHUB_REF_NAME#v}"; else v=$(node -p "require('./package.json').version"); fi
+          echo "VERSION=$v" >> "$GITHUB_ENV"
+      - uses: actions/download-artifact@v4
+        with:
+          path: installers
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          target_commitish: ${{ github.sha }}
+          name: Scrivia ${{ env.VERSION }}
+          make_latest: 'true'
+          overwrite_files: true
+          files: installers/*
+          body: |
+            App desktop di Scrivia AI.
+
+            - **Windows**: `Scrivia-Setup.exe`
+            - **macOS**: `Scrivia.dmg` (app non firmata: la prima volta clic destro sull’app → Apri)
+            - **Linux**: `Scrivia.AppImage` (rendilo eseguibile: `chmod +x Scrivia.AppImage`)
