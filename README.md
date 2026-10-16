@@ -24,6 +24,8 @@ Attenzione: nella versione statica le chiavi API restano in chiaro nel browser. 
 
 - Completamento in streaming dopo una pausa configurabile di 400–1600 ms.
 - Modalità «Migliora frase» automatica: propone una riscrittura del paragrafo fino al cursore.
+- Proposte ben visibili: il completamento appare evidenziato nel testo con il tasto «Tab»; nelle correzioni il testo originale è barrato in rosso e la proposta evidenziata in verde, mentre il pannello assistente (fisso in basso) mostra la differenza parola per parola.
+- Chiamate AI parsimoniose: le risposte vengono riusate dalla cache (nessuna nuova chiamata per lo stesso testo), continuare a digitare la proposta la accorcia senza richiederne un’altra, le richieste automatiche sono distanziate (almeno 2,5 s, massimo 12 al minuto), «Migliora frase» parte solo a frase conclusa o dopo qualche parola nuova e, dopo errori o limiti del provider (429), le richieste automatiche si fermano con attesa crescente (da 5–20 s fino a 2 minuti).
 - Tab accetta la proposta completa; Esc annulla. Le richieste obsolete vengono annullate se il testo o la selezione cambiano. Il testo non viene sostituito senza accettazione.
 - Riscrittura, sintesi e tono professionale sul testo selezionato (o sul paragrafo fino al cursore).
 - Sette provider: OpenAI, Anthropic, Google Gemini, Groq, Mistral, DeepSeek, OpenRouter. Più profili per provider, modelli modificabili e limite giornaliero di richieste.
