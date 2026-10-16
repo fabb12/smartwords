@@ -28,13 +28,13 @@ const failed = (err: unknown) => (err as Error).name === 'AbortError' ? '' : (er
 export function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
   const current = MODES.find(m => m.id === mode)!;
   return <div className="mode-switch"><div className="mode-buttons" role="radiogroup" aria-label="Modalità di lavoro">
-    {MODES.map(m => <button key={m.id} role="radio" aria-checked={mode === m.id} className={mode === m.id ? 'active' : ''} onClick={() => setMode(m.id)} title={m.hint}><m.icon size={15} /><span>{m.name}</span></button>)}
+    {MODES.map(m => <button key={m.id} role="radio" aria-checked={mode === m.id} className={mode === m.id ? 'active' : ''} onClick={() => setMode(m.id)} data-tip={m.hint}><m.icon size={15} /><span>{m.name}</span></button>)}
   </div><p className="mode-hint">{current.hint}</p></div>;
 }
 
 export function ProjectChip({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const voice = voiceById(project.voice.id), intensity = INTENSITIES.find(i => i.id === project.voice.intensity);
-  return <button className="project-chip" onClick={onOpen} title="Progetto creativo e voce narrativa">
+  return <button className="project-chip" onClick={onOpen} data-tip="Progetto creativo: genere, lettori, premessa e voce d’autore che l’AI deve seguire">
     <BookOpen size={15} /><span><small>Voce</small>{voice.name}{voice.id !== 'mine' && intensity ? ' · ' + intensity.name.toLowerCase() : ''}</span>
     <span className={'brief-state ' + (project.brief.premise || project.brief.genre ? 'set' : '')}>{project.brief.premise || project.brief.genre ? 'Progetto' : 'Definisci il progetto'}</span><ChevronRight size={14} />
   </button>;
@@ -43,8 +43,8 @@ export function ProjectChip({ project, onOpen }: { project: Project; onOpen: () 
 export function IntentRow({ detected, choice, setChoice }: { detected: DetectedIntent; choice: string; setChoice: (v: string) => void }) {
   return <div className="intent-row">
     <div><Target size={14} /><span>Scena</span><strong>{choice === 'auto' ? detected.name : INTENTS.find(i => i.id === choice)?.name}</strong>
-      {choice === 'auto' && detected.confidence > 0 && <small title={'Indizi: ' + detected.cues.join(', ')}>{detected.cues.slice(0, 2).join(', ')}</small>}</div>
-    <select aria-label="Intenzione della scena" value={choice} onChange={e => setChoice(e.target.value)}>
+      {choice === 'auto' && detected.confidence > 0 && <small data-tip={'Riconosciuta dagli indizi: ' + detected.cues.join(', ')}>{detected.cues.slice(0, 2).join(', ')}</small>}</div>
+    <select aria-label="Intenzione della scena" data-tip="Tipo di scena che stai scrivendo: guida tono e ritmo dei suggerimenti. «Riconosci automaticamente» lo deduce dal testo" value={choice} onChange={e => setChoice(e.target.value)}>
       {INTENTS.map(i => <option key={i.id} value={i.id}>{i.id === 'auto' ? 'Riconosci automaticamente' : i.name}</option>)}
     </select>
   </div>;
@@ -72,9 +72,9 @@ export function ProjectModal({ project, setProject, onClose }: { project: Projec
     <label>Che cosa vuoi raccontare<textarea maxLength={1000} rows={3} placeholder="La premessa, il tema, l’effetto che vuoi ottenere nel lettore…" value={brief.premise} onChange={e => setBrief('premise', e.target.value)} /></label>
     <label>Note per l’assistente<textarea maxLength={1500} rows={2} placeholder="Es. Laura non deve mai sembrare una vittima; il colpevole si scopre solo alla fine." value={brief.notes} onChange={e => setBrief('notes', e.target.value)} /></label>
     <h3>Voce narrativa</h3><p className="form-note">«La mia voce» usa la tua impronta stilistica. Un autore di riferimento aggiunge le sue caratteristiche di stile, nella misura che scegli: i contenuti restano tuoi e nessun brano viene copiato.</p>
-    <div className="voice-grid" role="radiogroup" aria-label="Voce narrativa">{VOICES.map(v => <button key={v.id} role="radio" aria-checked={voice.id === v.id} className={'voice-card ' + (voice.id === v.id ? 'active' : '') + (v.family === 'mia' ? ' own' : '')} onClick={() => setVoice({ id: v.id })}><strong>{v.name}</strong><small>{v.tag}</small></button>)}</div>
+    <div className="voice-grid" role="radiogroup" aria-label="Voce narrativa">{VOICES.map(v => <button key={v.id} role="radio" data-tip={v.family === 'mia' ? 'Usa la tua voce, misurata sul testo che hai scritto' : 'Ispirati ai tratti di stile di ' + v.name + ' (senza copiarne i brani)'} aria-checked={voice.id === v.id} className={'voice-card ' + (voice.id === v.id ? 'active' : '') + (v.family === 'mia' ? ' own' : '')} onClick={() => setVoice({ id: v.id })}><strong>{v.name}</strong><small>{v.tag}</small></button>)}</div>
     {voice.id === 'custom' && <label>Descrivi lo stile che cerchi<textarea maxLength={600} rows={3} placeholder="Es. frasi brevi e secche, molto dialogo, ironia amara, presente indicativo." value={voice.custom} onChange={e => setVoice({ custom: e.target.value })} /></label>}
-    {voice.id !== 'mine' && <div className="segmented intensity" role="radiogroup" aria-label="Intensità dello stile">{INTENSITIES.map(i => <button key={i.id} role="radio" aria-checked={voice.intensity === i.id} className={voice.intensity === i.id ? 'active' : ''} title={i.hint} onClick={() => setVoice({ intensity: i.id })}>{i.name}</button>)}</div>}
+    {voice.id !== 'mine' && <div className="segmented intensity" role="radiogroup" aria-label="Intensità dello stile">{INTENSITIES.map(i => <button key={i.id} role="radio" aria-checked={voice.intensity === i.id} className={voice.intensity === i.id ? 'active' : ''} data-tip={i.hint} onClick={() => setVoice({ intensity: i.id })}>{i.name}</button>)}</div>}
     {voice.id !== 'mine' && voice.id !== 'custom' && <p className="form-note voice-traits">{voiceById(voice.id).traits}</p>}
     <div className="form-footer"><button className="primary" onClick={onClose}>Fatto<Check size={16} /></button></div>
   </section></div>;
@@ -110,17 +110,17 @@ export function Directions({ editor, run, ctx, ready, onWrite }: { editor: Edito
     } catch (err) { setError(failed(err)); } finally { if (ctrl.current === c) setBusy(false); }
   }
   return <div className="directions">
-    <button className="wide-action" disabled={busy || !ready} onClick={() => void explore()}>{busy ? <LoaderCircle className="spin" size={16} /> : <GitBranch size={16} />}<span>{busy ? 'Immagino tre sviluppi…' : list ? 'Esplora altre tre direzioni' : 'Esplora tre direzioni'}<small>Dal punto in cui si trova il cursore</small></span></button>
+    <button className="wide-action" data-tip="L’AI immagina tre sviluppi della storia, con conseguenze, tensione e rischi" disabled={busy || !ready} onClick={() => void explore()}>{busy ? <LoaderCircle className="spin" size={16} /> : <GitBranch size={16} />}<span>{busy ? 'Immagino tre sviluppi…' : list ? 'Esplora altre tre direzioni' : 'Esplora tre direzioni'}<small>Dal punto in cui si trova il cursore</small></span></button>
     {error && <p className="panel-error">{error}</p>}
     {list?.map((d, i) => <article key={i} className={'direction-card ' + (open === i ? 'open' : '')}>
-      <button className="direction-head" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)}><span className="direction-index">{String.fromCharCode(65 + i)}</span><strong>{d.title}</strong><span className="tension" title={`Tensione ${d.tension} su 5`}>{[1, 2, 3, 4, 5].map(n => <i key={n} className={n <= d.tension ? 'on' : ''} />)}</span></button>
+      <button className="direction-head" aria-expanded={open === i} onClick={() => setOpen(open === i ? -1 : i)}><span className="direction-index">{String.fromCharCode(65 + i)}</span><strong>{d.title}</strong><span className="tension" data-tip={`Tensione narrativa: ${d.tension} su 5`}>{[1, 2, 3, 4, 5].map(n => <i key={n} className={n <= d.tension ? 'on' : ''} />)}</span></button>
       <p>{d.premise}</p>
       {open === i && <>
         {d.opening && <blockquote>{d.opening}</blockquote>}
         {!!d.consequences.length && <ol className="consequences">{d.consequences.map((c, j) => <li key={j}><small>{c.when}</small>{c.effect}</li>)}</ol>}
         {d.coherence && <p className="note-good"><Check size={13} />{d.coherence}</p>}
         {d.risk && <p className="note-risk"><CircleAlert size={13} />{d.risk}</p>}
-        <button className="accept-direction" onClick={() => onWrite(`${d.title}. ${d.premise} ${d.opening ? 'Apertura suggerita: ' + d.opening : ''}`)}><PenLine size={14} />Scrivi l’inizio di questa scena</button>
+        <button className="accept-direction" data-tip="Scrive dal cursore l’apertura della scena seguendo questa direzione" onClick={() => onWrite(`${d.title}. ${d.premise} ${d.opening ? 'Apertura suggerita: ' + d.opening : ''}`)}><PenLine size={14} />Scrivi l’inizio di questa scena</button>
       </>}
     </article>)}
     {list && <p className="form-note">Sono possibilità, non decisioni: scegli, mescola o ignora. Il testo entra nel manoscritto solo se lo accetti.</p>}
@@ -129,12 +129,14 @@ export function Directions({ editor, run, ctx, ready, onWrite }: { editor: Edito
 
 // ---------- Review: consistency, style, questions ----------
 
+const REVIEW_TIPS = { coerenza: 'Memoria narrativa e contraddizioni tra capitoli, con le citazioni', stile: 'La tua impronta stilistica: frasi, ritmo, lessico, dialogo', chiedi: 'Fai domande sul manoscritto: le risposte citano i passaggi' };
+
 type Issue = { type: string; message: string; severity: string; quote: Evidence; evidence: Evidence | null };
 
 export function Review({ editor, project, setProject, run, ctx, fp, ready, jump }: { editor: Editor; project: Project; setProject: SetProject; run: Run; ctx: Ctx; fp: Fingerprint; ready: boolean; jump: (quote: string, fallback?: number) => void }) {
   const [tab, setTab] = useState<'coerenza' | 'stile' | 'chiedi'>('coerenza');
   return <div className="review">
-    <div className="segmented review-tabs" role="tablist">{([['coerenza', 'Coerenza', Brain], ['stile', 'Stile', Feather], ['chiedi', 'Chiedi', MessageCircle]] as const).map(([id, name, Icon]) => <button key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'active' : ''} onClick={() => setTab(id)}><Icon size={13} />{name}</button>)}</div>
+    <div className="segmented review-tabs" role="tablist">{([['coerenza', 'Coerenza', Brain], ['stile', 'Stile', Feather], ['chiedi', 'Chiedi', MessageCircle]] as const).map(([id, name, Icon]) => <button key={id} role="tab" aria-selected={tab === id} className={tab === id ? 'active' : ''} data-tip={REVIEW_TIPS[id]} onClick={() => setTab(id)}><Icon size={13} />{name}</button>)}</div>
     {tab === 'coerenza' && <Consistency editor={editor} project={project} setProject={setProject} run={run} ctx={ctx} ready={ready} jump={jump} />}
     {tab === 'stile' && <StyleReport editor={editor} fp={fp} />}
     {tab === 'chiedi' && <Ask editor={editor} run={run} ctx={ctx} ready={ready} jump={jump} />}
@@ -200,30 +202,30 @@ function Consistency({ editor, project, setProject, run, ctx, ready, jump }: { e
   const decide = (id: string, keep: boolean) => setProject(p => keep ? { ...p, confirmed: [...p.confirmed.filter(x => x !== id), id] } : { ...p, dismissed: [...p.dismissed, id], confirmed: p.confirmed.filter(x => x !== id) });
   const busy = reading || checking;
   return <div className="consistency">
-    <button className="wide-action" disabled={!ready || busy} onClick={() => void updateMemory()}>{reading ? <LoaderCircle className="spin" size={16} /> : <RefreshCw size={16} />}<span>Aggiorna la memoria narrativa<small>{project.facts.length ? `${project.facts.length} fatti su ${entities.length} elementi · solo i capitoli cambiati` : 'Personaggi, luoghi, oggetti ed eventi, con le prove'}</small></span></button>
-    <button className="wide-action" disabled={!ready || busy} onClick={() => void check()}>{checking ? <LoaderCircle className="spin" size={16} /> : <ScanSearch size={16} />}<span>Verifica il passaggio<small>La selezione, o il capitolo del cursore, contro il resto del libro</small></span></button>
+    <button className="wide-action" data-tip="Rilegge i capitoli modificati e annota personaggi, luoghi, oggetti ed eventi, ognuno con la sua citazione" disabled={!ready || busy} onClick={() => void updateMemory()}>{reading ? <LoaderCircle className="spin" size={16} /> : <RefreshCw size={16} />}<span>Aggiorna la memoria narrativa<small>{project.facts.length ? `${project.facts.length} fatti su ${entities.length} elementi · solo i capitoli cambiati` : 'Personaggi, luoghi, oggetti ed eventi, con le prove'}</small></span></button>
+    <button className="wide-action" data-tip="Controlla che la selezione (o il capitolo) sia coerente con il resto del libro: personalità, cronologia, continuità" disabled={!ready || busy} onClick={() => void check()}>{checking ? <LoaderCircle className="spin" size={16} /> : <ScanSearch size={16} />}<span>Verifica il passaggio<small>La selezione, o il capitolo del cursore, contro il resto del libro</small></span></button>
     {progress && <p className="panel-progress">{progress}</p>}{error && <p className="panel-error">{error}</p>}
 
     {!!conflicts.length && <><div className="section-label">CONTRADDIZIONI TROVATE · {conflicts.length}</div>
       {conflicts.map(c => <article key={c.id} className={'evidence-card ' + (project.confirmed.includes(c.id) ? 'confirmed' : '')}>
         <header><CircleAlert size={14} /><strong>{c.entity}</strong><span>{c.attribute}</span>{project.confirmed.includes(c.id) && <em>da correggere</em>}</header>
-        <button className="evidence" onClick={() => jump(c.a.quote, c.a.from)}><small>{c.a.chapter} · {c.a.value}</small>«{c.a.quote}»</button>
-        <button className="evidence" onClick={() => jump(c.b.quote, c.b.from)}><small>{c.b.chapter} · {c.b.value}</small>«{c.b.quote}»</button>
-        <div className="evidence-actions"><button onClick={() => decide(c.id, true)}><Flag size={13} />È un errore</button><button onClick={() => decide(c.id, false)}>È voluto, ignora</button></div>
+        <button className="evidence" data-tip="Vai a questo passaggio nel testo" onClick={() => jump(c.a.quote, c.a.from)}><small>{c.a.chapter} · {c.a.value}</small>«{c.a.quote}»</button>
+        <button className="evidence" data-tip="Vai a questo passaggio nel testo" onClick={() => jump(c.b.quote, c.b.from)}><small>{c.b.chapter} · {c.b.value}</small>«{c.b.quote}»</button>
+        <div className="evidence-actions"><button data-tip="Segna la contraddizione come errore da correggere" onClick={() => decide(c.id, true)}><Flag size={13} />È un errore</button><button data-tip="È una scelta voluta: non segnalarla più" onClick={() => decide(c.id, false)}>È voluto, ignora</button></div>
       </article>)}</>}
 
     {issues && <><div className="section-label">VERIFICA DEL PASSAGGIO · {issues.length}</div>
       {!issues.length && <p className="note-good"><Check size={13} />Nessun problema di coerenza trovato.</p>}
       {issues.map((it, i) => <article key={i} className={'evidence-card sev-' + it.severity}>
         <header><CircleAlert size={14} /><strong>{it.type}</strong><span>{it.severity}</span></header><p>{it.message}</p>
-        <button className="evidence" onClick={() => jump(it.quote.quote, it.quote.from)}><small>Qui · {it.quote.chapter}</small>«{it.quote.quote}»</button>
-        {it.evidence && <button className="evidence" onClick={() => jump(it.evidence!.quote, it.evidence!.from)}><small>Prima · {it.evidence.chapter}</small>«{it.evidence.quote}»</button>}
+        <button className="evidence" data-tip="Vai a questo passaggio nel testo" onClick={() => jump(it.quote.quote, it.quote.from)}><small>Qui · {it.quote.chapter}</small>«{it.quote.quote}»</button>
+        {it.evidence && <button className="evidence" data-tip="Vai a questo passaggio nel testo" onClick={() => jump(it.evidence!.quote, it.evidence!.from)}><small>Prima · {it.evidence.chapter}</small>«{it.evidence.quote}»</button>}
       </article>)}
       {discarded > 0 && <p className="form-note">{discarded} {discarded === 1 ? 'avviso scartato' : 'avvisi scartati'}: la citazione indicata dal modello non esiste nel testo.</p>}</>}
 
     {!!entities.length && <><div className="section-label">MEMORIA NARRATIVA</div>
       {entities.map(([name, facts]) => <details key={name} className="memory-entity"><summary><strong>{name}</strong><small>{facts[0].kind} · {facts.length}</small></summary>
-        {facts.map(f => <button key={f.id} className="memory-fact" onClick={() => jump(f.quote, f.from)} title={'«' + f.quote + '»'}><span>{f.attribute}</span>{f.value}<small>{f.chapter}</small></button>)}
+        {facts.map(f => <button key={f.id} className="memory-fact" onClick={() => jump(f.quote, f.from)} data-tip={'Vai al passaggio: «' + f.quote + '»'}><span>{f.attribute}</span>{f.value}<small>{f.chapter}</small></button>)}
       </details>)}</>}
     {!project.facts.length && !progress && <p className="form-note">La memoria registra solo fatti accompagnati da una citazione esatta del tuo testo: ogni avviso mostra dove l’ha trovata.</p>}
   </div>;
@@ -269,8 +271,8 @@ function Ask({ editor, run, ctx, ready, jump }: { editor: Editor; run: Run; ctx:
     {!turns.length && <><p className="form-note">Chiedi qualcosa sul tuo manoscritto: le risposte citano i passaggi, e un clic ti porta lì.</p>
       <div className="question-chips">{QUESTIONS.map(x => <button key={x} disabled={!ready} onClick={() => void send(x)}>{x}</button>)}</div></>}
     <div className="chat">{turns.map((t, i) => <div key={i} className="turn"><p className="q">{t.q}</p>
-      <div className={'a ' + (t.error ? 'error' : '')}>{!t.a ? <LoaderCircle className="spin" size={15} /> : t.error ? t.a : citeParts(t.a, t.sent).map((part, j) => part.cite ? <button key={j} className="cite" title={part.cite.chapter + ': ' + part.cite.text.slice(0, 160)} onClick={() => jump(part.cite!.text.split('\n')[0].slice(0, 120), part.cite!.pos)}><Quote size={10} />{part.cite.chapter}</button> : <span key={j}>{part.text}</span>)}</div>
+      <div className={'a ' + (t.error ? 'error' : '')}>{!t.a ? <LoaderCircle className="spin" size={15} /> : t.error ? t.a : citeParts(t.a, t.sent).map((part, j) => part.cite ? <button key={j} className="cite" data-tip={part.cite.chapter + ': ' + part.cite.text.slice(0, 160)} onClick={() => jump(part.cite!.text.split('\n')[0].slice(0, 120), part.cite!.pos)}><Quote size={10} />{part.cite.chapter}</button> : <span key={j}>{part.text}</span>)}</div>
     </div>)}<div ref={end} /></div>
-    <form className="ask-form" onSubmit={e => { e.preventDefault(); void send(q); }}><textarea rows={2} aria-label="Domanda sul manoscritto" placeholder={ready ? 'Es. Laura reagirebbe davvero così?' : 'Collega un provider per fare domande'} disabled={!ready} value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(q); } }} /><button aria-label="Invia domanda" disabled={!ready || busy || !q.trim()}><SendHorizontal size={16} /></button></form>
+    <form className="ask-form" onSubmit={e => { e.preventDefault(); void send(q); }}><textarea rows={2} aria-label="Domanda sul manoscritto" placeholder={ready ? 'Es. Laura reagirebbe davvero così?' : 'Collega un provider per fare domande'} disabled={!ready} value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void send(q); } }} /><button aria-label="Invia domanda" data-tip="Invia la domanda (Invio)" disabled={!ready || busy || !q.trim()}><SendHorizontal size={16} /></button></form>
   </div>;
 }
