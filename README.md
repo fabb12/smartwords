@@ -67,7 +67,10 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 - Salvataggio automatico in D1, isolamento per utente e controllo di versione per evitare sovrascritture tra schede.
 - Cronologia fino a 30 versioni; conservazione esplicita della versione attuale prima del ripristino.
 - Importazione DOCX, TXT e backup JSON Scrivia; esportazione DOCX, HTML, TXT, JSON e stampa/PDF del browser.
-- Ricerca e sostituzione, conteggio parole e caratteri, modalità concentrazione.
+- Ricerca e sostituzione, conteggio parole e caratteri, modalità concentrazione e schermo intero (icona in alto a destra; Esc per uscire).
+- Vista a pagine: dal menu accanto a «Trova e sostituisci» scegli la vista continua oppure il testo diviso in pagine A4 affiancate, con 1, 2, 3 o 4 pagine visibili insieme (la pagina si rimpicciolisce per farle stare nella finestra; le altre si raggiungono scorrendo in orizzontale). La scelta resta memorizzata nel browser.
+- Ogni comando mostra un suggerimento (tooltip) che spiega a cosa serve, al passaggio del mouse o con la tastiera.
+- I nuovi documenti partono da un foglio vuoto, senza testo preimpostato.
 
 ## Avvio locale
 
