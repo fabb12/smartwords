@@ -22,6 +22,20 @@ Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 
 Scrivia è una Progressive Web App: da Chrome, Edge o Android compare il pulsante **Installa** in alto (o «Installa app» nel menu del browser); su iPhone/iPad si usa **Condividi → Aggiungi alla schermata Home**. L’app si apre a tutto schermo, con la sua icona.
 
+Su telefono il pulsante **Installa** è sempre in alto: dove il browser lo permette (Chrome, Edge, Samsung Internet su Android) apre direttamente l’installazione, altrimenti (Safari su iPhone/iPad, Firefox) mostra i passaggi illustrati. Il pulsante sparisce quando l’app è già aperta dall’icona.
+
+### Modalità semplice per telefono
+
+Sugli schermi fino a 720 px l’app passa da sola a una modalità semplificata, pensata per il tocco:
+
+- in alto solo ☰ (documenti), il titolo, **Installa** e ⋯ (tutte le altre azioni: importa, trova, cronologia, provider, tema, esporta in Word/PDF/testo/backup);
+- il foglio occupa tutto lo schermo, con testo più grande;
+- in basso una barra con annulla, ripeti, grassetto, corsivo, titoletto, elenco e il pulsante **AI**, che resta sopra la tastiera;
+- le proposte dell’AI compaiono sopra la barra con i pulsanti grandi **Accetta** e **Scarta** (sul telefono non c’è il tasto Tab);
+- documenti e assistente si aprono come pannelli dal basso o dal lato, con controlli ingranditi.
+
+Dal menu ⋯ si passa alla **vista completa** con tutti gli strumenti; il pulsante «Semplice» in alto riporta indietro. La scelta resta memorizzata sul dispositivo.
+
 - `public/manifest.webmanifest`: nome, colori e icone (in `public/icons`, rigenerabili con `node scripts/pwa-icons.mjs`).
 - Versione: la barra in basso mostra numero, commit e data della build in uso (es. «v0.1.0 · ac7b467 · 16 ott 2026, 13:41»). La build pubblica anche `version.json`; l’app lo controlla all’avvio, ogni 5 minuti e quando torni sulla scheda, e se online c’è una versione più nuova mostra «Aggiorna ora» (salva il documento e ricarica).
 - `public/sw.js`: service worker. Nella build GitHub Pages riceve l’elenco di tutti i file della versione (`vite.pages.config.ts`), quindi dopo la prima visita l’app si apre anche **offline**, con i documenti salvati nel browser. Pagine sempre aggiornate quando c’è rete (senza passare dalla cache HTTP); script, stili e immagini serviti dalla cache.
