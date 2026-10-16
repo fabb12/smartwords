@@ -28,6 +28,21 @@ Scrivia è una Progressive Web App: da Chrome, Edge o Android compare il pulsant
 - Non vengono mai messi in cache le chiamate `/api`, le richieste ai provider AI e nulla che provenga da altri domini: senza rete i suggerimenti AI non sono disponibili.
 - Nella versione con server il service worker si registra solo in produzione; offline si apre l’app, ma i documenti salvati nel cloud richiedono la connessione.
 
+## App desktop (Electron)
+
+Oltre alla PWA esiste un’app desktop per Windows, macOS e Linux (cartella `desktop/`). È la stessa build di GitHub Pages impacchettata con Electron, e rispetto al browser gestisce meglio le risorse online:
+
+- **Provider AI senza blocchi CORS**: le chiamate partono dall’app come da un server, quindi funzionano anche i provider che rifiutano le richieste dal browser.
+- **Chiavi API cifrate** con il portachiavi del sistema (Windows DPAPI, Portachiavi macOS, Secret Service su Linux) invece che in chiaro.
+- **Offline per costruzione**: tutti i file sono nell’app, senza service worker né cache del browser che possano servire una versione vecchia; i documenti restano in un’origine fissa (`app://scrivia`) e sopravvivono agli aggiornamenti.
+- **Aggiornamenti automatici** da GitHub Releases (Windows e AppImage Linux; su macOS serve un’app firmata, quindi si riscarica il `.dmg`).
+
+Il pulsante **App desktop** in alto (visibile su computer, non su telefoni e tablet, e non dentro l’app stessa) scarica l’installer giusto per il sistema in uso, preso dall’ultima release del repository. Se non c’è ancora una release il pulsante non compare. I documenti del browser non vengono copiati nell’app: esportali con «Backup Scrivia» e reimportali.
+
+Pubblicare una versione: aggiorna `version` in `package.json` e crea il tag, ad esempio `git tag v0.2.0 && git push origin v0.2.0`, oppure avvia a mano **Actions → App desktop → Run workflow**. Il workflow `.github/workflows/desktop.yml` compila `Scrivia-Setup.exe`, `Scrivia.dmg` e `Scrivia.AppImage` e li pubblica nella release `v<versione>`. Le app non sono firmate: Windows SmartScreen e macOS Gatekeeper mostrano un avviso al primo avvio (su macOS: clic destro → Apri).
+
+Prova in locale: `npm run build:pages`, poi in `desktop/` `npm ci && npm start` (o `npm run dist` per creare l’installer del sistema in uso in `desktop/release/`).
+
 Attenzione: nella versione statica le chiavi API restano in chiaro nel browser. Usala su un dispositivo personale, con chiavi dotate di limiti di spesa. Alcuni provider potrebbero rifiutare le chiamate dirette dal browser (CORS); OpenAI, Anthropic, Groq, Mistral e OpenRouter le consentono. Esporta regolarmente i documenti: cancellando i dati del sito vengono persi.
 
 ## Funzioni
