@@ -1,6 +1,7 @@
 // Browser-only backend used by the static build (GitHub Pages): it mirrors the
 // /api routes on top of localStorage and calls the AI providers directly.
 import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest, readTokens, type Provider } from './providers';
+import { EMPTY_PROJECT, sanitizeProject } from './project';
 
 type StoredDoc = { id: string; title: string; content: string; updated: number; version: number };
 type StoredRevision = { id: string; title: string; content: string; created: number };
@@ -69,6 +70,14 @@ export async function localApi(path: string, body?: Body, method = 'POST'): Prom
     write('profiles', existing ? profiles.map(p => p.id === profile.id ? profile : p) : [...profiles, profile]);
     return { id: profile.id };
   }
+  if (route === 'projects') {
+    const document = url.searchParams.get('document') || body?.document;
+    if (!validText(document, 100)) throw new Error('Documento mancante.');
+    if (body === undefined) return sanitizeProject(read('project:' + document, EMPTY_PROJECT));
+    if (!read<StoredDoc[]>('documents', []).some(d => d.id === document)) throw new Error('Documento non trovato.');
+    write('project:' + document, sanitizeProject(body.data));
+    return { ok: true };
+  }
   throw new Error('Operazione non disponibile.');
 }
 
@@ -79,8 +88,8 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   if (!p || !isProvider(p.provider)) return failure('Configura e seleziona un profilo API.');
   if (usage(p.id) >= p.daily_limit) return failure('Limite giornaliero del profilo raggiunto.', 429);
   bumpUsage(p.id);
-  const { system, prompt } = assistPrompts(b.mode, b.tone, b.text, b.context, b.after);
-  const config = providerRequest(p.provider, p.model, p.key, system, prompt);
+  const { system, prompt, maxTokens } = assistPrompts(b);
+  const config = providerRequest(p.provider, p.model, p.key, system, prompt, maxTokens);
   if (p.provider === 'anthropic') config.headers['anthropic-dangerous-direct-browser-access'] = 'true';
   const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), 45000);
   signal.addEventListener('abort', () => controller.abort(), { once: true });
@@ -91,7 +100,7 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   const provider = p.provider; const encoder = new TextEncoder();
   const stream = new ReadableStream({
     async start(out) { try { let chars = 0;
-      for await (const token of readTokens(upstream.body!, provider)) { chars += token.length; if (chars > 12000) throw new Error('Risposta troppo lunga.'); out.enqueue(encoder.encode(JSON.stringify({ text: token }) + '\n')); }
+      for await (const token of readTokens(upstream.body!, provider)) { chars += token.length; if (chars > 16000) throw new Error('Risposta troppo lunga.'); out.enqueue(encoder.encode(JSON.stringify({ text: token }) + '\n')); }
       out.enqueue(encoder.encode(JSON.stringify({ done: true }) + '\n'));
     } catch { try { out.enqueue(encoder.encode(JSON.stringify({ error: 'Risposta interrotta. Riprova.' }) + '\n')); } catch {} }
       finally { clearTimeout(timer); try { out.close(); } catch {} } },

@@ -13,3 +13,6 @@ export const profiles = sqliteTable('profiles', {
   dailyLimit: integer('daily_limit').notNull().default(500), created: integer('created').notNull(),
 });
 export const usage = sqliteTable('usage', { id: text('id').primaryKey(), count: integer('count').notNull().default(0) });
+export const projects = sqliteTable('projects', {
+  document: text('document').primaryKey(), owner: text('owner').notNull(), data: text('data').notNull(), updated: integer('updated').notNull(),
+});
