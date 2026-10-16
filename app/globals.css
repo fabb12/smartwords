@@ -224,3 +224,5 @@
 .voice-traits{font-style:italic}
 .intensity{margin:10px 0}
 @media(max-width:520px){.voice-grid{grid-template-columns:1fr 1fr}.mode-buttons span{font-size:8.5px}}
+.suggestion-box p.ai-warning{display:flex;gap:7px;align-items:flex-start;font-family:inherit;font-size:11px;line-height:1.5;color:var(--warn);background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:6px;padding:8px 9px;margin:10px 0}
+.suggestion-box p.ai-warning svg{flex-shrink:0;margin-top:1px}.suggestion-box p.ai-warning span{flex:1;min-width:0}.suggestion-box p.ai-warning button{flex-shrink:0;color:inherit;opacity:.7;padding:0}

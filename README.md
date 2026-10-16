@@ -18,6 +18,15 @@ Pubblicazione: in **Settings → Pages → Build and deployment → Source** sce
 
 Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 
+## App installabile (PWA)
+
+Scrivia è una Progressive Web App: da Chrome, Edge o Android compare il pulsante **Installa** in alto (o «Installa app» nel menu del browser); su iPhone/iPad si usa **Condividi → Aggiungi alla schermata Home**. L’app si apre a tutto schermo, con la sua icona.
+
+- `public/manifest.webmanifest`: nome, colori e icone (in `public/icons`, rigenerabili con `node scripts/pwa-icons.mjs`).
+- `public/sw.js`: service worker. Nella build GitHub Pages riceve l’elenco di tutti i file della versione (`vite.pages.config.ts`), quindi dopo la prima visita l’app si apre anche **offline**, con i documenti salvati nel browser. Pagine sempre aggiornate quando c’è rete; script, stili e immagini serviti dalla cache.
+- Non vengono mai messi in cache le chiamate `/api`, le richieste ai provider AI e nulla che provenga da altri domini: senza rete i suggerimenti AI non sono disponibili.
+- Nella versione con server il service worker si registra solo in produzione; offline si apre l’app, ma i documenti salvati nel cloud richiedono la connessione.
+
 Attenzione: nella versione statica le chiavi API restano in chiaro nel browser. Usala su un dispositivo personale, con chiavi dotate di limiti di spesa. Alcuni provider potrebbero rifiutare le chiamate dirette dal browser (CORS); OpenAI, Anthropic, Groq, Mistral e OpenRouter le consentono. Esporta regolarmente i documenti: cancellando i dati del sito vengono persi.
 
 ## Funzioni
@@ -46,7 +55,8 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 ### Editor e AI
 
 - Completamento in streaming dopo una pausa configurabile di 400–1600 ms.
-- Modalità «Migliora frase» automatica: propone una riscrittura del paragrafo fino al cursore.
+- Modalità «Migliora frase» automatica: propone una riscrittura della frase che stai scrivendo; le frasi già accettate non vengono riproposte e le proposte senza modifiche non compaiono.
+- Se l’AI trova un problema (contraddizione con il contesto o la memoria, testo poco chiaro…) lo mostra come avviso separato, nella lingua del testo, e non dentro la proposta.
 - Proposte ben visibili: il completamento appare evidenziato nel testo con il tasto «Tab»; nelle correzioni il testo originale è barrato in rosso e la proposta evidenziata in verde, mentre il pannello assistente (fisso in basso) mostra la differenza parola per parola.
 - Chiamate AI parsimoniose: le risposte vengono riusate dalla cache (nessuna nuova chiamata per lo stesso testo), continuare a digitare la proposta la accorcia senza richiederne un’altra, le richieste automatiche sono distanziate (almeno 2,5 s, massimo 12 al minuto), «Migliora frase» parte solo a frase conclusa o dopo qualche parola nuova e, dopo errori o limiti del provider (429), le richieste automatiche si fermano con attesa crescente (da 5–20 s fino a 2 minuti).
 - Tab accetta la proposta completa; Esc annulla. Le richieste obsolete vengono annullate se il testo o la selezione cambiano. Il testo non viene sostituito senza accettazione.

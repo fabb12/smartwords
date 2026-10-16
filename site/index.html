@@ -5,10 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content="Il tuo editor di scrittura con suggerimenti intelligenti in tempo reale." />
     <title>Scrivia AI — Spazio alle tue idee</title>
+    <meta name="theme-color" content="#345847" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Scrivia" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
     <script>
       // Applies the saved theme before first paint to avoid a light flash.
       (function(){try{var t=localStorage.getItem('scrivia:theme');if(t!=='light'&&t!=='dark')t=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';document.documentElement.dataset.theme=t;}catch(e){}})();
+      // Keeps the install prompt if the browser offers it before the app has loaded.
+      addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__scriviaInstall=e;});
     </script>
   </head>
   <body class="antialiased">
