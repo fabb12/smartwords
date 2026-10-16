@@ -22,6 +22,29 @@ Attenzione: nella versione statica le chiavi API restano in chiaro nel browser. 
 
 ## Funzioni
 
+### Compagno di scrittura
+
+L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi all’autore. La specifica completa, con comportamento, interfaccia, dati, motore IA e criteri di verifica di ogni funzione, è in [`docs/SPECIFICA-FUNZIONALE.md`](docs/SPECIFICA-FUNZIONALE.md).
+
+- **Quattro modalità**, da scegliere in cima al pannello:
+  - **Libera**: nessun intervento e nessuna chiamata AI;
+  - **Assistita**: suggerimenti discreti mentre scrivi;
+  - **Co-scrittura**: generazione solo su richiesta;
+  - **Revisione**: analisi approfondite.
+- **Intenzione della scena**: il tipo di scena (romantica, suspense, mistero, dialogo…) viene riconosciuto in locale e guida i completamenti. Puoi anche sceglierlo tu.
+- **Impronta stilistica**: frasi, ritmo, lessico, dialogo, persona e punteggiatura vengono misurati sul manoscritto. Proposte e riscritture la seguono e mostrano quanto ci somigliano.
+- **Voci d’autore**: puoi ispirarti a Calvino, Rovelli, Boncinelli, Carrère, Ginzburg, Eco, Ferrante, Baricco, Buzzati, Levi, Pavese, Tabucchi, Morante, Hemingway, Woolf, García Márquez, oppure descrivere uno stile tuo. L’intensità è regolabile; vengono evocati solo i tratti di stile, senza copiare brani.
+- **Progetto creativo**: genere, lettori, premessa e note per l’assistente, salvati con il documento.
+- **Memoria narrativa con prove**: personaggi, luoghi, oggetti ed eventi, ciascuno con la citazione esatta.
+  - Le contraddizioni («Capitolo 1: occhi verdi · Capitolo 2: occhi blu») portano al punto del testo con un clic.
+  - Puoi confermarle o ignorarle.
+  - Le citazioni che non esistono nel testo vengono scartate.
+- **Verifica del passaggio** rispetto al resto del libro: personalità, cronologia, continuità.
+- **Simulatore della trama**: tre direzioni con apertura, conseguenze nei capitoli successivi, tensione, rischi e coerenza. Puoi scrivere l’inizio della direzione scelta.
+- **Chiedi al manoscritto**: domande come «Quali indizi ho già lasciato sul mistero?». Le risposte citano i passaggi e un clic ti porta lì.
+
+### Editor e AI
+
 - Completamento in streaming dopo una pausa configurabile di 400–1600 ms.
 - Modalità «Migliora frase» automatica: propone una riscrittura del paragrafo fino al cursore.
 - Proposte ben visibili: il completamento appare evidenziato nel testo con il tasto «Tab»; nelle correzioni il testo originale è barrato in rosso e la proposta evidenziata in verde, mentre il pannello assistente (fisso in basso) mostra la differenza parola per parola.
@@ -44,6 +67,7 @@ Richiede Node.js 24 LTS (anche i test usano il supporto TypeScript integrato), n
 npm ci
 npm run build
 node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0000_sad_hex.sql
+node --import ./scripts/sites-env.mjs ./node_modules/wrangler/bin/wrangler.js d1 execute DB --local --config dist/server/wrangler.json --persist-to .wrangler/state --file drizzle/0001_story_projects.sql
 npm run dev
 ```
 
@@ -61,7 +85,7 @@ node tests/api-smoke.mjs
 npm run build
 ```
 
-I test automatici coprono cifratura e isolamento del vault, parsing SSE frammentato, interruzioni, adapter provider e contenuto DOCX. Lo smoke test verifica autenticazione, origine delle scritture, persistenza, cronologia e conflitti di versione.
+I test automatici coprono le analisi narrative locali (capitoli, prove con posizione esatta, impronta, intenzione, contraddizioni, ricerca e citazioni, voci), cifratura e isolamento del vault, parsing SSE frammentato, interruzioni, adapter provider e contenuto DOCX. Lo smoke test verifica autenticazione, origine delle scritture, persistenza, cronologia e conflitti di versione.
 
 ## Hosting
 
