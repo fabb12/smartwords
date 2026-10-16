@@ -244,3 +244,9 @@
 :root[data-theme=dark] .paged .canvas{background:#0e1110}
 :root[data-theme=dark] .paged .paper{--page-paper:#1d2220;background:none;border:0;box-shadow:none}
 @media print{.paged .paper{zoom:1!important;width:auto}.paged .manuscript{height:auto;width:auto;padding:0;columns:auto;background:none}}
+/* Version in the status bar and the banner announcing a newer deploy. */
+.build-label{color:var(--muted)}
+.update-banner{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;max-width:calc(100vw - 32px);background:#355843;color:#fff;border-radius:8px;box-shadow:0 6px 30px #0003;font-size:12px}
+.update-banner button{color:inherit;background:#ffffff26;border-radius:5px;padding:6px 10px;font-weight:700;white-space:nowrap}
+.update-banner button[aria-label]{background:none;padding:4px;display:inline-flex}
+@media print{.update-banner{display:none!important}}

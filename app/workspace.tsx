@@ -13,11 +13,12 @@ import { PROVIDERS, splitWarning, type Provider } from '../lib/providers';
 import { localApi, localAssist } from '../lib/local-backend';
 import { blocksFromDoc, chapters, describeFingerprint, detectIntent, locate, fingerprint, memorySummary, wordsOf, styleSimilarity, INTENTS, type DetectedIntent, type Fingerprint } from '../lib/narrative';
 import { voiceInstruction } from '../lib/author-styles';
-import { onInstallAvailable, promptInstall, setupPwa } from '../lib/pwa';
+import { applyUpdate, onInstallAvailable, promptInstall, setupPwa, watchForUpdates } from '../lib/pwa';
+import { buildLabel } from '../lib/version';
 import { EMPTY_PROJECT, briefText, type Project } from '../lib/project';
 import { Tooltips } from './tooltips';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
-import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, FileText, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic, KeyRound, Link2, List, ListOrdered, Maximize2, Monitor, Moon, PanelLeftClose, Plus, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X } from 'lucide-react';
+import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, FileText, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic, KeyRound, Link2, List, ListOrdered, Maximize2, Monitor, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X } from 'lucide-react';
 
 type Doc = {id:string; title:string; updated:number; version:number};
 type Profile = {id:string;name:string;provider:Provider;model:string;hint:string;daily_limit:number;used:number};
@@ -53,7 +54,7 @@ export default function Workspace() {
   const [mode,setMode]=useState<Mode>('assistita'),[intentChoice,setIntentChoice]=useState('auto'),[detected,setDetected]=useState<DetectedIntent>(()=>detectIntent('')),[fp,setFp]=useState<Fingerprint>(EMPTY_FP),[coTab,setCoTab]=useState<'genera'|'direzioni'>('genera');
   const [project,setProjectState]=useState<Project>(EMPTY_PROJECT),[projectOpen,setProjectOpen]=useState(false);
   const [suggestion,setSuggestion]=useState<Suggestion|null>(null),[busy,setBusy]=useState(false),[aiError,setAiError]=useState(''),[aiWarning,setAiWarning]=useState('');
-  const [theme,setTheme]=useState<Theme>('system'),[installable,setInstallable]=useState(false),[fullscreen,setFullscreen]=useState(false),[canFullscreen,setCanFullscreen]=useState(false),[pages,setPages]=useState(0);
+  const [theme,setTheme]=useState<Theme>('system'),[installable,setInstallable]=useState(false),[fullscreen,setFullscreen]=useState(false),[canFullscreen,setCanFullscreen]=useState(false),[pages,setPages]=useState(0),[update,setUpdate]=useState<string|null>(null),[versionLabel,setVersionLabel]=useState('');
   const canvasRef=useRef<HTMLDivElement|null>(null),paperRef=useRef<HTMLDivElement|null>(null);
   const [form,setForm]=useState({id:'',name:'',provider:'openai' as Provider,model:PROVIDERS.openai.model as string,key:'',dailyLimit:500}),[formBusy,setFormBusy]=useState(false);
   const editorRef=useRef<Editor|null>(null),revision=useRef(0),pending=useRef<AbortController|null>(null),aiTimer=useRef<ReturnType<typeof setTimeout>|null>(null),saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -197,7 +198,10 @@ export default function Workspace() {
   // Full screen covers the whole browser window; the browser's own exit (Esc, F11) keeps the button in sync.
   useEffect(()=>{setCanFullscreen(!!document.fullscreenEnabled);const sync=()=>setFullscreen(!!document.fullscreenElement);sync();document.addEventListener('fullscreenchange',sync);return()=>document.removeEventListener('fullscreenchange',sync);},[]);
   function toggleFullscreen(){(document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()).catch(()=>setNotice('Il browser non consente lo schermo intero.'));}
-  useEffect(()=>{setPages(readPages());},[]);
+  useEffect(()=>{setPages(readPages());setVersionLabel(buildLabel());},[]);
+  // The static build checks version.json: a newer deploy is announced with a button to load it.
+  useEffect(()=>LOCAL?watchForUpdates('./version.json',commit=>setUpdate(commit)):undefined,[]);
+  async function loadUpdate(){if(!await save())return;await saveProject();await applyUpdate();}
   function changePages(n:number){setPages(n);try{localStorage.setItem('scrivia:pages',String(n));}catch{}}
   // Counts the pages the text fills and zooms out so the chosen number of pages fits the window.
   const layoutPages=useCallback(()=>{const paper=paperRef.current,canvas=canvasRef.current,dom=editorRef.current?.isDestroyed?null:editorRef.current?.view.dom as HTMLElement|undefined;if(!paper||!canvas||!dom)return;
@@ -273,8 +277,9 @@ export default function Workspace() {
           </>}
           <div className="assistant-footnote"><ShieldCheck size={15}/><p>Il testo viene inviato solo al provider selezionato quando l’AI è attiva. <button data-tip="Apri Provider e chiavi API" onClick={()=>setSettings(true)}>Gestisci le API</button></p></div><div className="shortcuts"><span><kbd>Tab</kbd> accetta</span><span><kbd>Esc</kbd> ignora</span></div>
         </aside></div>
-      <footer className="statusbar"><span>{words} parole<span className="status-divider">|</span>{characters} caratteri</span><span data-tip="Le parole sottolineate in rosso sono segnalate dal correttore del browser: clic destro per i suggerimenti">Controllo ortografico del browser</span><span><span className="tiny-dot"/>Scrivia AI</span></footer>
+      <footer className="statusbar"><span>{words} parole<span className="status-divider">|</span>{characters} caratteri</span><span data-tip="Le parole sottolineate in rosso sono segnalate dal correttore del browser: clic destro per i suggerimenti">Controllo ortografico del browser</span><span data-tip="Versione in uso: numero, commit e data di pubblicazione. Se ne esce una nuova, compare il pulsante «Aggiorna»"><span className="tiny-dot"/>Scrivia AI{versionLabel&&<span className="build-label"> · {versionLabel}</span>}</span></footer>
     </main>
+    {update!==null&&<div className="update-banner" role="status"><RefreshCw size={16}/><span>È disponibile una nuova versione di Scrivia{update?' ('+update+')':''}.</span><button data-tip="Salva il documento e ricarica la pagina con la nuova versione" onClick={()=>void loadUpdate()}>Aggiorna ora</button><button aria-label="Più tardi" data-tip="Nascondi: l’aggiornamento verrà caricato alla prossima apertura" onClick={()=>setUpdate(null)}><X size={14}/></button></div>}
     {notice&&<div className="toast" role="status"><Check size={16}/>{notice}</div>}
     {settings&&<div className="modal-backdrop" onClick={()=>setSettings(false)}><section className="modal" role="dialog" aria-modal="true" aria-label="Provider e chiavi API" onClick={e=>e.stopPropagation()}><button className="modal-close tool" aria-label="Chiudi impostazioni" onClick={()=>setSettings(false)}><X size={20}/></button><span className="modal-icon"><KeyRound size={23}/></span><h2>La tua AI, alle tue condizioni.</h2><p className="modal-subtitle">Collega più account e scegli il modello adatto a ogni testo.</p><div className="security-note"><ShieldCheck size={18}/><span>{LOCAL?'Versione statica: le chiavi restano solo in questo browser (localStorage) e il testo va direttamente al provider. Usa un dispositivo personale e chiavi con limiti di spesa.':'Chiavi cifrate sul server. Non vengono salvate nel browser o incluse nel codice.'}</span></div>{!vaultReady&&<p className="warning">Il server non ha ancora una chiave di cifratura configurata.</p>}{error&&<p role="alert" className="warning">{error}</p>}
       <div className="profile-list">{profiles.map(p=><div className="profile-row" key={p.id}><span className={'provider-badge '+p.provider}>{PROVIDERS[p.provider].name.slice(0,1)}</span><div><strong>{p.name}</strong><small>{PROVIDERS[p.provider].name} · {p.model} · ••••{p.hint}</small><small>{p.used} / {p.daily_limit} richieste oggi (UTC)</small></div><button data-tip="Cambia nome, modello, limite o chiave di questo profilo" onClick={()=>setForm({id:p.id,name:p.name,provider:p.provider,model:p.model,key:'',dailyLimit:p.daily_limit})}>Modifica</button><button aria-label={'Rimuovi '+p.name} data-tip="Elimina questo profilo e la sua chiave" onClick={()=>void removeProfile(p)}><X size={16}/></button></div>)}</div>

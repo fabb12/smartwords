@@ -23,8 +23,9 @@ self.addEventListener('fetch', event => {
   // Documents, keys and AI requests (/api, providers) always go to the network, never to the cache.
   if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname.includes('/api/')) return;
   if (request.mode === 'navigate') {
-    // Pages: fresh when online, the last saved copy of the app when offline.
-    event.respondWith(fetch(request).then(response => {
+    // Pages: fresh when online (bypassing the HTTP cache, so a new deploy shows at once),
+    // the last saved copy of the app when offline.
+    event.respondWith(fetch(request, { cache: 'no-store' }).then(response => {
       if (response.ok && !response.redirected && url.href.startsWith(SHELL)) { const copy = response.clone(); caches.open(CACHE).then(cache => cache.put(SHELL, copy)); }
       return response;
     }).catch(() => caches.match(request).then(hit => hit || caches.match(SHELL)).then(hit => hit || Response.error())));

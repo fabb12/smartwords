@@ -14,7 +14,7 @@ GitHub Pages pubblica solo file statici: non può eseguire il backend (Workers +
 - le richieste AI partono direttamente dal browser verso il provider scelto, con la tua chiave;
 - il tema chiaro/scuro/di sistema si cambia con l’icona sole/luna/monitor in alto a destra.
 
-Pubblicazione: in **Settings → Pages → Build and deployment → Source** scegli **GitHub Actions**. Ogni push su `main` esegue `.github/workflows/pages.yml`, che compila con `npm run build:pages` e pubblica la cartella `out-pages`. Il sito sarà su `https://<utente>.github.io/smartwords/`.
+Pubblicazione: in **Settings → Pages → Build and deployment → Source** scegli **GitHub Actions**. È importante: con «Deploy from a branch» GitHub pubblica a ogni push anche il repository grezzo, in gara con il workflow, e il sito può tornare a una versione vecchia o vuota. Il workflow ora aspetta quella pubblicazione e arriva sempre per ultimo, e mostra un avviso finché la sorgente non è «GitHub Actions». Ogni push su `main` esegue `.github/workflows/pages.yml`, che compila con `npm run build:pages` e pubblica la cartella `out-pages`. Il sito sarà su `https://<utente>.github.io/smartwords/`.
 
 Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 
@@ -23,7 +23,8 @@ Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 Scrivia è una Progressive Web App: da Chrome, Edge o Android compare il pulsante **Installa** in alto (o «Installa app» nel menu del browser); su iPhone/iPad si usa **Condividi → Aggiungi alla schermata Home**. L’app si apre a tutto schermo, con la sua icona.
 
 - `public/manifest.webmanifest`: nome, colori e icone (in `public/icons`, rigenerabili con `node scripts/pwa-icons.mjs`).
-- `public/sw.js`: service worker. Nella build GitHub Pages riceve l’elenco di tutti i file della versione (`vite.pages.config.ts`), quindi dopo la prima visita l’app si apre anche **offline**, con i documenti salvati nel browser. Pagine sempre aggiornate quando c’è rete; script, stili e immagini serviti dalla cache.
+- Versione: la barra in basso mostra numero, commit e data della build in uso (es. «v0.1.0 · ac7b467 · 16 ott 2026, 13:41»). La build pubblica anche `version.json`; l’app lo controlla all’avvio, ogni 5 minuti e quando torni sulla scheda, e se online c’è una versione più nuova mostra «Aggiorna ora» (salva il documento e ricarica).
+- `public/sw.js`: service worker. Nella build GitHub Pages riceve l’elenco di tutti i file della versione (`vite.pages.config.ts`), quindi dopo la prima visita l’app si apre anche **offline**, con i documenti salvati nel browser. Pagine sempre aggiornate quando c’è rete (senza passare dalla cache HTTP); script, stili e immagini serviti dalla cache.
 - Non vengono mai messi in cache le chiamate `/api`, le richieste ai provider AI e nulla che provenga da altri domini: senza rete i suggerimenti AI non sono disponibili.
 - Nella versione con server il service worker si registra solo in produzione; offline si apre l’app, ma i documenti salvati nel cloud richiedono la connessione.
 

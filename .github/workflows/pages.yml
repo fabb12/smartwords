@@ -9,6 +9,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  actions: read
 
 concurrency:
   group: pages
@@ -37,5 +38,23 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # If Settings → Pages → Source is still "Deploy from a branch", GitHub also publishes the raw
+      # repository (Jekyll) on every push, racing this workflow and replacing the app with an old or
+      # empty page. Wait for that publication to finish so the app is always deployed last.
+      - name: Attendi la pubblicazione automatica «da branch»
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          source=$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null || echo unknown)
+          if [ "$source" = "workflow" ]; then echo "Sorgente Pages: GitHub Actions"; exit 0; fi
+          echo "::warning title=GitHub Pages::La sorgente di Pages è «$source». Imposta Settings → Pages → Source su «GitHub Actions», altrimenti ogni push pubblica anche il repository grezzo."
+          for i in $(seq 1 40); do
+            pending=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&per_page=50" --jq '[.workflow_runs[] | select(.path == "dynamic/pages/pages-build-deployment" and .status != "completed")] | length')
+            found=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&per_page=50" --jq '[.workflow_runs[] | select(.path == "dynamic/pages/pages-build-deployment")] | length')
+            if [ "$found" != "0" ] && [ "$pending" = "0" ]; then echo "Pubblicazione automatica terminata"; exit 0; fi
+            if [ "$found" = "0" ] && [ "$i" -ge 6 ]; then echo "Nessuna pubblicazione automatica per questo commit"; exit 0; fi
+            sleep 10
+          done
+          echo "Attesa terminata dopo 400 s"
       - id: deployment
         uses: actions/deploy-pages@v4
