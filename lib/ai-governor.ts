@@ -23,6 +23,21 @@ export function wordDiff(before: string, after: string): DiffPart[] {
   return parts;
 }
 
+// The part of a paragraph an automatic "improve sentence" works on: the last sentence
+// before the cursor, never text the writer already accepted (`settled`, a prefix of
+// the paragraph). Offsets into `text`; trailing whitespace stays out of the range.
+export function sentenceTarget(text: string, settled = ''): { start: number; end: number } {
+  const end = text.trimEnd().length;
+  let start = settled && text.startsWith(settled) ? Math.min(settled.length, end) : 0;
+  const boundary = /[.!?…]+["»”’)\]]*\s+/g; boundary.lastIndex = start;
+  for (let m = boundary.exec(text); m && m.index + m[0].length <= end; m = boundary.exec(text)) start = m.index + m[0].length;
+  while (start < end && /\s/.test(text[start])) start++;
+  return { start, end };
+}
+
+// A rewrite that only changes spacing is not worth proposing.
+export function sameText(a: string, b: string): boolean { return a.replace(/\s+/g, ' ').trim() === b.replace(/\s+/g, ' ').trim(); }
+
 export type GovernorOptions = {
   minGap?: number;      // ms between two automatic requests
   perMinute?: number;   // automatic requests allowed in a rolling minute
@@ -100,6 +115,8 @@ export class AiGovernor {
     return true;
   }
 
+  // Call only once a request produced an answer (or failed): a request cancelled because
+  // the writer kept typing must not stop the same text from being asked again later.
   asked(mode: string, scope: string, text: string) {
     this.lastAuto.set(mode + '\u0000' + scope, text.trim());
     if (this.lastAuto.size > 200) this.lastAuto.delete(this.lastAuto.keys().next().value!);

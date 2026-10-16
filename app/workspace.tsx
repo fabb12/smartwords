@@ -9,7 +9,7 @@ import Image from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Ghost, ghostKey } from '../lib/ghost';
-import { AiGovernor, wordDiff } from '../lib/ai-governor';
+import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
 import { PROVIDERS, type Provider } from '../lib/providers';
 import { localApi, localAssist } from '../lib/local-backend';
 import { blocksFromDoc, chapters, describeFingerprint, detectIntent, locate, fingerprint, memorySummary, wordsOf, styleSimilarity, INTENTS, type DetectedIntent, type Fingerprint } from '../lib/narrative';
@@ -20,8 +20,9 @@ import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, Chevr
 
 type Doc = {id:string; title:string; updated:number; version:number};
 type Profile = {id:string;name:string;provider:Provider;model:string;hint:string;daily_limit:number;used:number};
-// base/para: paragraph text and start for completions; original: the text a rewrite would replace.
-type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean};
+// base/para: paragraph text and start for completions; original: the text a rewrite would replace;
+// trail: whitespace between the rewritten sentence and the cursor, kept after accepting.
+type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean;trail?:number};
 type Revision = {id:string;title:string;content:string;created:number};
 const EMPTY = {type:'doc',content:[{type:'paragraph'}]};
 const WELCOME = {type:'doc',content:[{type:'heading',attrs:{level:1},content:[{type:'text',text:'Spazio alle tue idee.'}]},{type:'paragraph',content:[{type:'text',text:'Ogni grande testo comincia con un pensiero. Scrivilo qui: alle parole successive ci pensiamo insieme.'}]},{type:'heading',attrs:{level:2},content:[{type:'text',text:'La tua voce, con una marcia in più'}]},{type:'paragraph',content:[{type:'text',text:'Collega il tuo provider AI dal pannello a destra e inizia a scrivere. Scrivia suggerisce come completare la frase, oppure la rende più chiara mentre prende forma.'}]},{type:'paragraph',content:[{type:'text',text:'Premi Tab per accettare una proposta, Esc per lasciarla andare. Le tue parole restano sempre una tua scelta.',marks:[{type:'italic'}]}]}]};
@@ -35,6 +36,8 @@ const SUGGESTION_TITLES:Record<string,string>={complete:'Continuazione proposta'
 function readTheme():Theme{try{const t=localStorage.getItem('scrivia:theme');return THEMES.includes(t as Theme)?t as Theme:'system';}catch{return 'system';}}
 async function api(path:string,body?:unknown,method='POST'):Promise<any> { if(LOCAL)return localApi(path,body,method); const res=await fetch('/api/'+path,body===undefined?undefined:{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); const data:any=await res.json(); if(!res.ok) throw new Error(data.error||'Operazione non riuscita.'); return data; }
 const date=(n:number)=>new Date(n).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+// Paragraph text before the cursor; leaf nodes (line breaks) count as one character, so offsets map to positions.
+const beforeCursor=($from:Editor['state']['selection']['$from'])=>$from.parent.textBetween(0,$from.parentOffset,'\n','\n');
 function download(blob:Blob,name:string) { const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000); }
 
 export default function Workspace() {
@@ -50,7 +53,7 @@ export default function Workspace() {
   const [theme,setTheme]=useState<Theme>('system');
   const [form,setForm]=useState({id:'',name:'',provider:'openai' as Provider,model:PROVIDERS.openai.model as string,key:'',dailyLimit:500}),[formBusy,setFormBusy]=useState(false);
   const editorRef=useRef<Editor|null>(null),revision=useRef(0),pending=useRef<AbortController|null>(null),aiTimer=useRef<ReturnType<typeof setTimeout>|null>(null),saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
-  const current=useRef<{id:string;version:number;title:string}>({id:'',version:0,title:'Senza titolo'}),dirty=useRef(false),saving=useRef<Promise<boolean>|null>(null),selection=useRef<Suggestion|null>(null),suppress=useRef(false);
+  const current=useRef<{id:string;version:number;title:string}>({id:'',version:0,title:'Senza titolo'}),dirty=useRef(false),saving=useRef<Promise<boolean>|null>(null),selection=useRef<Suggestion|null>(null),suppress=useRef(false),settled=useRef<{para:number;text:string}|null>(null);
   const options=useRef({profile,aiOn,autoMode,tone,delay,mode});options.current={profile,aiOn,autoMode,tone,delay,mode};
   const projectRef=useRef(project),projectDoc=useRef(''),projectDirty=useRef(false),projectTimer=useRef<ReturnType<typeof setTimeout>|null>(null),fpTimer=useRef<ReturnType<typeof setTimeout>|null>(null);projectRef.current=project;
   // What the model needs to know about the work: voice, scene intent, project and story memory.
@@ -75,11 +78,15 @@ export default function Workspace() {
   function showSuggestion(s:Suggestion|null) { selection.current=s;setSuggestion(s);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,s?{kind:s.mode==='complete'||s.mode==='continue'?'complete':'replace',from:s.from,to:s.to,text:s.text,done:s.done}:null)); }
   // Typing the first characters of a completion keeps the rest on screen instead of asking again.
   function continued():Suggestion|null { const s=selection.current,e=editorRef.current;if(!s||!e||s.mode!=='complete'||!s.done||s.base===undefined||!e.state.selection.empty)return null;
-    const {$from}=e.state.selection;if($from.start()!==s.para)return null;const now=$from.parent.textBetween(0,$from.parentOffset,'\n');if(!now.startsWith(s.base))return null;
-    const typed=now.slice(s.base.length);if(!typed||!s.text.startsWith(typed)||s.text.length<=typed.length)return null;
-    return {...s,text:s.text.slice(typed.length),from:$from.pos,to:$from.pos,base:now}; }
+    const {$from}=e.state.selection;if($from.start()!==s.para)return null;const now=beforeCursor($from);if(!now.startsWith(s.base))return null;
+    // A space typed before a proposal that starts with a word keeps it: the space was implied.
+    const typed=now.slice(s.base.length),text=/^\s/.test(typed)&&!/^\s/.test(s.text)?' '+s.text:s.text;if(!typed||!text.startsWith(typed)||text.length<=typed.length)return null;
+    return {...s,text:text.slice(typed.length),from:$from.pos,to:$from.pos,base:now}; }
   function acceptSuggestion() { const s=selection.current,e=editorRef.current;if(!s||!s.done||!e||s.revision!==revision.current)return false;
-    clearSuggestion(); e.chain().focus().insertContentAt({from:s.from,to:s.to},s.text.split('\n').flatMap((line,i)=>[...(i?[{type:'hardBreak'}]:[]),...(line?[{type:'text',text:line}]:[])])).run();return true; }
+    clearSuggestion(); e.chain().focus().insertContentAt({from:s.from,to:s.to},s.text.split('\n').flatMap((line,i)=>[...(i?[{type:'hardBreak'}]:[]),...(line?[{type:'text',text:line}]:[])])).run();
+    // An improved sentence is settled: automatic rewrites move on to the next one instead of improving it again.
+    if(s.mode==='rewrite'){const {$from}=e.state.selection;settled.current={para:$from.start(),text:beforeCursor($from)};}
+    if(s.trail)e.commands.setTextSelection(Math.min(e.state.selection.to+s.trail,e.state.selection.$to.end()));return true; }
 
   const save=useCallback(async():Promise<boolean>=>{
     if(saving.current)return saving.current;
@@ -115,32 +122,37 @@ export default function Workspace() {
 
   async function ask(mode:string,automatic=false,direction='') { const e=editorRef.current;if(!e)return;const opts=options.current;if(!opts.profile){if(!automatic)setSettings(true);return;}
     clearSuggestion();setAiError('');const {from,to,$from}=e.state.selection;
-    if(automatic&&(!e.state.selection.empty||e.view.composing))return;
-    const inline=mode==='complete'||mode==='continue';
-    const start=inline?from:(from===to?$from.start():from);
+    if(automatic&&!e.state.selection.empty)return;
+    // No proposal is drawn inside an IME composition (mobile keyboards): try again once it is over.
+    if(automatic&&e.view.composing){aiTimer.current=setTimeout(()=>void ask(mode,true),opts.delay);return;}
+    const inline=mode==='complete'||mode==='continue',para=$from.start();
+    // Automatic improvements work on the sentence being written, never on text already accepted.
+    const sentence=automatic&&mode==='rewrite'?sentenceTarget(beforeCursor($from),settled.current?.para===para?settled.current.text:''):null;
+    const start=sentence?para+sentence.start:inline?from:(from===to?para:from);
     // A voice rewrite without selection takes the whole paragraph, so the voice applies to a full unit.
-    const end=inline?from:mode==='voice'&&from===to?$from.end():to;
-    const text=mode==='complete'?$from.parent.textBetween(0,$from.parentOffset,'\n'):mode==='continue'?e.state.doc.textBetween(Math.max(0,from-2000),from,'\n'):e.state.doc.textBetween(start,end,'\n');
+    const end=sentence?para+sentence.end:inline?from:mode==='voice'&&from===to?$from.end():to;
+    const text=sentence?beforeCursor($from).slice(sentence.start,sentence.end):mode==='complete'?beforeCursor($from):mode==='continue'?e.state.doc.textBetween(Math.max(0,from-2000),from,'\n'):e.state.doc.textBetween(start,end,'\n');
     if(text.trim().length<(mode==='continue'?20:3)){if(!automatic)setAiError(mode==='continue'?'Scrivi qualche frase: la scena continuerà dal cursore.':'Scrivi o seleziona almeno qualche parola.');return;}
     if(text.length>10000){setAiError('Seleziona un brano più breve (massimo 10.000 caratteri).');return;}
     const contextEnd=mode==='continue'?Math.max(0,from-2000):start,n=narrativeRef.current;
     const payload={profile:opts.profile,mode,text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+1000),'\n'),tone:opts.tone,
       style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='continue'||mode==='voice'?n.memory:'',direction};
-    const rev=revision.current,scope=String($from.start()),key=AiGovernor.key([payload]);
-    const extra=mode==='complete'?{base:text,para:$from.start()}:mode==='continue'?{}:{original:text};
+    const rev=revision.current,scope=String(para),key=AiGovernor.key([payload]);
+    const extra=mode==='complete'?{base:text,para}:mode==='continue'?{}:{original:text,trail:sentence?from-end:0};
     // A generated scene starting right after a word needs a separating space.
     const spaced=(a:string)=>mode==='continue'&&/\S$/.test(text)&&/^[\p{L}\p{N}«"“(]/u.test(a)?' '+a:a;
+    // An automatic improvement that changes nothing is not shown: there is nothing to accept.
+    const finish=(answer:string,cached:boolean)=>{if(automatic)governor.asked(mode,scope,text);if(automatic&&mode==='rewrite'&&sameText(answer,text)){showSuggestion(null);return;}showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:true,cached,...extra});};
     const hit=governor.cached(key);
-    if(hit!==undefined){if(automatic)governor.asked(mode,scope,text);showSuggestion({text:hit,from:start,to:end,revision:rev,mode,done:true,cached:true,...extra});return;}
+    if(hit!==undefined){finish(hit,true);return;}
     if(automatic&&!governor.worthAsking(mode,scope,text))return;
     const wait=governor.wait(automatic);
     if(wait>0){if(automatic)aiTimer.current=setTimeout(()=>void ask(mode,true),wait);else setAiError(`Pausa per rispettare i limiti del provider: riprova tra ${Math.ceil(wait/1000)} s.`);return;}
-    if(automatic)governor.asked(mode,scope,text);
     governor.started();const controller=new AbortController();pending.current=controller;setBusy(true);
     try{const answer=await streamAssist(payload,controller.signal,a=>{if(controller.signal.aborted||rev!==revision.current)return false;showSuggestion({text:spaced(a),from:start,to:end,revision:rev,mode,done:false,...extra});});
       if(answer===null)return;governor.remember(key,spaced(answer));
-      if(!controller.signal.aborted&&rev===revision.current)showSuggestion({text:spaced(answer),from:start,to:end,revision:rev,mode,done:true,...extra});
-    }catch(err){if(!controller.signal.aborted){showSuggestion(null);setAiError((err as Error).message);}}
+      if(!controller.signal.aborted&&rev===revision.current)finish(spaced(answer),false);
+    }catch(err){if(!controller.signal.aborted){if(automatic)governor.asked(mode,scope,text);showSuggestion(null);setAiError((err as Error).message);}}
     finally{if(pending.current===controller){pending.current=null;setBusy(false);}}
   }
   // Local, free analyses: the scene intent follows the cursor, the fingerprint is refreshed after a pause.
