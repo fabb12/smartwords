@@ -5,9 +5,18 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
+import { execSync } from "node:child_process";
 
 const root = fileURLToPath(new URL("./site", import.meta.url));
 const outDir = fileURLToPath(new URL("./out-pages", import.meta.url));
+
+// Version shown in the app and published as version.json, so open tabs notice a newer deploy.
+function commit(): string {
+  if (process.env.GITHUB_SHA) return process.env.GITHUB_SHA;
+  try { return execSync("git rev-parse HEAD", { encoding: "utf8" }).trim(); } catch { return "local"; }
+}
+const pkg = JSON.parse(readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf8"));
+const BUILD = { version: pkg.version as string, commit: commit(), time: new Date().toISOString() };
 
 // PWA: once the build is written, the service worker learns every file of this version,
 // so the installed app works offline from the first visit, lazy chunks included.
@@ -17,13 +26,14 @@ function precache(): Plugin {
     apply: "build",
     closeBundle() {
       const walk = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]);
-      const files = walk(outDir).map(f => relative(outDir, f).split(sep).join("/")).filter(f => f !== "sw.js" && !f.endsWith(".map")).sort();
+      const files = walk(outDir).map(f => relative(outDir, f).split(sep).join("/")).filter(f => f !== "sw.js" && f !== "version.json" && !f.endsWith(".map")).sort();
       const hash = createHash("sha256");
       for (const f of files) hash.update(f).update(readFileSync(join(outDir, f)));
       const sw = join(outDir, "sw.js"), source = readFileSync(sw, "utf8");
       const build = `const BUILD = ${JSON.stringify({ version: hash.digest("hex").slice(0, 12), files })};`;
       if (!source.includes("const BUILD = { version: 'dev', files: [] };")) throw new Error("sw.js: BUILD placeholder not found");
       writeFileSync(sw, source.replace("const BUILD = { version: 'dev', files: [] };", build));
+      writeFileSync(join(outDir, "version.json"), JSON.stringify({ id: BUILD.commit + "@" + BUILD.time, ...BUILD }));
     },
   };
 }
@@ -32,6 +42,7 @@ export default defineConfig({
   root,
   base: "./",
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
+  define: { __SCRIVIA_BUILD__: JSON.stringify(BUILD) },
   plugins: [react(), precache()],
   build: {
     outDir,
