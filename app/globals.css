@@ -324,3 +324,12 @@
 .modal .profile-row button{min-height:40px;padding:0 8px}
 :root[data-theme=dark] .modal .form-footer{background:#1b201d}
 }
+/* Voice dictation: bar above the toolbar while listening, with the phrase being recognized. */
+.dictation-bar{display:flex;align-items:center;gap:10px;flex-shrink:0;padding:9px 28px;background:#f5f8ef;border-top:1px solid #dfe7d4;font-size:12px;color:#52694b}.dictation-bar.bad{background:#fff0e9;color:#a04c41;border-color:#f0dcd2}.dictation-heard{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:Georgia,serif;font-style:italic}.dictation-bar button{padding:6px 12px;border-radius:6px;border:1px solid var(--line);background:#fff;font-size:12px}.dictation-bar.bad button{padding:4px;border:0;background:none}
+.dictation-pulse{width:10px;height:10px;border-radius:50%;background:#c4523f;flex-shrink:0;animation:dictation-pulse 1.2s ease-in-out infinite}@keyframes dictation-pulse{50%{opacity:.35;transform:scale(.75)}}
+.tool[aria-pressed=true] .lucide-mic,.m-mic.active{color:#c4523f}
+.simple .dictation-bar{padding:10px 16px;font-size:15px}.simple .dictation-bar button{padding:9px 16px;font-size:15px}
+.simple .m-toolbar .tool{flex:0 1 44px;min-width:34px}@media (max-width:380px){.simple .m-ai{padding:0 12px}}
+:root[data-theme=dark] .dictation-bar{background:#1f2721;border-color:#2c332e;color:#cfe3c6}:root[data-theme=dark] .dictation-bar button{background:#252c27;border-color:#2c332e}:root[data-theme=dark] .dictation-bar.bad{background:#3a2420;color:#f0b4a8}
+@media (prefers-reduced-motion:reduce){.dictation-pulse{animation:none}}
+@media print{.dictation-bar{display:none}}

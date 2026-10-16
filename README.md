@@ -34,6 +34,14 @@ Sugli schermi fino a 720 px l’app passa da sola a una modalità semplificata, 
 - le proposte dell’AI compaiono sopra la barra con i pulsanti grandi **Accetta** e **Scarta** (sul telefono non c’è il tasto Tab);
 - documenti e assistente si aprono come pannelli dal basso o dal lato, con controlli ingranditi.
 
+### Dettatura vocale
+
+Il pulsante con il microfono (nella barra di formattazione e, su telefono, nella barra in basso) scrive al cursore quello che dici, in italiano. Mentre ascolta compare una barra con la frase che sta riconoscendo e il pulsante **Ferma**; dopo una lunga pausa si ferma da sola.
+
+- Punteggiatura a voce: «virgola», «punto», «punto e virgola», «due punti», «punto interrogativo», «punto esclamativo», «puntini», «apri/chiudi virgolette» («…»), «apri/chiudi parentesi»; «a capo» o «nuovo paragrafo» iniziano un nuovo paragrafo. Spazi e maiuscole a inizio frase sono automatici.
+- Usa il riconoscimento vocale del browser (Chrome, Edge, Safari; non Firefox), che invia l’audio al servizio del browser e richiede la connessione. Al primo uso il browser chiede il permesso per il microfono.
+- Nell’app desktop il pulsante non compare: Electron non include il servizio di riconoscimento.
+
 Dal menu ⋯ si passa alla **vista completa** con tutti gli strumenti; il pulsante «Semplice» in alto riporta indietro. La scelta resta memorizzata sul dispositivo.
 
 - `public/manifest.webmanifest`: nome, colori e icone (in `public/icons`, rigenerabili con `node scripts/pwa-icons.mjs`).
