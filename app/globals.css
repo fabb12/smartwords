@@ -308,3 +308,19 @@
 :root[data-theme=dark] .m-proposal-actions .m-accept{background:var(--green);border-color:var(--green);color:#fff}
 :root[data-theme=dark] .sheet-grip{background:#3a443d}:root[data-theme=dark] .install-steps p{color:#a0aa9e}
 @media print{.m-toolbar,.m-proposal,.sheet-backdrop,.drawer-backdrop{display:none!important}}
+/* Dialog (provider, progetto, cronologia): mai più largo dello schermo; sul telefono pannello dal basso a tutta larghezza con i pulsanti sempre visibili. */
+.modal-backdrop{grid-template-columns:minmax(0,1fr)}
+.modal{justify-self:center}
+@media(max-width:720px){
+.modal-backdrop{padding:0;align-items:end;bottom:auto;height:var(--app-height,100dvh)}
+.modal{width:100%;max-height:calc(var(--app-height,100dvh) - 10px - env(safe-area-inset-top));border-radius:18px 18px 0 0;border-width:1px 0 0;padding:22px 18px 0}
+.modal::after{content:'';display:block;height:calc(16px + env(safe-area-inset-bottom))}
+.modal-close{right:8px;top:8px;width:44px;height:44px}
+.modal h2{font-size:24px;padding-right:36px}
+.modal input,.modal select,.modal textarea{font-size:16px}
+.modal .form-footer{position:sticky;bottom:0;z-index:2;gap:10px;margin:16px -18px -16px;padding:12px 18px;background:#fcfdf9;border-top:1px solid var(--line)}
+.modal .form-footer button{min-height:48px;font-size:15px;padding:0 14px}
+.modal .form-footer .primary{flex:1;justify-content:center}
+.modal .profile-row button{min-height:40px;padding:0 8px}
+:root[data-theme=dark] .modal .form-footer{background:#1b201d}
+}
