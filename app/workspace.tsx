@@ -10,13 +10,13 @@ import Highlight from '@tiptap/extension-highlight';
 import Placeholder from '@tiptap/extension-placeholder';
 import { Ghost, ghostKey } from '../lib/ghost';
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
-import { PROVIDERS, type Provider } from '../lib/providers';
+import { PROVIDERS, splitWarning, type Provider } from '../lib/providers';
 import { localApi, localAssist } from '../lib/local-backend';
 import { blocksFromDoc, chapters, describeFingerprint, detectIntent, locate, fingerprint, memorySummary, wordsOf, styleSimilarity, INTENTS, type DetectedIntent, type Fingerprint } from '../lib/narrative';
 import { voiceInstruction } from '../lib/author-styles';
 import { EMPTY_PROJECT, briefText, type Project } from '../lib/project';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
-import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, FileText, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic, KeyRound, Link2, List, ListOrdered, Maximize2, Monitor, Moon, PanelLeftClose, Plus, Redo2, Search, Settings2, ShieldCheck, Sparkles, Sun, Table2, Underline, Undo2, WandSparkles, X } from 'lucide-react';
+import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, FileText, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic, KeyRound, Link2, List, ListOrdered, Maximize2, Monitor, Moon, PanelLeftClose, Plus, Redo2, Search, Settings2, ShieldCheck, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X } from 'lucide-react';
 
 type Doc = {id:string; title:string; updated:number; version:number};
 type Profile = {id:string;name:string;provider:Provider;model:string;hint:string;daily_limit:number;used:number};
@@ -49,7 +49,7 @@ export default function Workspace() {
   const [aiOn,setAiOn]=useState(true),[autoMode,setAutoMode]=useState('complete'),[tone]=useState('Naturale'),[delay,setDelay]=useState(700);
   const [mode,setMode]=useState<Mode>('assistita'),[intentChoice,setIntentChoice]=useState('auto'),[detected,setDetected]=useState<DetectedIntent>(()=>detectIntent('')),[fp,setFp]=useState<Fingerprint>(EMPTY_FP),[coTab,setCoTab]=useState<'genera'|'direzioni'>('genera');
   const [project,setProjectState]=useState<Project>(EMPTY_PROJECT),[projectOpen,setProjectOpen]=useState(false);
-  const [suggestion,setSuggestion]=useState<Suggestion|null>(null),[busy,setBusy]=useState(false),[aiError,setAiError]=useState('');
+  const [suggestion,setSuggestion]=useState<Suggestion|null>(null),[busy,setBusy]=useState(false),[aiError,setAiError]=useState(''),[aiWarning,setAiWarning]=useState('');
   const [theme,setTheme]=useState<Theme>('system');
   const [form,setForm]=useState({id:'',name:'',provider:'openai' as Provider,model:PROVIDERS.openai.model as string,key:'',dailyLimit:500}),[formBusy,setFormBusy]=useState(false);
   const editorRef=useRef<Editor|null>(null),revision=useRef(0),pending=useRef<AbortController|null>(null),aiTimer=useRef<ReturnType<typeof setTimeout>|null>(null),saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
@@ -121,7 +121,7 @@ export default function Workspace() {
     governor.started();const answer=await streamAssist({profile:opts.profile,mode,tone:opts.tone,...fields},signal);if(answer===null)throw new DOMException('Richiesta annullata.','AbortError');return answer;};
 
   async function ask(mode:string,automatic=false,direction='') { const e=editorRef.current;if(!e)return;const opts=options.current;if(!opts.profile){if(!automatic)setSettings(true);return;}
-    clearSuggestion();setAiError('');const {from,to,$from}=e.state.selection;
+    clearSuggestion();setAiError('');setAiWarning('');const {from,to,$from}=e.state.selection;
     if(automatic&&!e.state.selection.empty)return;
     // No proposal is drawn inside an IME composition (mobile keyboards): try again once it is over.
     if(automatic&&e.view.composing){aiTimer.current=setTimeout(()=>void ask(mode,true),opts.delay);return;}
@@ -141,17 +141,19 @@ export default function Workspace() {
     const extra=mode==='complete'?{base:text,para}:mode==='continue'?{}:{original:text,trail:sentence?from-end:0};
     // A generated scene starting right after a word needs a separating space.
     const spaced=(a:string)=>mode==='continue'&&/\S$/.test(text)&&/^[\p{L}\p{N}«"“(]/u.test(a)?' '+a:a;
-    // An automatic improvement that changes nothing is not shown: there is nothing to accept.
-    const finish=(answer:string,cached:boolean)=>{if(automatic)governor.asked(mode,scope,text);if(automatic&&mode==='rewrite'&&sameText(answer,text)){showSuggestion(null);return;}showSuggestion({text:answer,from:start,to:end,revision:rev,mode,done:true,cached,...extra});};
+    // A problem reported by the model is shown as a warning, never as text to accept;
+    // an automatic improvement that changes nothing is not shown either.
+    const finish=(answer:string,cached:boolean)=>{if(automatic)governor.asked(mode,scope,text);const p=splitWarning(answer);setAiWarning(p.warning);
+      if(!p.text.trim()||(automatic&&mode==='rewrite'&&sameText(p.text,text))){showSuggestion(null);return;}showSuggestion({text:spaced(p.text),from:start,to:end,revision:rev,mode,done:true,cached,...extra});};
     const hit=governor.cached(key);
     if(hit!==undefined){finish(hit,true);return;}
     if(automatic&&!governor.worthAsking(mode,scope,text))return;
     const wait=governor.wait(automatic);
     if(wait>0){if(automatic)aiTimer.current=setTimeout(()=>void ask(mode,true),wait);else setAiError(`Pausa per rispettare i limiti del provider: riprova tra ${Math.ceil(wait/1000)} s.`);return;}
     governor.started();const controller=new AbortController();pending.current=controller;setBusy(true);
-    try{const answer=await streamAssist(payload,controller.signal,a=>{if(controller.signal.aborted||rev!==revision.current)return false;showSuggestion({text:spaced(a),from:start,to:end,revision:rev,mode,done:false,...extra});});
-      if(answer===null)return;governor.remember(key,spaced(answer));
-      if(!controller.signal.aborted&&rev===revision.current)finish(spaced(answer),false);
+    try{const answer=await streamAssist(payload,controller.signal,a=>{if(controller.signal.aborted||rev!==revision.current)return false;const p=splitWarning(a);if(p.warning)setAiWarning(p.warning);if(p.text)showSuggestion({text:spaced(p.text),from:start,to:end,revision:rev,mode,done:false,...extra});});
+      if(answer===null)return;governor.remember(key,answer);
+      if(!controller.signal.aborted&&rev===revision.current)finish(answer,false);
     }catch(err){if(!controller.signal.aborted){if(automatic)governor.asked(mode,scope,text);showSuggestion(null);setAiError((err as Error).message);}}
     finally{if(pending.current===controller){pending.current=null;setBusy(false);}}
   }
@@ -178,7 +180,7 @@ export default function Workspace() {
   async function reloadProfiles(){const data=await api('profiles');setProfiles(data.profiles);setVaultReady(data.vaultReady);setProfile(p=>data.profiles.some((x:Profile)=>x.id===p)?p:data.profiles[0]?.id||'');}
   useEffect(()=>{if(!editor)return;let cancelled=false;(async()=>{try{const list=await api('documents');if(cancelled)return;setDocs(list);await reloadProfiles();if(cancelled)return;if(list.length)await loadDocument(list[0].id);else{suppress.current=true;editor.commands.setContent(WELCOME);suppress.current=false;current.current.title='Benvenuto in Scrivia';setTitle('Benvenuto in Scrivia');markDirty();await save();await attachProject(current.current.id);}setMode(readMode());setLoaded(true);}catch(err){setError((err as Error).message);setStatus('Connessione non riuscita');}})();return()=>{cancelled=true;};},[editor]);
   useEffect(()=>{const before=(e:BeforeUnloadEvent)=>{void saveProject();if(dirty.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',before);return()=>{window.removeEventListener('beforeunload',before);void saveProject();if(fpTimer.current)clearTimeout(fpTimer.current);pending.current?.abort();if(aiTimer.current)clearTimeout(aiTimer.current);if(saveTimer.current)clearTimeout(saveTimer.current);};},[saveProject]);
-  useEffect(()=>{clearSuggestion();},[profile,aiOn,autoMode,tone,mode]);
+  useEffect(()=>{clearSuggestion();setAiWarning('');},[profile,aiOn,autoMode,tone,mode]);
   function changeMode(next:Mode){setMode(next);try{localStorage.setItem('scrivia:mode',next);}catch{}}
   useEffect(()=>{setTheme(readTheme());},[]);
   useEffect(()=>{const media=window.matchMedia('(prefers-color-scheme: dark)');const apply=()=>{document.documentElement.dataset.theme=theme==='system'?(media.matches?'dark':'light'):theme;};apply();media.addEventListener('change',apply);return()=>media.removeEventListener('change',apply);},[theme]);
@@ -247,7 +249,7 @@ export default function Workspace() {
             {coTab==='genera'?<div className="rewrite-actions"><button onClick={()=>void ask('continue')}><PenLine size={17}/><span>Continua la scena<small>Un paragrafo dal cursore, nella voce scelta</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('voice')}><Drama size={17}/><span>Riscrivi nella voce scelta<small>Selezione o paragrafo, stesso contenuto</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('rewrite')}><WandSparkles size={17}/><span>Migliora la scrittura<small>Più chiara, sempre tua</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('shorten')}><AlignLeft size={17}/><span>Rendi più conciso<small>Vai dritto al punto</small></span><ChevronRight size={15}/></button><button onClick={()=>void ask('formal')}><FileText size={17}/><span>Tono professionale<small>Il registro giusto</small></span><ChevronRight size={15}/></button></div>
             :editor&&<Directions editor={editor} run={run} ctx={narrative} ready={!!activeProfile} onWrite={direction=>void ask('continue',false,direction)}/>}</>}
           {mode==='revisione'&&editor&&<Review editor={editor} project={project} setProject={setProject} run={run} ctx={narrative} fp={fp} ready={!!activeProfile} jump={jump}/>}
-          {mode!=='revisione'&&<div className={'suggestion-box'+(suggestion?' has-proposal':'')+(busy?' is-busy':'')} aria-live="polite"><div><Sparkles size={15}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(SUGGESTION_TITLES[suggestion.mode]||'Correzione proposta'):'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<button aria-label="Scarta suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{suggestion?<><p className="proposal">{suggestion.mode==='complete'||suggestion.mode==='continue'?<>{suggestion.base&&<span className="proposal-context">{suggestion.base.length>70?'…'+suggestion.base.slice(-70).trimStart():suggestion.base}</span>}<mark>{suggestion.text}</mark></>:proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>{proposalDiff&&<small className="proposal-note">{proposalDiff.some(p=>p.type!=='same')?<><ins>in verde</ins> le parole nuove, <del>barrate</del> quelle rimosse</>:'Nessuna modifica necessaria: il testo va già bene.'}</small>}{proposalVoice!==null&&<small className="proposal-note voice-match"><Drama size={12}/>Vicinanza alla tua impronta stilistica: <strong>{proposalVoice}%</strong></small>}{suggestion.cached&&<small className="proposal-note">Dalla memoria: nessuna nuova chiamata al provider.</small>}<div className="proposal-actions"><button className="accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta<kbd>Tab</kbd></button><button className="dismiss" onClick={clearSuggestion}>Scarta<kbd>Esc</kbd></button></div></>:<p>{aiError||(!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.')}</p>}{!profiles.length&&<button className="connect" onClick={()=>setSettings(true)}><Plus size={14}/>Collega il tuo provider</button>}</div>}
+          {mode!=='revisione'&&<div className={'suggestion-box'+(suggestion?' has-proposal':'')+(busy?' is-busy':'')} aria-live="polite"><div><Sparkles size={15}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(SUGGESTION_TITLES[suggestion.mode]||'Correzione proposta'):'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<button aria-label="Scarta suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{[aiWarning,aiError].filter(Boolean).map(w=><p key={w} className="ai-warning" role="alert"><TriangleAlert size={14}/><span>{w}</span><button aria-label="Chiudi avviso" onClick={()=>{setAiWarning('');setAiError('');}}><X size={12}/></button></p>)}{suggestion?<><p className="proposal">{suggestion.mode==='complete'||suggestion.mode==='continue'?<>{suggestion.base&&<span className="proposal-context">{suggestion.base.length>70?'…'+suggestion.base.slice(-70).trimStart():suggestion.base}</span>}<mark>{suggestion.text}</mark></>:proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>{proposalDiff&&<small className="proposal-note">{proposalDiff.some(p=>p.type!=='same')?<><ins>in verde</ins> le parole nuove, <del>barrate</del> quelle rimosse</>:'Nessuna modifica necessaria: il testo va già bene.'}</small>}{proposalVoice!==null&&<small className="proposal-note voice-match"><Drama size={12}/>Vicinanza alla tua impronta stilistica: <strong>{proposalVoice}%</strong></small>}{suggestion.cached&&<small className="proposal-note">Dalla memoria: nessuna nuova chiamata al provider.</small>}<div className="proposal-actions"><button className="accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta<kbd>Tab</kbd></button><button className="dismiss" onClick={clearSuggestion}>Scarta<kbd>Esc</kbd></button></div></>:!aiWarning&&!aiError&&<p>{!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.'}</p>}{!profiles.length&&<button className="connect" onClick={()=>setSettings(true)}><Plus size={14}/>Collega il tuo provider</button>}</div>}
           </>}
           <div className="assistant-footnote"><ShieldCheck size={15}/><p>Il testo viene inviato solo al provider selezionato quando l’AI è attiva. <button onClick={()=>setSettings(true)}>Gestisci le API</button></p></div><div className="shortcuts"><span><kbd>Tab</kbd> accetta</span><span><kbd>Esc</kbd> ignora</span></div>
         </aside></div>
