@@ -6,7 +6,19 @@ Editor web in italiano con suggerimenti AI mentre scrivi. Interfaccia a tre pann
 
 Se stai leggendo questo README sul repository e trovi soltanto l’archivio, scarica `smartwords-source.zip` ed estrailo. Il progetto completo è nella cartella `smartwords/`: apri lì il terminale per i comandi descritti sotto. L’archivio include i sorgenti, il lockfile delle dipendenze, le migrazioni e i test; esclude chiavi API, dati locali e dipendenze installate.
 
-Il sito non è ancora pubblicato: il passaggio di caricamento verso Sites è bloccato dai permessi dello strumento. La compilazione locale e i test sono riusciti.
+## Versione GitHub Pages
+
+GitHub Pages pubblica solo file statici: non può eseguire il backend (Workers + D1). Per questo esiste una build statica dedicata (`site/`, `vite.pages.config.ts`) in cui:
+
+- documenti, cronologia e profili API sono salvati nel `localStorage` del browser (nessun server, nessun account);
+- le richieste AI partono direttamente dal browser verso il provider scelto, con la tua chiave;
+- il tema chiaro/scuro/di sistema si cambia con l’icona sole/luna/monitor in alto a destra.
+
+Pubblicazione: in **Settings → Pages → Build and deployment → Source** scegli **GitHub Actions**. Ogni push su `main` esegue `.github/workflows/pages.yml`, che compila con `npm run build:pages` e pubblica la cartella `out-pages`. Il sito sarà su `https://<utente>.github.io/smartwords/`.
+
+Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
+
+Attenzione: nella versione statica le chiavi API restano in chiaro nel browser. Usala su un dispositivo personale, con chiavi dotate di limiti di spesa. Alcuni provider potrebbero rifiutare le chiamate dirette dal browser (CORS); OpenAI, Anthropic, Groq, Mistral e OpenRouter le consentono. Esporta regolarmente i documenti: cancellando i dati del sito vengono persi.
 
 ## Funzioni
 
