@@ -333,3 +333,11 @@
 :root[data-theme=dark] .dictation-bar{background:#1f2721;border-color:#2c332e;color:#cfe3c6}:root[data-theme=dark] .dictation-bar button{background:#252c27;border-color:#2c332e}:root[data-theme=dark] .dictation-bar.bad{background:#3a2420;color:#f0b4a8}
 @media (prefers-reduced-motion:reduce){.dictation-pulse{animation:none}}
 @media print{.dictation-bar{display:none}}
+.github-modal fieldset{border:0;padding:0;margin:0;min-width:0}
+.github-modal .github-remember{display:flex;align-items:center;gap:8px}
+.github-modal .github-remember input{display:inline-block;width:auto;margin:0}
+.github-modal .github-connection-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}
+.github-modal .form-note a{text-decoration:underline}
+.github-modal .github-document-list{max-height:340px;overflow:auto}
+.menu-bar{overflow-x:auto;white-space:nowrap}
+.menu-bar>button{flex-shrink:0}
