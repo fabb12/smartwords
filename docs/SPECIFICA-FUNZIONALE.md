@@ -69,6 +69,14 @@ Il nucleo combina tre funzioni che si alimentano a vicenda. Ogni richiesta AI ri
   - Un testo dello stesso autore ottiene una somiglianza più alta di un testo accademico estraneo (stesso test).
   - Sotto le 80 parole l’impronta non viene inviata al modello, perché non è affidabile.
 
+#### 3.2.1 Memoria persistente della voce
+
+- **Comportamento.** `lib/writing-memory.ts` conserva fino a 40 campioni di 6000 caratteri dai documenti aperti e salvati. Gli aggiornamenti sostituiscono il campione del documento; le copie identiche non pesano due volte nell’impronta. Il comando «Impara dai documenti salvati» legge fino a 40 documenti recenti con quattro letture in parallelo, applicando le esclusioni e riportando le letture fallite.
+- **Interfaccia.** «La mia voce» permette di osservare i tratti e le espressioni ricorrenti, descrivere la personalità della voce, scegliere se inviare esempi, escludere testi, mettere in pausa, azzerare ed esportare/importare il profilo. L’azzeramento spegne l’apprendimento e conserva i documenti. I comandi sono disponibili anche nel menu del telefono.
+- **Persistenza.** `localStorage`, separato per identità utente nella versione server. Il file di esportazione contiene campioni e preferenze. Il profilo non viene aggiunto automaticamente ai documenti GitHub né sincronizzato dal backend.
+- **Motore IA.** Il campo dati `authorVoice` aggiunge stile misurato, preferenze, espressioni e fino a tre esempi di 300 caratteri. Le preferenze sono utilizzabili subito; lo stile misurato entra da 80 parole, provvisorio sotto 300. Solo i modi di scrittura e le direzioni ricevono la memoria: analisi dei fatti, domande e tono professionale ne sono esclusi. La scena, i fatti e la voce scelta hanno la precedenza; i campioni sono esempi di espressione, non istruzioni o fatti da importare nel testo corrente. Non viene costruito un profilo psicologico della persona né promessa una previsione esatta delle frasi.
+- **Verifica.** Test di persistenza e separazione degli account, deduplicazione, aggiornamenti, esclusioni, pausa, azzeramento, limiti, trasferimento, esempi facoltativi e selezione dei modi. Prova browser con apprendimento dalla libreria, riapertura, completamento su documento nuovo, accettazione con Tab e importazione in una sessione telefono separata.
+
 ### 3.3 Memoria narrativa con prove (funzione 3)
 
 - **Comportamento.**

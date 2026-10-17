@@ -7,7 +7,8 @@ assert.ok(cookie,'Local sign-in must set a development cookie');
 async function req(path,body,extra={}){return fetch(origin+'/api/'+path,{method:body?'POST':'GET',headers:{Cookie:cookie,...(body?{'Content-Type':'application/json',Origin:origin}:{}),...extra},...(body?{body:JSON.stringify(body)}:{})});}
 const anon=await fetch(origin+'/api/documents');assert.equal(anon.status,401);
 const content={type:'doc',content:[{type:'paragraph',content:[{type:'text',text:'Test automatico salvataggio'}]}]};
-assert.equal((await req('documents',{title:'Test CSRF',content},{Origin:'https://other.example'})).status,403);
+// Vite rejects the origin before consuming the body; do not reuse that socket.
+assert.equal((await req('documents',{title:'Test CSRF',content},{Origin:'https://other.example',Connection:'close'})).status,403);
 let r=await req('documents',{title:'Verifica API',content});assert.equal(r.status,200);const created=await r.json();assert.equal(created.version,1);
 r=await req('documents',{id:created.id,version:1,title:'Verifica API aggiornata',content});assert.equal(r.status,200);assert.equal((await r.json()).version,2);
 r=await req('documents',{id:created.id,version:1,title:'Versione obsoleta',content});assert.equal(r.status,409);
