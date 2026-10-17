@@ -147,6 +147,14 @@ Il nucleo combina tre funzioni che si alimentano a vicenda. Ogni richiesta AI ri
   - Le istruzioni contengono il divieto di copia, l’intensità corretta e la descrizione personalizzata (test *voice instructions*).
   - La riscrittura «nella voce scelta» invia i tratti di Calvino e il brief del progetto (e2e).
 
+### 3.7 Knowledge base di stile e mentalità
+
+- **Comportamento.** Si creano più knowledge base, ciascuna **personale** (testi dello scrittore) o **d’autore** (testi di un altro autore), caricando PDF, DOCX, ODT, EPUB, RTF, HTML, Markdown, TXT, CSV o documenti Scrivia JSON. Se ne attiva al massimo una: completamenti, riscritture, scene e direzioni ne seguono stile **e** mentalità (modo di ragionare, valori, registro emotivo, temi). Se attiva, sostituisce «La mia voce» nelle richieste (la voce non viene inviata due volte); una voce d’autore scelta nel progetto si somma in modo leggero.
+- **Interfaccia.** Finestra «Knowledge base» (menu di scrittura, pannello assistente, menu ⋯ su telefono): elenco con scelta di quella attiva, caricamento di più file, statistiche, stima dei token, profilo locale, profilo distillato modificabile, note, esportazione/importazione ed eliminazione. Un **indicatore compatto** (KB personale in verde, KB d’autore o voce famosa in viola, «La mia voce» in blu, solo documento in grigio) compare sopra il foglio, nell’intestazione della proposta e, su telefono, in alto a destra e nella barra della proposta; **pulsa** mentre l’AI sta prevedendo o correggendo e un clic apre la gestione.
+- **Dati.** `lib/knowledge-base.ts` (logica pura), `lib/kb-store.ts` (IndexedDB per proprietario; la scelta attiva in `localStorage`), `app/kb-extract.ts` (estrazione nel browser con pdf.js, mammoth e JSZip). Limiti: 1600 blocchi da ~900 caratteri per knowledge base, 12 knowledge base, 40 MB per file.
+- **Motore IA e token.** Pipeline «split → index → retrieve» sul modello di LangChain, eseguita sul dispositivo: suddivisione ricorsiva per paragrafi/frasi; profilo locale (impronta, segnali di mentalità, temi, espressioni) calcolato una volta su un campione stratificato; **distillazione** facoltativa della personalità con una sola chiamata (`mode: persona`, campione ≤ 9500 caratteri) riusata a ogni richiesta; per ogni richiesta solo profilo compatto + 2 (completamento automatico) o 3 passaggi scelti con BM25, campo `knowledgeBase` ≤ 4500 caratteri. Le istruzioni vietano di copiare frasi dei passaggi e di importarne personaggi o fatti; nessun giudizio clinico nel profilo.
+- **Verifica.** Test *knowledge-base*: suddivisione, pulizia PDF, duplicati e limiti, segnali di mentalità, recupero pertinente e budget, parsing del profilo, campo solo nelle modalità di scrittura, indicatore della fonte, esportazione/importazione e dati non attendibili. E2e: import di PDF e TXT, attivazione, indicatore dopo il ricaricamento e richiesta al provider simulato con `knowledgeBase` e senza `authorVoice`.
+
 ## 4. Architettura
 
 ```
