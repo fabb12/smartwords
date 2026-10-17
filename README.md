@@ -82,6 +82,7 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 - **Intenzione della scena**: il tipo di scena (romantica, suspense, mistero, dialogo…) viene riconosciuto in locale e guida i completamenti. Puoi anche sceglierlo tu.
 - **Impronta stilistica**: frasi, ritmo, lessico, dialogo, persona e punteggiatura vengono misurati sul manoscritto. Proposte e riscritture la seguono e mostrano quanto ci somigliano.
 - **Memoria della mia voce**: un profilo persistente raccoglie campioni dei testi che apri e salvi, riconosce ritmo ed espressioni ricorrenti e guida i completamenti anche in un documento nuovo. Dal menu «La mia voce» puoi includere i documenti già salvati, descrivere la personalità della voce, escludere testi, disattivare gli esempi o azzerare la memoria.
+- **Knowledge base di stile e mentalità**: carica PDF, Word, ODT, EPUB, RTF, HTML, Markdown o testo, tuoi o di un autore. Scrivia ne estrae stile, mentalità e temi e le previsioni seguono quella voce; un indicatore compatto sopra il foglio mostra sempre quale fonte sta guidando l’AI e pulsa mentre prevede. Dettagli sotto.
 - **Voci d’autore**: puoi ispirarti a Calvino, Rovelli, Boncinelli, Carrère, Ginzburg, Eco, Ferrante, Baricco, Buzzati, Levi, Pavese, Tabucchi, Morante, Hemingway, Woolf, García Márquez, oppure descrivere uno stile tuo. L’intensità è regolabile; vengono evocati solo i tratti di stile, senza copiare brani.
 - **Progetto creativo**: genere, lettori, premessa e note per l’assistente, salvati con il documento.
 - **Memoria narrativa con prove**: personaggi, luoghi, oggetti ed eventi, ciascuno con la citazione esatta.
@@ -142,6 +143,22 @@ Nei completamenti, riscritture, scene e direzioni, l’AI riceve la descrizione 
 Puoi escludere il documento aperto o rimuovere singoli testi dall’apprendimento, usare soltanto i tratti senza inviare esempi, disattivare l’intera memoria e cancellarla. **Azzera memoria** elimina campioni e preferenze e disattiva l’apprendimento, conservando i documenti nell’app.
 
 La memoria resta nel browser o nell’app desktop dopo la riapertura; nella versione con server è separata per utente sul dispositivo. Per trasferirla, usa **Esporta profilo** e **Importa profilo** su un altro dispositivo: il file include preferenze e campioni dei testi selezionati. Il profilo non viene inserito automaticamente nei documenti GitHub e non viene sincronizzato dal backend. Cancellare i dati del browser elimina anche la memoria locale; conserva un’esportazione se vuoi recuperarla.
+
+### Knowledge base di stile e mentalità
+
+Apri **Knowledge base** dal menu di scrittura, dal pannello assistente o, sul telefono, dal menu ⋯.
+
+1. Crea una knowledge base **personale** (i tuoi testi) o **d’autore** (testi di un altro autore) e indica nome e autore.
+2. Aggiungi i file, anche più insieme: PDF con testo selezionabile, DOCX, ODT, EPUB, RTF, HTML, Markdown, TXT, CSV o documenti Scrivia `.json`, fino a 40 MB ciascuno. L’estrazione avviene nel browser.
+3. Scrivia misura subito, senza AI, **stile** (frasi, ritmo, lessico, narratore), **mentalità** (dubitativa o assertiva, argomentativa, dialettica, interrogativa, concreta o concettuale, registro emotivo), **temi** ed **espressioni ricorrenti**.
+4. Facoltativo: **Distilla con l’AI** fa una sola chiamata su un campione rappresentativo e produce un profilo di personalità (mentalità, valori, registro emotivo, modo di ragionare, temi, voce, lessico, cosa evita), che puoi correggere.
+5. Scegli **Usa per le previsioni**. La scelta resta memorizzata sul dispositivo; «Nessuna» torna a «La mia voce» o alla voce d’autore del progetto.
+
+**Quale fonte sta usando l’AI.** Sopra il foglio (su telefono in alto a destra) un piccolo indicatore mostra la fonte attiva: **KB personale** in verde, **KB autore** o voce d’autore famoso in viola, **La mia voce** in blu, solo il documento in grigio. Mentre l’AI prevede o corregge, l’indicatore pulsa e compare anche nell’intestazione della proposta. Un clic apre la gestione.
+
+**Token.** Lo schema è quello di LangChain (suddividi → indicizza → recupera), eseguito sul dispositivo senza librerie pesanti: i testi sono divisi in blocchi da circa 900 caratteri; a ogni richiesta partono solo il profilo compatto e i 2–3 passaggi più pertinenti al testo che stai scrivendo, scelti con BM25 (circa 300–1100 token invece dell’intero corpus). La finestra mostra la stima. Quando una knowledge base è attiva, «La mia voce» non viene inviata, per non duplicare.
+
+Testi e indice restano nel dispositivo (IndexedDB); per trasferirli usa **Esporta** e **Importa**. Per le knowledge base d’autore usa testi che possiedi o di libero uso: le proposte evocano stile e mentalità senza copiare frasi. Il profilo descrive l’autore come appare nei testi, senza giudizi clinici. Limiti: 12 knowledge base, circa 1,4 milioni di caratteri ciascuna; i PDF scansionati senza testo non sono leggibili.
 
 ### Documenti su GitHub, da più dispositivi
 
