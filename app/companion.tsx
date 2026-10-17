@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Editor } from '@tiptap/react';
 import { BookOpen, Brain, Check, ChevronRight, CircleAlert, Feather, Flag, GitBranch, LoaderCircle, MessageCircle, PenLine, Quote, RefreshCw, ScanSearch, SendHorizontal, Sparkles, Target, X } from 'lucide-react';
 import { blocksFromDoc, chapterAt, chapters, citeParts, cleanFacts, findConflicts, fingerprint, fingerprintTraits, hash, INTENTS, locate, parseJson, passages, retrieve, styleSimilarity, type Chapter, type DetectedIntent, type Evidence, type Fact, type Fingerprint, type Passage } from '../lib/narrative';
-import { INTENSITIES, VOICES, voiceById } from '../lib/author-styles';
+import { INTENSITIES, VOICES, MIX_AUTHORS, MAX_MIX_AUTHORS, blendShares, voiceById, voiceName } from '../lib/author-styles';
 import type { Project } from '../lib/project';
 
 export type Mode = 'libera' | 'assistita' | 'coscrittura' | 'revisione';
@@ -35,7 +35,7 @@ export function ModeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) =
 export function ProjectChip({ project, onOpen }: { project: Project; onOpen: () => void }) {
   const voice = voiceById(project.voice.id), intensity = INTENSITIES.find(i => i.id === project.voice.intensity);
   return <button className="project-chip" onClick={onOpen} data-tip="Progetto creativo: genere, lettori, premessa e voce d’autore che l’AI deve seguire">
-    <BookOpen size={15} /><span><small>Voce</small>{voice.name}{voice.id !== 'mine' && intensity ? ' · ' + intensity.name.toLowerCase() : ''}</span>
+    <BookOpen size={15} /><span><small>Voce</small>{voiceName(voice.id, project.voice.blend)}{voice.id !== 'mine' && intensity ? ' · ' + intensity.name.toLowerCase() : ''}</span>
     <span className={'brief-state ' + (project.brief.premise || project.brief.genre ? 'set' : '')}>{project.brief.premise || project.brief.genre ? 'Progetto' : 'Definisci il progetto'}</span><ChevronRight size={14} />
   </button>;
 }
@@ -63,6 +63,7 @@ export function ProjectModal({ project, setProject, onClose }: { project: Projec
   const brief = project.brief, voice = project.voice;
   const setBrief = (k: keyof Project['brief'], v: string) => setProject(p => ({ ...p, brief: { ...p.brief, [k]: v } }));
   const setVoice = (v: Partial<Project['voice']>) => setProject(p => ({ ...p, voice: { ...p.voice, ...v } }));
+  const blend = blendShares(voice.blend);
   return <div className="modal-backdrop" onClick={onClose}><section className="modal project-modal" role="dialog" aria-modal="true" aria-label="Progetto creativo e voce" onClick={e => e.stopPropagation()}>
     <button className="modal-close tool" aria-label="Chiudi progetto" onClick={onClose}><X size={20} /></button>
     <span className="modal-icon"><BookOpen size={23} /></span><h2>Il tuo progetto creativo.</h2>
@@ -72,10 +73,16 @@ export function ProjectModal({ project, setProject, onClose }: { project: Projec
     <label>Che cosa vuoi raccontare<textarea maxLength={1000} rows={3} placeholder="La premessa, il tema, l’effetto che vuoi ottenere nel lettore…" value={brief.premise} onChange={e => setBrief('premise', e.target.value)} /></label>
     <label>Note per l’assistente<textarea maxLength={1500} rows={2} placeholder="Es. Laura non deve mai sembrare una vittima; il colpevole si scopre solo alla fine." value={brief.notes} onChange={e => setBrief('notes', e.target.value)} /></label>
     <h3>Voce narrativa</h3><p className="form-note">«La mia voce» usa la tua impronta stilistica. Un autore di riferimento aggiunge le sue caratteristiche di stile, nella misura che scegli: i contenuti restano tuoi e nessun brano viene copiato.</p>
-    <div className="voice-grid" role="radiogroup" aria-label="Voce narrativa">{VOICES.map(v => <button key={v.id} role="radio" data-tip={v.family === 'mia' ? 'Usa la tua voce, misurata sul testo che hai scritto' : 'Ispirati ai tratti di stile di ' + v.name + ' (senza copiarne i brani)'} aria-checked={voice.id === v.id} className={'voice-card ' + (voice.id === v.id ? 'active' : '') + (v.family === 'mia' ? ' own' : '')} onClick={() => setVoice({ id: v.id })}><strong>{v.name}</strong><small>{v.tag}</small></button>)}</div>
+    <div className="voice-grid" role="radiogroup" aria-label="Voce narrativa">{VOICES.map(v => <button key={v.id} role="radio" data-tip={v.id === 'mix' ? 'Unisci da due a quattro autori e regola il peso di ciascuno' : v.id === 'custom' ? 'Descrivi le caratteristiche dello stile che cerchi' : v.family === 'mia' ? 'Usa la tua voce, misurata sul testo che hai scritto' : 'Ispirati ai tratti di stile di ' + v.name + ' (senza copiarne i brani)'} aria-checked={voice.id === v.id} className={'voice-card ' + (voice.id === v.id ? 'active' : '') + (v.family === 'mia' ? ' own' : '')} onClick={() => setVoice({ id: v.id })}><strong>{v.name}</strong><small>{v.tag}</small></button>)}</div>
     {voice.id === 'custom' && <label>Descrivi lo stile che cerchi<textarea maxLength={600} rows={3} placeholder="Es. frasi brevi e secche, molto dialogo, ironia amara, presente indicativo." value={voice.custom} onChange={e => setVoice({ custom: e.target.value })} /></label>}
+    {voice.id === 'mix' && <fieldset className="voice-blend"><legend>Autori del mix</legend>
+      <p className="form-note">Scegli da due a {MAX_MIX_AUTHORS} autori. I pesi sono relativi: la percentuale indica quanto ciascuno influenza la voce risultante.</p>
+      <div className="blend-authors">{MIX_AUTHORS.map(v => { const selected = blend.some(b => b.id === v.id); return <label key={v.id}><input type="checkbox" checked={selected} disabled={!selected && blend.length >= MAX_MIX_AUTHORS} onChange={() => setVoice({ blend: selected ? blend.filter(b => b.id !== v.id).map(({ id, weight }) => ({ id, weight })) : [...blend.map(({ id, weight }) => ({ id, weight })), { id: v.id, weight: 50 }] })} />{v.name}</label>; })}</div>
+      {blend.map(b => <label className="blend-weight" key={b.id} htmlFor={'blend-weight-' + b.id}>Peso di {voiceById(b.id).name}<output>{b.percent.toLocaleString('it-IT')}%</output><input id={'blend-weight-' + b.id} aria-label={'Peso di ' + voiceById(b.id).name} type="range" min={1} max={100} value={b.weight} onChange={e => setVoice({ blend: blend.map(({ id, weight }) => ({ id, weight: id === b.id ? Number(e.target.value) : weight })) })} /></label>)}
+      {blend.length < 2 && <p className="form-note" role="status">Seleziona almeno due autori per creare il mix. Fino ad allora viene usata la tua voce.</p>}
+    </fieldset>}
     {voice.id !== 'mine' && <div className="segmented intensity" role="radiogroup" aria-label="Intensità dello stile">{INTENSITIES.map(i => <button key={i.id} role="radio" aria-checked={voice.intensity === i.id} className={voice.intensity === i.id ? 'active' : ''} data-tip={i.hint} onClick={() => setVoice({ intensity: i.id })}>{i.name}</button>)}</div>}
-    {voice.id !== 'mine' && voice.id !== 'custom' && <p className="form-note voice-traits">{voiceById(voice.id).traits}</p>}
+    {voice.id !== 'mine' && voice.id !== 'custom' && voice.id !== 'mix' && <p className="form-note voice-traits">{voiceById(voice.id).traits}</p>}
     <div className="form-footer"><button className="primary" onClick={onClose}>Fatto<Check size={16} /></button></div>
   </section></div>;
 }

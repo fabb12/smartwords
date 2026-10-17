@@ -50,8 +50,12 @@ test('device profile discovery, authenticated streaming, quotas and updates use 
   const events=(await result.text()).trim().split('\n').map(JSON.parse);
   assert.equal(events.filter(e=>e.text).map(e=>e.text).join(''),'Il gatto cammina nel giardino.');
   assert.equal(events.at(-1).done,true);
+  assert.equal(events.at(-2).usage.provider,'ollama');
+  assert.equal(events.at(-2).usage.model,'llama3.2:latest');
+  assert.equal(events.at(-2).usage.estimated,true);
   assert.equal(lastRequest.model,'llama3.2:latest');
   assert.equal(lastRequest.stream,true);
+  assert.equal(lastRequest.stream_options.include_usage,true);
   assert.equal(auth,'Bearer local-test-token');
   assert.ok(lastRequest.messages[0].content.includes('spelling errors'));
   assert.equal(deviceProfiles()[0].used,1);

@@ -137,15 +137,26 @@ Il nucleo combina tre funzioni che si alimentano a vicenda. Ogni richiesta AI ri
 - **Comportamento.** Si possono scegliere:
   - **La mia voce** (predefinita, basata sull’impronta);
   - un autore di riferimento: Calvino, Rovelli, Boncinelli, Carrère, Ginzburg, Eco, Ferrante, Baricco, Buzzati, Levi, Pavese, Tabucchi, Morante, Hemingway, Woolf, García Márquez;
+  - **Mix di autori**: da due a quattro riferimenti con pesi relativi regolabili e percentuali visibili;
   - **Stile personalizzato**, descritto a parole.
 
   L’intensità può essere leggera, equilibrata o marcata.
 - **Interfaccia.** Il chip «Voce» nel pannello apre la finestra **Progetto creativo**: genere, lettori, che cosa si vuole raccontare, note per l’assistente, griglia delle voci, intensità e descrizione dei tratti.
 - **Dati.** `lib/author-styles.ts`, che contiene **solo descrizioni di tratti stilistici** e nessun brano. `Project.voice` e `Project.brief` sono salvati per documento.
+- **Mix.** `Project.voice.blend` conserva ID e pesi (1–100), validati, senza duplicati e con massimo quattro autori. Un mix incompleto torna alla voce personale. Il prompt compone un’unica voce, senza alternare autori, e resta nel budget di `styleGuidance`; il progetto conserva il mix anche nel salvataggio su GitHub. Il chip e l’indicatore della fonte mostrano i riferimenti attivi.
 - **Motore IA.** `voiceInstruction()` compone: i tratti dell’autore, il peso secondo l’intensità e l’impronta personale. Aggiunge il vincolo: «evoca lo stile; non copiare, citare o parafrasare brani di opere esistenti; non nominare l’autore; mantieni personaggi, fatti e idee dell’autore».
 - **Verifica.**
   - Le istruzioni contengono il divieto di copia, l’intensità corretta e la descrizione personalizzata (test *voice instructions*).
   - La riscrittura «nella voce scelta» invia i tratti di Calvino e il brief del progetto (e2e).
+  - Test *author-mix*: pesi e prompt delle modalità di scrittura, budget, dati non attendibili, compatibilità con vecchi progetti e trasferimento del mix nel documento GitHub. E2e: scelta di autori, modifica dei pesi, limite di quattro e persistenza dopo ricaricamento.
+
+### 3.6.1 Statistiche dei token
+
+- **Interfaccia.** Impostazioni provider → **Consumo token**: ingresso, uscita, totale, richieste e tabella per provider/modello. Periodi: oggi (UTC), ultimi 7, 30 e 90 giorni. Distingue richieste misurate, stimate e interrotte.
+- **Conteggi.** Gli stream compatibili OpenAI richiedono `stream_options.include_usage`; i frame finali con `usage` vengono conservati anche senza testo. Anthropic combina ingresso iniziale, creazione/lettura cache e conteggio cumulativo dell’uscita; il conteggio provvisorio di `message_start` non è usato come uscita finale. La cache è una parte dell’ingresso, senza sommarla di nuovo nel totale. `lib/assist-stream.ts` invia i contatori tramite NDJSON per server, browser e modelli locali.
+- **Stime e annullamenti.** Se il provider non restituisce un conteggio, la stima esplicita usa circa un token ogni quattro caratteri del prompt completo e dell’uscita ricevuta. Una richiesta con risposta viene contabilizzata una volta anche in caso di errore o annullamento; le richieste annullate prima della risposta possono mancare. I riusi della cache di Scrivia non passano dalla contabilizzazione. Nessuna stima di prezzo: per gli addebiti fa fede il provider.
+- **Persistenza.** `lib/token-usage.ts`: contatori giornalieri per provider e modello in `localStorage`, separati per utente, fino a 90 giorni / 4000 aggregati. Nessun testo, prompt o chiave. Lo storico parte con la funzione, resta sul dispositivo e non entra nei documenti GitHub. Errori di spazio non interrompono la scrittura.
+- **Verifica.** Test *token-usage*: frame frammentati, usage finale, cache e delta Anthropic, risposte parziali, stime, aggregazioni, periodi, isolamento e dati corrotti. E2e: consumi OpenAI/Anthropic, stime Ollama, annullamento LM Studio e statistiche persistenti su desktop/telefono.
 
 ### 3.7 Knowledge base di stile e mentalità
 

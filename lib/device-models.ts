@@ -1,6 +1,7 @@
 // Local inference always runs on the user's device, even in the cloud-backed app.
 // These profiles are deliberately separate from server-side profiles and keys.
-import { PROVIDERS, ASSIST_MODES, assistPrompts, readTokens, type Provider } from './providers.ts';
+import { PROVIDERS, ASSIST_MODES, assistPrompts, type Provider } from './providers.ts';
+import { assistStream } from './assist-stream.ts';
 import { desktop } from './desktop.ts';
 
 export const DEVICE_PROVIDERS = {
@@ -81,14 +82,8 @@ export async function deviceAssist(b:Record<string,unknown>,signal:AbortSignal):
   try {
     used[p.id]=(used[p.id]||0)+1;write(USAGE,{day:today(),counts:used});
     upstream=await fetch(baseUrl+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:'Bearer '+token}:{})},
-      body:JSON.stringify({model:p.model,messages:[{role:'system',content:system},{role:'user',content:prompt}],max_tokens:maxTokens,stream:true}),signal:combined,redirect:'error'});
+      body:JSON.stringify({model:p.model,messages:[{role:'system',content:system},{role:'user',content:prompt}],max_tokens:maxTokens,stream:true,stream_options:{include_usage:true}}),signal:combined,redirect:'error'});
   } catch {if(signal.aborted)throw new DOMException('Richiesta annullata.','AbortError');return fail('Connessione al modello locale non riuscita. '+DEVICE_CONNECTION_HELP,502);}
   if(!upstream.ok||!upstream.body){await upstream.body?.cancel();return fail(`Il server locale ha rifiutato la richiesta (${upstream.status}). Controlla modello caricato e token.`,502);}
-  const encoder=new TextEncoder();
-  return new Response(new ReadableStream({
-    async start(out){try{let chars=0;for await(const text of readTokens(upstream.body!,'openai')){chars+=text.length;if(chars>16000)throw new Error('Risposta troppo lunga.');out.enqueue(encoder.encode(JSON.stringify({text})+'\n'));}out.enqueue(encoder.encode('{"done":true}\n'));}
-      catch {try{out.enqueue(encoder.encode('{"error":"Risposta del modello locale interrotta. Riprova."}\n'));}catch{}}
-      finally{controller.abort();try{out.close();}catch{}}},
-    cancel(){controller.abort();},
-  }),{headers:{'Content-Type':'application/x-ndjson','Cache-Control':'no-store'}});
+  return new Response(assistStream(upstream.body,'openai',{provider:p.provider,model:p.model,system,prompt},()=>controller.abort(),'Risposta del modello locale interrotta. Riprova.'),{headers:{'Content-Type':'application/x-ndjson','Cache-Control':'no-store'}});
 }
