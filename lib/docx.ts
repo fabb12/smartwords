@@ -4,7 +4,7 @@ function runs(nodes:JSONContent[]=[]):ParagraphChild[]{return nodes.flatMap((n):
   if(n.type==='hardBreak')return [new TextRun({break:1})];
   if(n.type!=='text')return runs(n.content);
   const marks=n.marks||[],style=marks.find(m=>m.type==='textStyle')?.attrs||{};
-  const run=new TextRun({text:n.text||'',bold:marks.some(m=>m.type==='bold'),italics:marks.some(m=>m.type==='italic'),underline:marks.some(m=>m.type==='underline')?{}:undefined,strike:marks.some(m=>m.type==='strike'),font:style.fontFamily||'Georgia',size:style.fontSize?Math.round(parseFloat(style.fontSize)*1.5):24,color:style.color?.replace('#','')});
+  const run=new TextRun({text:n.text||'',bold:marks.some(m=>m.type==='bold'),italics:marks.some(m=>m.type==='italic'),underline:marks.some(m=>m.type==='underline')?{}:undefined,strike:marks.some(m=>m.type==='strike'),font:style.fontFamily||'Arial',size:style.fontSize?Math.round(parseFloat(style.fontSize)*1.5):24,color:style.color?.replace('#','')});
   const link=marks.find(m=>m.type==='link')?.attrs?.href;
   return link&&/^https?:\/\//.test(link)?[new ExternalHyperlink({link,children:[run]})]:[run];
 });}
