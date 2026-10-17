@@ -149,7 +149,7 @@ La memoria resta nel browser o nell’app desktop dopo la riapertura; nella vers
 Apri **Knowledge base** dal menu di scrittura, dal pannello assistente o, sul telefono, dal menu ⋯.
 
 1. Crea una knowledge base **personale** (i tuoi testi) o **d’autore** (testi di un altro autore) e indica nome e autore.
-2. Aggiungi i file, anche più insieme: PDF con testo selezionabile, DOCX, ODT, EPUB, RTF, HTML, Markdown, TXT, CSV o documenti Scrivia `.json`, fino a 40 MB ciascuno. L’estrazione avviene nel browser.
+2. Aggiungi i file, anche più insieme: PDF con testo selezionabile, DOCX, ODT, EPUB, RTF, HTML, Markdown, TXT, CSV o documenti Scrivia `.json`, fino a 100 MB ciascuno. L’estrazione avviene nel browser.
 3. Scrivia misura subito, senza AI, **stile** (frasi, ritmo, lessico, narratore), **mentalità** (dubitativa o assertiva, argomentativa, dialettica, interrogativa, concreta o concettuale, registro emotivo), **temi** ed **espressioni ricorrenti**.
 4. Facoltativo: **Distilla con l’AI** fa una sola chiamata su un campione rappresentativo e produce un profilo di personalità (mentalità, valori, registro emotivo, modo di ragionare, temi, voce, lessico, cosa evita), che puoi correggere.
 5. Scegli **Usa per le previsioni**. La scelta resta memorizzata sul dispositivo; «Nessuna» torna a «La mia voce» o alla voce d’autore del progetto.
