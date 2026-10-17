@@ -81,6 +81,7 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
   - **Revisione**: analisi approfondite.
 - **Intenzione della scena**: il tipo di scena (romantica, suspense, mistero, dialogo…) viene riconosciuto in locale e guida i completamenti. Puoi anche sceglierlo tu.
 - **Impronta stilistica**: frasi, ritmo, lessico, dialogo, persona e punteggiatura vengono misurati sul manoscritto. Proposte e riscritture la seguono e mostrano quanto ci somigliano.
+- **Memoria della mia voce**: un profilo persistente raccoglie campioni dei testi che apri e salvi, riconosce ritmo ed espressioni ricorrenti e guida i completamenti anche in un documento nuovo. Dal menu «La mia voce» puoi includere i documenti già salvati, descrivere la personalità della voce, escludere testi, disattivare gli esempi o azzerare la memoria.
 - **Voci d’autore**: puoi ispirarti a Calvino, Rovelli, Boncinelli, Carrère, Ginzburg, Eco, Ferrante, Baricco, Buzzati, Levi, Pavese, Tabucchi, Morante, Hemingway, Woolf, García Márquez, oppure descrivere uno stile tuo. L’intensità è regolabile; vengono evocati solo i tratti di stile, senza copiare brani.
 - **Progetto creativo**: genere, lettori, premessa e note per l’assistente, salvati con il documento.
 - **Memoria narrativa con prove**: personaggi, luoghi, oggetti ed eventi, ciascuno con la citazione esatta.
@@ -129,6 +130,18 @@ npm run dev
 Apri l’indirizzo indicato, normalmente `http://127.0.0.1:5173`. L’accesso locale usa l’identità di sviluppo del template Sites e non è un sistema di autenticazione da esporre su Internet.
 
 Per testare i profili API localmente, configura `VAULT_MASTER_KEY` in `.dev.vars` con un valore casuale di almeno 32 caratteri e riavvia il server. Il file è ignorato da Git. In produzione configura il valore come **segreto runtime di Sites**, mai nel codice o nel manifest. Non sostituire la chiave master senza un piano di migrazione: le chiavi già cifrate richiedono quella originale.
+
+### La mia voce: memoria personale di scrittura
+
+Apri **La mia voce** dal menu di scrittura, dall’assistente o, sul telefono, dal menu ⋯. L’apprendimento è attivo inizialmente: analizza in locale campioni dei documenti aperti e salvati, senza effettuare chiamate AI. Per includere i testi già presenti nella libreria, premi **Impara dai documenti salvati**: legge fino a 40 documenti recenti, rispettando le esclusioni.
+
+Il profilo ricorda lunghezza e variazione delle frasi, paragrafi, lessico, dialogo, persona narrativa, punteggiatura ed espressioni ricorrenti. In **Personalità della voce** puoi aggiungere o correggere le tue preferenze, per esempio «diretto e curioso, ironia leggera, immagini concrete». La memoria usa campioni limitati, aggiorna il testo quando lo modifichi e non conta due volte le copie identiche. Da 80 parole campionate inizia a guidare i suggerimenti; sotto 300 parole l’impronta resta provvisoria. Le preferenze espresse da te funzionano anche senza campioni.
+
+Nei completamenti, riscritture, scene e direzioni, l’AI riceve la descrizione della voce ed eventualmente fino a tre brevi esempi dei testi inclusi. La scena corrente, i fatti e la voce narrativa scelta per il progetto hanno la precedenza. Gli esempi guidano l’espressione, senza trasferire personaggi o fatti da un altro documento. Il profilo aiuta a mantenere la tua voce: non garantisce di prevedere esattamente la frase che avevi in mente. Il testo viene applicato solo quando accetti la proposta.
+
+Puoi escludere il documento aperto o rimuovere singoli testi dall’apprendimento, usare soltanto i tratti senza inviare esempi, disattivare l’intera memoria e cancellarla. **Azzera memoria** elimina campioni e preferenze e disattiva l’apprendimento, conservando i documenti nell’app.
+
+La memoria resta nel browser o nell’app desktop dopo la riapertura; nella versione con server è separata per utente sul dispositivo. Per trasferirla, usa **Esporta profilo** e **Importa profilo** su un altro dispositivo: il file include preferenze e campioni dei testi selezionati. Il profilo non viene inserito automaticamente nei documenti GitHub e non viene sincronizzato dal backend. Cancellare i dati del browser elimina anche la memoria locale; conserva un’esportazione se vuoi recuperarla.
 
 ### Documenti su GitHub, da più dispositivi
 
