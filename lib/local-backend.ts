@@ -1,7 +1,8 @@
 // Browser-only backend used by the static build (GitHub Pages): it mirrors the
 // /api routes on top of localStorage and calls the AI providers directly.
-import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest, readTokens, type Provider } from './providers';
+import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest, type Provider } from './providers';
 import { EMPTY_PROJECT, sanitizeProject } from './project';
+import { assistStream } from './assist-stream';
 import { desktop } from './desktop';
 
 type StoredDoc = { id: string; title: string; content: string; updated: number; version: number };
@@ -103,14 +104,6 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   try { upstream = await fetch(config.url, { method: 'POST', headers: config.headers, body: JSON.stringify(config.body), signal: controller.signal }); }
   catch { clearTimeout(timer); return failure('Il provider non risponde o blocca le richieste dal browser. Riprova.', 502); }
   if (!upstream.ok || !upstream.body) { clearTimeout(timer); await upstream.body?.cancel(); return failure(providerError(upstream.status), upstream.status === 429 ? 429 : 502); }
-  const provider = p.provider; const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(out) { try { let chars = 0;
-      for await (const token of readTokens(upstream.body!, provider)) { chars += token.length; if (chars > 16000) throw new Error('Risposta troppo lunga.'); out.enqueue(encoder.encode(JSON.stringify({ text: token }) + '\n')); }
-      out.enqueue(encoder.encode(JSON.stringify({ done: true }) + '\n'));
-    } catch { try { out.enqueue(encoder.encode(JSON.stringify({ error: 'Risposta interrotta. Riprova.' }) + '\n')); } catch {} }
-      finally { clearTimeout(timer); try { out.close(); } catch {} } },
-    cancel() { controller.abort(); clearTimeout(timer); },
-  });
+  const stream = assistStream(upstream.body, p.provider, { provider: p.provider, model: p.model, system, prompt }, () => { controller.abort(); clearTimeout(timer); });
   return new Response(stream, { headers: { 'Content-Type': 'application/x-ndjson' } });
 }

@@ -1,5 +1,6 @@
 import { context, jsonBody, fail, HttpError, validText } from '../../../lib/server';
-import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest, readTokens } from '../../../lib/providers';
+import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest } from '../../../lib/providers';
+import { assistStream } from '../../../lib/assist-stream';
 import { unseal } from '../../../lib/vault';
 export async function POST(request: Request) {
   try {
@@ -23,15 +24,7 @@ export async function POST(request: Request) {
     catch { clearTimeout(timer); throw new HttpError(502,'Il provider non risponde. Riprova.'); }
     if (!upstream.ok || !upstream.body) { clearTimeout(timer); await upstream.body?.cancel();
       throw new HttpError(upstream.status===429?429:502,providerError(upstream.status)); }
-    const provider=p.provider; const encoder=new TextEncoder();
-    const stream=new ReadableStream({
-      async start(out) { try { let chars=0;
-        for await (const token of readTokens(upstream.body!,provider)) { chars+=token.length; if(chars>16000) throw new Error('Risposta troppo lunga.'); out.enqueue(encoder.encode(JSON.stringify({text:token})+'\n')); }
-        out.enqueue(encoder.encode(JSON.stringify({done:true})+'\n'));
-      } catch { try { out.enqueue(encoder.encode(JSON.stringify({error:'Risposta interrotta. Riprova.'})+'\n')); } catch {} }
-        finally { clearTimeout(timer); try {out.close();} catch {} } },
-      cancel() { controller.abort(); clearTimeout(timer); },
-    });
+    const stream=assistStream(upstream.body,p.provider,{provider:p.provider,model:p.model,system,prompt},()=>{controller.abort();clearTimeout(timer);});
     return new Response(stream,{headers:{'Content-Type':'application/x-ndjson','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});
   } catch(e) { return fail(e); }
 }

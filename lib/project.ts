@@ -1,9 +1,10 @@
 // The creative project attached to a document: what the author wants to write, the chosen voice
 // and the story memory (facts with evidence). Shared by the server route and the static build.
 import type { Fact } from './narrative';
+import { sanitizeBlend, type VoiceBlend } from './author-styles.ts';
 
 export type Brief = { genre: string; premise: string; audience: string; notes: string };
-export type VoiceChoice = { id: string; intensity: string; custom: string };
+export type VoiceChoice = { id: string; intensity: string; custom: string; blend?: VoiceBlend[] };
 export type Project = { brief: Brief; voice: VoiceChoice; facts: Fact[]; analysed: Record<string, string>; dismissed: string[]; confirmed: string[] };
 
 export const EMPTY_PROJECT: Project = { brief: { genre: '', premise: '', audience: '', notes: '' }, voice: { id: 'mine', intensity: 'medium', custom: '' }, facts: [], analysed: {}, dismissed: [], confirmed: [] };
@@ -27,7 +28,7 @@ export function sanitizeProject(raw: unknown): Project {
   if (r.analysed && typeof r.analysed === 'object') for (const [k, v] of Object.entries(r.analysed).slice(0, 300)) if (typeof v === 'string') analysed[k.slice(0, 80)] = v.slice(0, 20);
   return {
     brief: { genre: s(brief.genre, 120), premise: s(brief.premise, 1000), audience: s(brief.audience, 200), notes: s(brief.notes, 1500) },
-    voice: { id: s(voice.id, 30) || 'mine', intensity: ['light', 'medium', 'strong'].includes(voice.intensity) ? voice.intensity : 'medium', custom: s(voice.custom, 600) },
+    voice: { id: s(voice.id, 30) || 'mine', intensity: ['light', 'medium', 'strong'].includes(voice.intensity) ? voice.intensity : 'medium', custom: s(voice.custom, 600), ...(voice.blend ? { blend: sanitizeBlend(voice.blend) } : {}) },
     facts, analysed, dismissed: ids(r.dismissed), confirmed: ids(r.confirmed),
   };
 }

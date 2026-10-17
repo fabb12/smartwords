@@ -232,7 +232,7 @@ export function styleSource(o: { kb?: KnowledgeBase | null; voiceId: string; voi
   if (o.kb) return { kind: o.kb.kind === 'personal' ? 'kb-personal' : 'kb-author', label: o.kb.name,
     detail: o.kb.kind === 'personal' ? 'Knowledge base personale' : `Knowledge base d’autore${o.kb.author ? ': ' + o.kb.author : ''}`, ...(voice ? { extra: voice } : {}) };
   if (o.voiceId === 'custom') return { kind: 'custom', label: 'Stile personalizzato', detail: 'Stile descritto nel progetto' };
-  if (voice) return { kind: 'famous', label: o.voiceName, detail: 'Voce d’autore famoso (progetto)' };
+  if (voice) return { kind: 'famous', label: o.voiceName, detail: o.voiceId === 'mix' ? 'Mix di voci narrative (progetto)' : 'Voce d’autore famoso (progetto)' };
   if (o.memoryActive) return { kind: 'memory', label: 'La mia voce', detail: 'Memoria personale della tua scrittura' };
   return { kind: 'document', label: 'Questo testo', detail: 'Solo lo stile del documento aperto' };
 }

@@ -10,7 +10,9 @@ import Highlight from '@tiptap/extension-highlight';
 import { Ghost, ghostKey } from '../lib/ghost';
 import { completionProposal } from '../lib/completion';
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
-import { splitWarning } from '../lib/providers';
+import { assistPrompts, splitWarning } from '../lib/providers';
+import { finalizeUsage, parseUsageEvent, recordTokenUsage, type UsageEvent } from '../lib/token-usage';
+import { TokenStats } from './token-stats';
 import { ALL_PROVIDERS as PROVIDERS, DEVICE_PROVIDERS, DEVICE_CONNECTION_HELP, deviceAssist, deviceProfileApi, isDeviceProfile, isDeviceProvider, type AiProvider as Provider } from '../lib/device-models';
 import { ModelPicker } from './model-picker';
 import { WritingMemoryModal } from './writing-memory';
@@ -19,7 +21,7 @@ import { GitHubDocuments } from './github-documents';
 import { bindGitHubDocument, githubConnected, githubLocalId, githubLocalUnchanged, saveGitHubDocument, type RepositoryDocument } from '../lib/github-documents';
 import { localApi, localAssist } from '../lib/local-backend';
 import { blocksFromDoc, chapters, describeFingerprint, detectIntent, locate, fingerprint, memorySummary, wordsOf, styleSimilarity, INTENTS, type DetectedIntent, type Fingerprint } from '../lib/narrative';
-import { voiceById, voiceInstruction } from '../lib/author-styles';
+import { sanitizeBlend, voiceName, voiceInstruction } from '../lib/author-styles';
 import { KB_MODES, buildKbIndex, kbInstruction, parsePersona, personaSample, styleSource, type KnowledgeBase } from '../lib/knowledge-base';
 import { deleteKnowledgeBase, listKnowledgeBases, readActiveKb, saveKnowledgeBase, storeActiveKb } from '../lib/kb-store';
 import { KnowledgeBaseModal, SourceBadge } from './knowledge-base';
@@ -97,11 +99,12 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // What the model needs to know about the work: voice, scene intent, project and story memory.
   const narrative=useMemo<Ctx>(()=>{const chosen=INTENTS.find(i=>i.id===intentChoice);
     const intent=intentChoice!=='auto'&&chosen?`${chosen.name}: ${chosen.tone} (chosen by the author)`:detected.confidence>0?`probably ${detected.name.toLowerCase()} (${detected.tone}); cues: ${detected.cues.join(', ')}. Verify against the context.`:'';
-    return {style:voiceInstruction(project.voice.id,project.voice.intensity,project.voice.custom,describeFingerprint(fp)),intent,brief:briefText(project.brief),memory:memorySummary(project.facts)};},[project,fp,detected,intentChoice]);
+    return {style:voiceInstruction(project.voice.id,project.voice.intensity,project.voice.custom,describeFingerprint(fp),project.voice.blend),intent,brief:briefText(project.brief),memory:memorySummary(project.facts)};},[project,fp,detected,intentChoice]);
   const narrativeRef=useRef(narrative);narrativeRef.current=narrative;
   const [governor]=useState(()=>new AiGovernor());
   const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,cancel:()=>{}});
-  const source=useMemo(()=>styleSource({kb:activeKb?.chunks.length?activeKb:null,voiceId:project.voice.id,voiceName:voiceById(project.voice.id).name,memoryActive:writingMemory.enabled&&(writingMemory.sources.length>0||!!writingMemory.notes.trim())}),[activeKb,project.voice.id,writingMemory]);
+  const source=useMemo(()=>{const voiceId=project.voice.id==='mix'&&sanitizeBlend(project.voice.blend).length<2?'mine':project.voice.id;
+    return styleSource({kb:activeKb?.chunks.length?activeKb:null,voiceId,voiceName:voiceName(voiceId,project.voice.blend),memoryActive:writingMemory.enabled&&(writingMemory.sources.length>0||!!writingMemory.notes.trim())});},[activeKb,project.voice,writingMemory]);
   const proposalDiff=useMemo(()=>suggestion?.done&&suggestion.original!==undefined?wordDiff(suggestion.original,suggestion.text):null,[suggestion]);
   const proposalVoice=useMemo(()=>{if(!suggestion?.done||fp.words<150||wordsOf(suggestion.text).length<25)return null;return styleSimilarity(fp,fingerprint(suggestion.text));},[suggestion,fp]);
   function applyWritingMemory(next:WritingMemory,manual=true){
@@ -184,17 +187,26 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // Returns null when stopped; rate limits and provider/network failures pause automatic requests.
   async function streamAssist(payload:Record<string,unknown>,signal:AbortSignal,onText?:(answer:string)=>boolean|void):Promise<string|null> {
     const penalize=(rateLimited:boolean)=>` Suggerimenti automatici in pausa per ${Math.round(governor.failed(rateLimited)/1000)} s.`;
+    const accountingOwner=ownerRef.current,accountingProfile=profiles.find(p=>p.id===payload.profile);
     let res:Response;
     try{res=isDeviceProfile(payload.profile)?await deviceAssist(payload,signal):LOCAL?await localAssist(payload,signal):await fetch('/api/assist',{method:'POST',headers:{'Content-Type':'application/json'},signal,body:JSON.stringify(payload)});}
     catch(err){if(signal.aborted)throw err;throw new Error('Connessione non riuscita.'+penalize(false));}
     if(!res.ok){const b:any=await res.json().catch(()=>({}));const msg=b.error||'Provider non disponibile.';throw new Error(res.status===429||res.status>=500?msg+penalize(res.status===429):msg);}
-    if(!res.body)throw new Error('Risposta vuota.');const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='',answer='',complete=false;
-    while(true){const {value,done}=await reader.read();if(signal.aborted){await reader.cancel();throw new DOMException('Richiesta annullata.','AbortError');}if(done)break;buffer+=decoder.decode(value,{stream:true});let i:number;
-      while((i=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);if(!line)continue;const data=JSON.parse(line);if(data.error)throw new Error(data.error+penalize(false));if(data.done)complete=true;if(data.text)answer+=data.text;
-        if(onText&&onText(answer)===false){await reader.cancel();return null;}}
+    if(!res.body)throw new Error('Risposta vuota.');const reader=res.body.getReader();const decoder=new TextDecoder();let buffer='',answer='',complete=false,success=false,usage:UsageEvent|null=null;
+    try {
+      while(true){const {value,done}=await reader.read();if(signal.aborted)throw new DOMException('Richiesta annullata.','AbortError');if(done)break;buffer+=decoder.decode(value,{stream:true});let i:number;
+        while((i=buffer.indexOf('\n'))>=0){const line=buffer.slice(0,i);buffer=buffer.slice(i+1);if(!line)continue;const data=JSON.parse(line);
+          if(data.usage)usage=parseUsageEvent(data.usage)||usage;
+          if(data.error)throw new Error(data.error+penalize(false));if(data.done)complete=true;
+          if(typeof data.text==='string'&&data.text){answer+=data.text;if(onText&&onText(answer)===false)return null;}}
+      }
+      if(!complete||!answer.trim())throw new Error('Nessuna risposta ricevuta. Riprova.');
+      success=true;governor.succeeded();setProfiles(old=>old.map(p=>p.id===payload.profile?{...p,used:p.used+1}:p));return answer;
+    } finally {
+      await reader.cancel().catch(()=>{});reader.releaseLock();
+      const {system,prompt}=assistPrompts(payload);
+      recordTokenUsage(accountingOwner,usage||{...finalizeUsage({},system,prompt,answer),provider:accountingProfile?.provider||'unknown',model:accountingProfile?.model||'unknown'},!success);
     }
-    if(!complete||!answer.trim())throw new Error('Nessuna risposta ricevuta. Riprova.');
-    governor.succeeded();setProfiles(old=>old.map(p=>p.id===payload.profile?{...p,used:p.used+1}:p));return answer;
   }
   // Analyses requested from the companion panel: always manual, never shown as ghost text.
   const run:Run=async(mode,fields,signal)=>{const opts=options.current;if(!opts.profile){setSettings(true);throw new Error('Collega un provider AI per usare questa funzione.');}
@@ -432,6 +444,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {repoOpen&&<GitHubDocuments intent={repoOpen} onSave={saveToRepository} onLoad={loadFromRepository} onClose={()=>setRepoOpen(null)}/>}
     {settings&&<div className="modal-backdrop" onClick={()=>setSettings(false)}><section className="modal" role="dialog" aria-modal="true" aria-label="Provider e chiavi API" onClick={e=>e.stopPropagation()}><button className="modal-close tool" aria-label="Chiudi impostazioni" onClick={()=>setSettings(false)}><X size={20}/></button><span className="modal-icon"><KeyRound size={23}/></span><h2>La tua AI, alle tue condizioni.</h2><p className="modal-subtitle">Collega più account e scegli il modello adatto a ogni testo.</p><div className="security-note"><ShieldCheck size={18}/><span>{LOCAL?'Versione statica: le chiavi restano solo in questo browser (localStorage) e il testo va direttamente al provider. Usa un dispositivo personale e chiavi con limiti di spesa.':'Provider cloud: chiavi cifrate sul server. Ollama e LM Studio: profili e token restano su questo dispositivo, nel browser o nel portachiavi dell’app desktop.'}</span></div>{!vaultReady&&<p className="warning">Il server non ha ancora una chiave di cifratura configurata.</p>}{error&&<p role="alert" className="warning">{error}</p>}
       <div className="profile-list">{profiles.map(p=><div className="profile-row" key={p.id}><span className={'provider-badge '+p.provider}>{PROVIDERS[p.provider].name.slice(0,1)}</span><div><strong>{p.name}</strong><small>{PROVIDERS[p.provider].name} · {p.model} · {isDeviceProvider(p.provider)?'Su questo dispositivo':<>••••{p.hint}</>}</small><small>{p.used} / {p.daily_limit} richieste oggi (UTC)</small></div><button data-tip="Cambia nome, modello, limite o chiave di questo profilo" onClick={()=>setForm({id:p.id,name:p.name,provider:p.provider,model:p.model,key:'',baseUrl:p.baseUrl||'',dailyLimit:p.daily_limit})}>Modifica</button><button aria-label={'Rimuovi '+p.name} data-tip="Elimina questo profilo e la sua chiave" onClick={()=>void removeProfile(p)}><X size={16}/></button></div>)}</div>
+      <TokenStats owner={owner}/>
       <form onSubmit={e=>{e.preventDefault();void saveProfile();}}><h3>{form.id?'Modifica profilo':'Aggiungi un profilo'}</h3><div className="form-grid"><label>Nome del profilo<input required maxLength={80} placeholder="Es. Account personale" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label><label>Provider<select value={form.provider} onChange={e=>{const p=e.target.value as Provider;setForm({...form,id:isDeviceProfile(form.id)!==isDeviceProvider(p)?'':form.id,provider:p,model:PROVIDERS[p].model,key:'',baseUrl:isDeviceProvider(p)?DEVICE_PROVIDERS[p].baseUrl:''});}}>{Object.entries(PROVIDERS).map(([id,p])=><option key={id} value={id}>{p.name}</option>)}</select></label>{isDeviceProvider(form.provider)&&<label>Indirizzo del server locale<input required type="url" value={form.baseUrl} placeholder={DEVICE_PROVIDERS[form.provider].baseUrl} onChange={e=>setForm({...form,baseUrl:e.target.value})}/></label>}<ModelPicker key={form.provider+':'+form.baseUrl+':'+form.id} provider={form.provider} model={form.model} baseUrl={form.baseUrl} token={form.key} profileId={form.id} onChange={model=>setForm(current=>({...current,model}))}/><label>Limite richieste al giorno<input type="number" min={1} max={10000} required value={form.dailyLimit} onChange={e=>setForm({...form,dailyLimit:+e.target.value})}/></label></div><label>{isDeviceProvider(form.provider)?'Token del server locale (facoltativo)':'Chiave API'} {form.id&&<small>(lascia vuoto per mantenerla)</small>}<input autoComplete="off" type="password" required={!form.id&&!isDeviceProvider(form.provider)} maxLength={4096} placeholder={isDeviceProvider(form.provider)?'Solo se il server richiede autenticazione':'Incolla la chiave del provider'} value={form.key} onChange={e=>setForm({...form,key:e.target.value})}/></label><p className="form-note">{isDeviceProvider(form.provider)?<>Il modello e il profilo restano su questo dispositivo. {DEVICE_CONNECTION_HELP}</>:<>Le richieste usano il credito del tuo account provider. Il limite conta i tentativi, anche quelli interrotti; non è un tetto di spesa in euro. Puoi modificare liberamente l’identificativo del modello; la disponibilità dipende dal tuo account provider.</>}</p><div className="form-footer"><button type="button" className="quiet" onClick={()=>setSettings(false)}>Chiudi</button><button className="primary" disabled={formBusy||(!vaultReady&&!isDeviceProvider(form.provider))} type="submit">{formBusy?'Salvataggio…':form.id?'Salva modifiche':'Collega provider'}<ChevronRight size={16}/></button></div></form>
     </section></div>}
     {projectOpen&&<ProjectModal project={project} setProject={setProject} onClose={()=>setProjectOpen(false)}/>}
