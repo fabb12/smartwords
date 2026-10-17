@@ -4,7 +4,7 @@ import { cleanExtractedText } from '../lib/knowledge-base';
 import { writingTextFromDocument } from '../lib/writing-memory';
 
 export const KB_ACCEPT = '.pdf,.docx,.odt,.epub,.rtf,.txt,.md,.markdown,.html,.htm,.json,.csv';
-export const KB_MAX_FILE = 40_000_000;
+export const KB_MAX_FILE = 100_000_000;
 const ext = (name: string) => (name.toLowerCase().match(/\.([a-z0-9]+)$/)?.[1] || '');
 
 const BLOCKS = 'p,h1,h2,h3,h4,h5,h6,li,blockquote,pre,div,td,th,br';
@@ -63,7 +63,7 @@ async function zipText(data: ArrayBuffer, kind: 'odt' | 'epub'): Promise<string>
 }
 
 export async function extractText(file: File, progress?: (msg: string) => void): Promise<{ text: string; format: string }> {
-  if (file.size > KB_MAX_FILE) throw new Error(`«${file.name}» supera 40 MB.`);
+  if (file.size > KB_MAX_FILE) throw new Error(`«${file.name}» supera ${KB_MAX_FILE / 1_000_000} MB.`);
   const format = ext(file.name);
   let text: string;
   try {

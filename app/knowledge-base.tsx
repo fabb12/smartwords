@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BookUser, Download, FileUp, Library, Sparkles, Trash2, X } from 'lucide-react';
 import { KB_LIMITS, PERSONA_FIELDS, PERSONA_SAMPLE, addKbDocument, buildKbIndex, createKnowledgeBase, estimateTokens, exportKnowledgeBase, importKnowledgeBase, kbInstruction, kbStats, removeKbFile, type KbKind, type KbPersona, type KnowledgeBase, type StyleSource } from '../lib/knowledge-base';
-import { KB_ACCEPT, extractText } from './kb-extract';
+import { KB_ACCEPT, KB_MAX_FILE, extractText } from './kb-extract';
 
 const fmt = (n: number) => n.toLocaleString('it-IT');
 
@@ -95,7 +95,7 @@ export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, 
 
     {kb && !creating && <div className="kb-detail">
       <div className="kb-detail-head"><h3>{kb.name}</h3>{kb.id !== activeId ? <button className="primary kb-use" onClick={() => onActivate(kb.id)}>Usa per le previsioni</button> : <span className="kb-in-use">● In uso nelle previsioni</span>}</div>
-      <label className={'kb-upload' + (busy ? ' disabled' : '')}><FileUp size={18} /><span><strong>{busy || 'Aggiungi file'}</strong><small>Anche più file insieme · fino a 40 MB ciascuno · elaborati sul dispositivo</small></span>
+      <label className={'kb-upload' + (busy ? ' disabled' : '')}><FileUp size={18} /><span><strong>{busy || 'Aggiungi file'}</strong><small>Anche più file insieme · fino a {KB_MAX_FILE / 1_000_000} MB ciascuno · elaborati sul dispositivo</small></span>
         <input type="file" multiple accept={KB_ACCEPT} disabled={!!busy} aria-label="Aggiungi file alla knowledge base" onChange={e => { if (e.target.files?.length) void addFiles(e.target.files); e.target.value = ''; }} /></label>
       {kb.kind === 'author' && <p className="form-note">Usa testi che possiedi o di libero uso. Le proposte evocano stile e mentalità senza copiare frasi dei testi caricati.</p>}
 
