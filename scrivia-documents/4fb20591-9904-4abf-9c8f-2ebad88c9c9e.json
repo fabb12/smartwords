@@ -1,0 +1,55 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "4fb20591-9904-4abf-9c8f-2ebad88c9c9e",
+  "title": "pensiero",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "risoluzione di problemi matematici del millennio tramite ai . ha ancora senso provarci? l'ai non rischia di togliere senso all'impresa, ma forse lo trasforma: non è più la sfida solitaria di una mente contro l'infinito, ma qualcosa di più simile a un dialogo, dove la domanda resta umana anche se gli strumenti cambiano, e forse è proprio questo che conta, che qualcuno continui a chiedersi perché una certa verità debba essere vera. spesso è il percorso a generare valore, non la meta finale, e forse vale lo stesso per questi problemi irrisolti: ciò che conta non è solo che qualcuno li risolva, ma che qualcuno abbia continuato a camminarci intorno, a toccarli, a chiedersi dove portano. e ora come possiamo continuare a chiederci se vale la pena, quando forse la domanda stessa è già una risposta: continuare a camminare intorno a questi problemi, anche con strumenti nuovi, è già un atto di cura verso qualcosa che non si lascia risolvere in fretta. ma forse ha senso fare un passo avanti e creare un nuovo modo di lavorare con questi problemi: non abbandonarli all'ai, ma portarcela dentro come si porta un interlocutore esigente, qualcuno che costringe a rendere esplicito ciò che altrimenti resterebbe intuizione muta."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "rovelli",
+          "weight": 50
+        },
+        {
+          "id": "boncinelli",
+          "weight": 62
+        },
+        {
+          "id": "baricco",
+          "weight": 50
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792357910493
+}
