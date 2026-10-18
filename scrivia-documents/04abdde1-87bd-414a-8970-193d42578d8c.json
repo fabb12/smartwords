@@ -1,0 +1,41 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "04abdde1-87bd-414a-8970-193d42578d8c",
+  "title": "Capitolo libro bias",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Ho guardato un nuovo video sulla coscienza dove spiegano se essa possa esistere al di fuori del substrato biologico ovvero se qualcosa di non fatto principalmente di carbonio possa dirsi davvero cosciente  e questo, naturalmente, riporta alla nave di Teseo. Perché la domanda non è poi così diversa: se la coscienza dipende dalla struttura — dai pattern, dalle connessioni, dal flusso dell'informazione — allora il materiale con cui è costruita la nave conta davvero, o conta solo che la nave continui a navigare? È come se avessimo passato secoli a studiare l'inchiostro invece del testo. È come chiedersi se una sinfonia risieda nelle corde del violino o nelle relazioni tra le note — e la risposta, sospetto, cambierà tutto ciò che pensiamo di essere."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "boncinelli",
+      "intensity": "medium",
+      "custom": ""
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792325518748
+}
