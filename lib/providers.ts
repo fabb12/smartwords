@@ -1,5 +1,6 @@
 import { PERSONAL_VOICE_MODES } from './writing-memory.ts';
 import { KB_MODES } from './knowledge-base.ts';
+import { tokenCount, type ProviderUsage } from './token-usage.ts';
 
 export const PROVIDERS = {
   openai: { name: 'OpenAI', model: 'gpt-4.1-mini', url: 'https://api.openai.com/v1/chat/completions' },
@@ -20,13 +21,14 @@ export function providerRequest(provider: Provider, model: string, key: string, 
     body = { model, system, messages: [{ role: 'user', content: prompt }], max_tokens: maxTokens, stream: true };
   } else {
     headers.Authorization = `Bearer ${key}`;
-    body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], stream: true,
+    body = { model, messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }], stream: true, stream_options: { include_usage: true },
       ...(provider === 'openai' ? { max_completion_tokens: maxTokens } : { max_tokens: maxTokens }) };
   }
   return { url: PROVIDERS[provider].url, headers, body };
 }
-export async function* readTokens(body: ReadableStream<Uint8Array>, provider: Provider) {
+export async function* readTokens(body: ReadableStream<Uint8Array>, provider: Provider, onUsage?: (usage: ProviderUsage) => void) {
   const reader = body.getReader(); const decoder = new TextDecoder(); let buffer = ''; let finished = false;
+  let anthropicInput: number | undefined, cacheRead = 0, cacheWrite = 0;
   try {
     while (true) {
       const { value, done } = await reader.read();
@@ -39,6 +41,25 @@ export async function* readTokens(body: ReadableStream<Uint8Array>, provider: Pr
         if (!data) continue;
         if (data === '[DONE]') { finished = true; continue; }
         const event = JSON.parse(data);
+        const usage = provider === 'anthropic' ? event.message?.usage || event.usage : event.usage;
+        if (usage && onUsage) {
+          const update: ProviderUsage = {};
+          if (provider === 'anthropic') {
+            if (tokenCount(usage.input_tokens)) anthropicInput = usage.input_tokens;
+            if (tokenCount(usage.cache_creation_input_tokens)) cacheWrite = usage.cache_creation_input_tokens;
+            if (tokenCount(usage.cache_read_input_tokens)) cacheRead = usage.cache_read_input_tokens;
+            if (anthropicInput !== undefined) update.inputTokens = anthropicInput + cacheWrite + cacheRead;
+            // message_start output is provisional; only the cumulative final delta
+            // can replace an estimate of the generated text.
+            if (event.type === 'message_delta' && tokenCount(usage.output_tokens)) update.outputTokens = usage.output_tokens;
+            update.cachedInputTokens = cacheRead;
+          } else {
+            if (tokenCount(usage.prompt_tokens)) update.inputTokens = usage.prompt_tokens;
+            if (tokenCount(usage.completion_tokens)) update.outputTokens = usage.completion_tokens;
+            if (tokenCount(usage.prompt_tokens_details?.cached_tokens)) update.cachedInputTokens = usage.prompt_tokens_details.cached_tokens;
+          }
+          onUsage(update);
+        }
         if (event.error || event.type === 'error') throw new Error('Risposta interrotta.');
         if (provider === 'anthropic') {
           if (event.type === 'message_delta' && event.delta?.stop_reason === 'max_tokens') throw new Error('Limite risposta raggiunto.');

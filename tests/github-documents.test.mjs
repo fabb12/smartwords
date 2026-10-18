@@ -40,7 +40,8 @@ test('GitHub save/load carries Unicode, formatting and project; excludes credent
   const state=mockGitHub(t),deviceA=globalThis.localStorage;
   await connectGitHub(settings,'github-test-token');
   assert.equal(githubConnected(),true);
-  const first=await saveGitHubDocument('local-a','La città 😀',content('Papà cammina.'),{...EMPTY_PROJECT,brief:{...EMPTY_PROJECT.brief,premise:'Una storia italiana'},apiKey:'must-not-be-exported'});
+  const mixedVoice={id:'mix',intensity:'medium',custom:'',blend:[{id:'calvino',weight:75},{id:'hemingway',weight:25}]};
+  const first=await saveGitHubDocument('local-a','La città 😀',content('Papà cammina.'),{...EMPTY_PROJECT,voice:mixedVoice,brief:{...EMPTY_PROJECT.brief,premise:'Una storia italiana'},apiKey:'must-not-be-exported'});
   assert.ok(state.branches.has('documenti'));
   assert.equal(state.writes,1);
   assert.equal(deviceA.values.has('scrivia:github-token'),false,'tokens are not persisted by default');
@@ -48,6 +49,7 @@ test('GitHub save/load carries Unicode, formatting and project; excludes credent
   assert.ok(![...state.files.values()][0].text.includes('github-test-token'));
   const listed=await listGitHubDocuments();assert.equal(listed[0].document.title,'La città 😀');
   assert.equal(listed[0].document.project.brief.premise,'Una storia italiana');
+  assert.deepEqual(listed[0].document.project.voice,mixedVoice);
   assert.deepEqual(listed[0].document.content,content('Papà cammina.'));
   assert.equal(githubLocalId(first.document.id,['local-a']),'local-a');
   assert.equal(await githubLocalUnchanged('local-a',first.document.title,first.document.content,first.document.project),true);
@@ -55,6 +57,7 @@ test('GitHub save/load carries Unicode, formatting and project; excludes credent
   // A second device opens the same file, with its own local document identifier.
   const deviceB=storage();globalThis.localStorage=deviceB;await connectGitHub(settings,'github-test-token');
   const opened=await loadGitHubDocument(first.path);await bindGitHubDocument('local-b',opened);
+  assert.deepEqual(opened.document.project.voice,mixedVoice,'another device receives both authors and their weights');
   assert.equal(githubLocalId(first.document.id,['local-b']),'local-b');
   globalThis.localStorage=deviceA;
   const second=await saveGitHubDocument('local-a','Versione aggiornata',content('Testo dal dispositivo A.'),EMPTY_PROJECT);

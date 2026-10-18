@@ -5,6 +5,7 @@ export type Voice = { id: string; name: string; tag: string; family: 'mia' | 'sa
 export const VOICES: Voice[] = [
   { id: 'mine', name: 'La mia voce', tag: 'La tua impronta stilistica', family: 'mia',
     traits: 'La voce dell’autore stesso: segui fedelmente l’impronta stilistica misurata sul manoscritto.' },
+  { id: 'mix', name: 'Mix di autori', tag: 'Unisci più voci e scegli i pesi', family: 'mia', traits: '' },
   { id: 'calvino', name: 'Italo Calvino', tag: 'Leggerezza, esattezza, immaginazione', family: 'narrativa',
     traits: 'Leggerezza ed esattezza; frasi limpide e calibrate; immagini nitide e precise; gusto per la struttura e la combinatoria; ironia lieve, tono di favola razionale; aggettivi scelti con parsimonia.' },
   { id: 'rovelli', name: 'Carlo Rovelli', tag: 'Divulgazione lirica e meraviglia', family: 'saggio',
@@ -50,13 +51,37 @@ export type Intensity = typeof INTENSITIES[number]['id'];
 
 export function voiceById(id: string | undefined): Voice { return VOICES.find(v => v.id === id) || VOICES[0]; }
 
+export type VoiceBlend = { id: string; weight: number };
+export const MIX_AUTHORS = VOICES.filter(v => v.family !== 'mia');
+export const MAX_MIX_AUTHORS = 4;
+export function sanitizeBlend(raw: unknown): VoiceBlend[] {
+  if (!Array.isArray(raw)) return [];
+  const result: VoiceBlend[] = [];
+  for (const item of raw) {
+    if (!item || !MIX_AUTHORS.some(v => v.id === item.id) || result.some(v => v.id === item.id)
+      || typeof item.weight !== 'number' || !Number.isFinite(item.weight) || item.weight <= 0) continue;
+    result.push({ id: item.id, weight: Math.max(1, Math.min(100, Math.round(item.weight))) });
+    if (result.length === MAX_MIX_AUTHORS) break;
+  }
+  return result;
+}
+export function blendShares(raw: unknown) {
+  const blend = sanitizeBlend(raw), total = blend.reduce((n, v) => n + v.weight, 0);
+  return blend.map(v => ({ ...v, percent: Math.round(v.weight / total * 1000) / 10 }));
+}
+export function voiceName(id: string, blend?: VoiceBlend[]): string {
+  const names = sanitizeBlend(blend).map(v => voiceById(v.id).name);
+  return id === 'mix' && names.length ? `Mix: ${names.join(' + ')}` : voiceById(id).name;
+}
+
 // Text for the model: the chosen voice, how strongly to apply it, and the writer's own fingerprint.
-export function voiceInstruction(id: string, intensity: string, custom: string, fingerprint: string): string {
+export function voiceInstruction(id: string, intensity: string, custom: string, fingerprint: string, blend?: VoiceBlend[]): string {
   const v = voiceById(id);
-  const own = fingerprint ? `Author's measured style fingerprint: ${fingerprint}.` : '';
+  const own = fingerprint ? `Author's measured style fingerprint: ${fingerprint.slice(0, 400)}.` : '';
   if (v.id === 'mine') return `Write in the author's own voice, matching sentence length, rhythm, vocabulary and narrative habits. ${own}`.trim();
-  const traits = v.id === 'custom' ? custom.slice(0, 600) : v.traits;
+  const shares = v.id === 'mix' ? blendShares(blend) : [];
+  const traits = v.id === 'mix' ? (shares.length >= 2 ? shares.map(s => `${voiceById(s.id).name} (${s.percent}%): ${voiceById(s.id).traits.slice(0, 280)}`).join(' | ') : '') : v.id === 'custom' ? custom.slice(0, 600) : v.traits;
   if (!traits.trim()) return `Write in the author's own voice. ${own}`.trim();
   const weight = intensity === 'strong' ? 'clearly evident' : intensity === 'light' ? 'only a subtle nuance over the author\'s own voice' : 'balanced with the author\'s own voice';
-  return `Stylistic inspiration (${v.id === 'custom' ? 'described by the author' : v.name}): ${traits} Apply it as ${weight}. Evoke the style only: never copy, quote or paraphrase passages of existing works and never name the reference author in the text. Keep the author's characters, facts and ideas. ${own}`.trim();
+  return `Stylistic inspiration (${v.id === 'custom' ? 'described by the author' : v.name}): ${traits} ${v.id === 'mix' ? 'Blend these traits into one coherent narrative voice using the relative percentages, rather than alternating authors or writing separate versions.' : ''} Apply it as ${weight}. Evoke the style only: never copy, quote or paraphrase passages of existing works and never name the reference author in the text. Keep the author's characters, facts and ideas. ${own}`.trim();
 }

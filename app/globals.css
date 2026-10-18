@@ -396,3 +396,30 @@
 .kb-distill{display:inline-flex;align-items:center;gap:6px;padding:7px 11px;border-radius:7px;border:1px solid var(--green);color:var(--green);font-size:11px}.kb-distill:disabled{opacity:.5}
 .kb-persona-fields label{margin-bottom:10px}
 .kb-modal .warning button{margin-right:16px;text-decoration:underline}
+
+/* Weighted narrative voices and token accounting in settings. */
+.voice-blend{border:1px solid var(--line);border-radius:9px;padding:14px;margin:16px 0}
+.voice-blend legend{font-size:12px;padding:0 5px}
+.blend-authors{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0}
+.blend-authors label{display:flex;align-items:center;gap:7px;margin:0;font-size:11px;min-width:0}
+.blend-authors input{width:16px;height:16px;margin:0;padding:0;accent-color:var(--green)}
+.blend-authors label:has(input:disabled){opacity:.5}
+.blend-weight{margin:15px 0!important}
+.blend-weight output{float:right;font-variant-numeric:tabular-nums}
+.blend-weight input{padding:0;width:100%;accent-color:var(--green)}
+.token-stats{border:1px solid var(--line);border-radius:9px;padding:14px;margin:20px 0}
+.token-stats-heading{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.token-stats-heading h3{margin:0}
+.token-stats-heading label{margin:0;max-width:100%}
+.token-stats-heading select{padding:6px;font-size:11px}
+.token-totals{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:18px 0;font-variant-numeric:tabular-nums}
+.token-totals dt{font-size:10px;color:var(--panel-muted)}
+.token-totals dd{font-size:20px;font-weight:600;margin:3px 0;overflow-wrap:anywhere;color:var(--panel-strong)}
+.token-table-wrap{overflow:auto;max-width:100%}
+.token-table{width:100%;border-collapse:collapse;font-size:10px;font-variant-numeric:tabular-nums}
+.token-table caption{text-align:left;font-weight:600;margin:12px 0}
+.token-table th,.token-table td{padding:9px 6px;text-align:right;border-bottom:1px solid var(--line)}
+.token-table th:first-child{text-align:left;min-width:100px;overflow-wrap:anywhere}
+.token-table th{font-weight:500}
+.token-table small{display:block;font-size:9px;font-weight:400;color:var(--panel-muted);margin-top:4px}
+@media(max-width:420px){.blend-authors{grid-template-columns:1fr}.token-stats{padding:10px}.token-table th,.token-table td{padding:7px 4px}}
