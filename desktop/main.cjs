@@ -4,13 +4,12 @@
 const { app, BrowserWindow, Menu, ipcMain, net, protocol, safeStorage, session, shell } = require('electron');
 const path = require('node:path');
 const { pathToFileURL } = require('node:url');
+const { registerLocalModels } = require('./local-models.cjs');
 
 const ORIGIN = 'app://scrivia';
 const WEB = path.join(__dirname, 'web');
 // Same endpoints as lib/providers.ts: only these hosts get the CORS headers below.
-const LOCAL_MODELS = ['http://127.0.0.1', 'http://localhost', 'http://[::1]', 'https://127.0.0.1', 'https://localhost', 'https://[::1]']
-  .flatMap(origin => ['/v1/models', '/v1/chat/completions'].map(endpoint => origin + endpoint));
-const PROVIDERS = ['https://api.openai.com/*', 'https://api.anthropic.com/*', 'https://generativelanguage.googleapis.com/*', 'https://api.groq.com/*', 'https://api.mistral.ai/*', 'https://api.deepseek.com/*', 'https://openrouter.ai/*', 'https://api.github.com/*', ...LOCAL_MODELS];
+const PROVIDERS = ['https://api.openai.com/*', 'https://api.anthropic.com/*', 'https://generativelanguage.googleapis.com/*', 'https://api.groq.com/*', 'https://api.mistral.ai/*', 'https://api.deepseek.com/*', 'https://openrouter.ai/*', 'https://api.github.com/*'];
 
 protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true } }]);
 if (!app.requestSingleInstanceLock()) app.quit();
@@ -80,5 +79,5 @@ app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWind
 app.whenReady().then(() => {
   // macOS needs the standard menu for copy, paste and quit; elsewhere the app uses its own toolbar.
   if (process.platform !== 'darwin') Menu.setApplicationMenu(null);
-  serveApp(); allowProviders(); keyVault(); createWindow(); checkForUpdates();
+  serveApp(); allowProviders(); keyVault(); registerLocalModels(ipcMain); createWindow(); checkForUpdates();
 });

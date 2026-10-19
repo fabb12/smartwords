@@ -466,3 +466,13 @@
 :root[data-theme=dark] .settings-modal .rule-toggle{border-color:#353f38}
 :root[data-theme=dark] .rules-preview p{background:#232925}
 @media(max-width:720px){.settings-modal{display:flex;flex-direction:column;padding:22px 18px 16px}.settings-tabs{flex-direction:row;overflow-x:auto;position:static;margin:0 -18px 14px;padding:0 18px 4px}.settings-tabs button{flex:0 0 auto;padding:9px 11px}.settings-tabs button small{display:none}.rule-list{grid-template-columns:1fr}}
+
+.local-model-discovery{grid-column:1/-1;min-width:0;margin-bottom:16px}
+.local-connection{margin-top:12px;border:1px solid var(--line);border-radius:7px;padding:12px;font-size:12px;line-height:1.65;overflow-wrap:anywhere}
+.local-connection summary{cursor:pointer;font-weight:600}
+.local-connection ol{list-style:decimal;padding-left:20px;margin:10px 0}
+.local-connection li{margin:8px 0}
+.local-connection a{text-decoration:underline;color:var(--green)}
+.local-connection pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--soft);padding:10px;border-radius:5px;font-size:11px;user-select:text}
+.local-connection code{font-size:11px;user-select:text}
+.local-connection label{margin:10px 0}

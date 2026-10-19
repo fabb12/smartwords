@@ -44,3 +44,9 @@ test('automatic improvements target the last sentence and skip accepted text',()
  const r=sentenceTarget('Uno. Due tre. ');assert.deepEqual(r,{start:5,end:13});
  assert.equal(sameText('Va  bene così.','Va bene così. '),true);assert.equal(sameText('Va bene.','Va benissimo.'),false);
 });
+
+test('reconfiguring a profile clears error backoff without disabling automatic request spacing',()=>{
+ let now=1000;const g=new AiGovernor({now:()=>now,minGap:2500});
+ g.started();g.failed(false);assert.ok(g.wait(false)>0);
+ g.resetBackoff();assert.equal(g.wait(false),0);assert.equal(g.wait(true),2500);
+});

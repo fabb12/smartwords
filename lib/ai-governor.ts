@@ -90,6 +90,8 @@ export class AiGovernor {
   started() { this.starts.push(this.now()); }
 
   succeeded() { this.failures = 0; }
+  // A newly selected or reconfigured profile can be tested immediately.
+  resetBackoff() { this.failures = 0; this.blockedUntil = 0; }
 
   // Exponential pause after errors: 5s, 10s, 20s… up to 2 minutes; rate limits start at 20s.
   failed(rateLimited: boolean): number {
