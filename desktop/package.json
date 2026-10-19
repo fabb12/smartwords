@@ -24,7 +24,7 @@
     "productName": "Scrivia",
     "icon": "web/icons/icon-512.png",
     "directories": { "output": "release" },
-    "files": ["main.cjs", "preload.cjs", "web/**/*", "package.json"],
+    "files": ["main.cjs", "preload.cjs", "local-models.cjs", "web/**/*", "package.json"],
     "win": { "target": "nsis" },
     "nsis": { "artifactName": "Scrivia-Setup.${ext}", "oneClick": false, "allowToChangeInstallationDirectory": true, "shortcutName": "Scrivia" },
     "mac": { "target": { "target": "dmg", "arch": ["universal"] }, "category": "public.app-category.productivity", "artifactName": "Scrivia.${ext}" },

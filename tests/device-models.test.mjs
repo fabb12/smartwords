@@ -23,6 +23,7 @@ test('device profile discovery, authenticated streaming, quotas and updates use 
   let lastRequest, auth;
   const server=createServer(async(req,res)=>{
     auth=req.headers.authorization;
+    if(req.url==='/api/tags'){res.writeHead(404);res.end();return;}
     if(req.url==='/v1/models'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({data:[{id:'qwen3:8b'},{id:'llama3.2:latest'},{id:'qwen3:8b'},{bad:true}]}));return;}
     assert.equal(req.url,'/v1/chat/completions');
     let body='';for await(const chunk of req)body+=chunk;lastRequest=JSON.parse(body);

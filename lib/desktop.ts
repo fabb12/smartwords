@@ -1,7 +1,10 @@
 // Desktop app (Electron, folder desktop/): detects it and finds the installer for this computer
 // among the files of the latest GitHub release.
 export const DESKTOP_REPO = 'fabb12/smartwords';
-type Desktop = { platform: string; version: string; protect: (text: string) => string | null; reveal: (data: string) => string | null };
+export type LocalRequest = { id: string; url: string; method: 'GET' | 'POST'; token: string; body?: string };
+export type LocalEvent = { type: 'headers'; status: number } | { type: 'chunk'; text: string } | { type: 'done' } | { type: 'error'; message: string };
+type Desktop = { platform: string; version: string; protect: (text: string) => string | null; reveal: (data: string) => string | null;
+  localRequest?: (request: LocalRequest, onEvent: (event: LocalEvent) => void) => () => void };
 declare global { interface Window { scriviaDesktop?: Desktop } }
 
 export const desktop = (): Desktop | undefined => typeof window === 'undefined' ? undefined : window.scriviaDesktop;
