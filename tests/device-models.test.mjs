@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { once } from 'node:events';
 import { deviceBaseUrl, deviceModels, deviceProfileApi, deviceProfiles, deviceAssist } from '../lib/device-models.ts';
 import { PROVIDER_MODELS } from '../lib/provider-models.ts';
+import { PROVIDERS } from '../lib/providers.ts';
 
 test('local model addresses are restricted to loopback and cannot carry credentials or arbitrary paths', () => {
   assert.equal(deviceBaseUrl('http://localhost:11434/v1/'),'http://localhost:11434');
@@ -14,6 +15,7 @@ test('local model addresses are restricted to loopback and cannot carry credenti
 test('provider model suggestions offer several Claude families and versions', () => {
   for(const family of ['sonnet','haiku','opus'])assert.ok(PROVIDER_MODELS.anthropic.filter(m=>m.includes(family)).length>=2);
   for(const models of Object.values(PROVIDER_MODELS))assert.ok(models.length>=2);
+  for(const [id,p] of Object.entries(PROVIDERS))assert.ok(PROVIDER_MODELS[id].includes(p.model),`${id} default ${p.model} missing from suggestions`);
 });
 
 test('device profile discovery, authenticated streaming, quotas and updates use only the local server', async t => {

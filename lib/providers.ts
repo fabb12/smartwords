@@ -3,12 +3,12 @@ import { KB_MODES } from './knowledge-base.ts';
 import { tokenCount, type ProviderUsage } from './token-usage.ts';
 
 export const PROVIDERS = {
-  openai: { name: 'OpenAI', model: 'gpt-4.1-mini', url: 'https://api.openai.com/v1/chat/completions' },
+  openai: { name: 'OpenAI', model: 'gpt-6-luna', url: 'https://api.openai.com/v1/chat/completions' },
   anthropic: { name: 'Anthropic', model: 'claude-haiku-4-5', url: 'https://api.anthropic.com/v1/messages' },
-  gemini: { name: 'Google Gemini', model: 'gemini-2.5-flash', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' },
-  groq: { name: 'Groq', model: 'llama-3.3-70b-versatile', url: 'https://api.groq.com/openai/v1/chat/completions' },
+  gemini: { name: 'Google Gemini', model: 'gemini-3.8-flash', url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' },
+  groq: { name: 'Groq', model: 'openai/gpt-oss-120b', url: 'https://api.groq.com/openai/v1/chat/completions' },
   mistral: { name: 'Mistral', model: 'mistral-small-latest', url: 'https://api.mistral.ai/v1/chat/completions' },
-  deepseek: { name: 'DeepSeek', model: 'deepseek-chat', url: 'https://api.deepseek.com/chat/completions' },
+  deepseek: { name: 'DeepSeek', model: 'deepseek-flash', url: 'https://api.deepseek.com/chat/completions' },
   openrouter: { name: 'OpenRouter', model: 'openai/gpt-4.1-mini', url: 'https://openrouter.ai/api/v1/chat/completions' },
 } as const;
 export type Provider = keyof typeof PROVIDERS;
