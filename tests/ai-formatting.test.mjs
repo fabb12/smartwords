@@ -107,3 +107,36 @@ test('activation and formatting preferences persist per user and reject malforme
   assert.equal(readAiPreferences('bob').trigger, 'pause');
   values.set('scrivia:ai-preferences:alice', '{bad'); assert.equal(readAiPreferences('alice').trigger, 'pause');
 });
+
+test('both writing modes request semantic formatting and long rewrites have room for the full passage', () => {
+  for (const mode of ['complete', 'rewrite']) {
+    const request = assistPrompts({ mode, formatting: true, text: 'Una frase da correggere. '.repeat(350) });
+    assert.ok(request.maxTokens > 4000, 'a long passage cannot be rewritten within the old 1024-token cap');
+    assert.match(request.system, /verbatim-copy rule refers to wording/);
+    assert.match(request.system, /always review both wording and formatting/);
+  }
+  assert.equal(assistPrompts({ mode: 'rewrite', text: 'Una frase.' }).maxTokens, 1024);
+});
+
+test('standard alternative Markdown emphasis and wrapped Markdown become real formatting', () => {
+  const parsed = parseAiFormatting('```markdown\n## Un titolo\n\nUn __concetto__ e una _sfumatura_.\n```');
+  assert.equal(parsed.content[0].type, 'heading');
+  assert.equal(parsed.content[1].content[1].marks[0].type, 'bold');
+  assert.equal(parsed.content[1].content[3].marks[0].type, 'italic');
+  assert.equal(parseAiFormatting('nome_del_file').text, 'nome_del_file');
+});
+
+test('a plain corrected paragraph also removes inappropriate semantic marks without touching surrounding text', () => {
+  const state = EditorState.create({ schema, doc: schema.node('doc', null, [p('Prima'), p('Tutto erroneamente in grassetto', [schema.mark('bold')]), p('Dopo')]) });
+  const from = state.doc.firstChild.nodeSize + 1;
+  const result = state.apply(replaceAiFormatting(state.tr, from, from + state.doc.child(1).content.size, parseAiFormatting('Una frase normale.').content));
+  assert.equal(result.doc.child(1).firstChild.marks.length, 0);
+  assert.equal(result.doc.firstChild.textContent, 'Prima'); assert.equal(result.doc.lastChild.textContent, 'Dopo');
+});
+
+test('formatting can correct an inappropriate heading back to an ordinary paragraph', () => {
+  const state = EditorState.create({ schema, doc: schema.node('doc', null, [schema.node('heading', { level: 2 }, schema.text('Una frase normale.')), p('Dopo')]) });
+  const result = state.apply(replaceAiFormatting(state.tr, 1, state.doc.firstChild.nodeSize - 1, parseAiFormatting('Una frase normale.').content));
+  assert.equal(result.doc.firstChild.type.name, 'paragraph'); assert.equal(result.doc.childCount, 2);
+  assert.equal(result.doc.lastChild.textContent, 'Dopo'); result.doc.check();
+});
