@@ -51,42 +51,7 @@
                 }
               }
             ],
-            "text": "Quando sei giovane e osservi una persona più grande di te, ti senti con un "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              },
-              {
-                "type": "bold"
-              }
-            ],
-            "text": "potenziale"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": " enorme a dispetto di quella più grande, come se il tempo che ancora hai davanti fosse una ricchezza che l'altra ha già speso."
+            "text": "Quando sei giovane e osservi una persona più grande di te, ti senti con un potenziale enorme a dispetto di quella più grande, come se il tempo che ancora hai davanti fosse una ricchezza che l'altra ha già speso."
           }
         ]
       },
@@ -126,7 +91,7 @@
                 }
               },
               {
-                "type": "italic"
+                "type": "bold"
               }
             ],
             "text": "una promessa, non un possesso"
@@ -185,7 +150,7 @@
                 }
               }
             ],
-            "text": "La "
+            "text": "La spavaldatezza dei giovani nasce da questa convinzione che il tempo sia un capitale inesauribile, e che chi ci precede abbia semplicemente sbagliato a investirlo. Ma la sicurezza di chi non ha ancora perso nulla somiglia più a "
           },
           {
             "type": "text",
@@ -204,7 +169,7 @@
                 "type": "bold"
               }
             ],
-            "text": "spavaldatezza"
+            "text": "un'assenza di memoria"
           },
           {
             "type": "text",
@@ -220,7 +185,7 @@
                 }
               }
             ],
-            "text": " dei giovani nasce da questa convinzione che il tempo sia un capitale inesauribile, e che chi ci precede abbia semplicemente sbagliato a investirlo. Ma la sicurezza di chi non ha ancora perso nulla somiglia più a un'assenza di memoria che a una forma di coraggio. È una memoria che ancora non ha avuto occasione di formarsi, perché per ricordare una perdita bisogna prima averla subita, e chi è giovane la conosce solo come una voce lontana."
+            "text": " che a una forma di coraggio. È una memoria che ancora non ha avuto occasione di formarsi, perché per ricordare una perdita bisogna prima averla subita, e chi è giovane la conosce solo come una voce lontana."
           }
         ]
       },
@@ -268,42 +233,7 @@
                 }
               }
             ],
-            "text": "Il problema è sempre stato l'assenza di "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              },
-              {
-                "type": "bold"
-              }
-            ],
-            "text": "consapevolezza"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": " di quella possibile perdita futura e l'arroganza di avere tutto il tempo del mondo, come se il domani fosse un debito che qualcun altro si impegna a saldare per noi. Solo quando le occasioni cominciano a ridursi capisci che "
+            "text": "Il problema è sempre stato l'assenza di consapevolezza di quella possibile perdita futura e l'arroganza di avere tutto il tempo del mondo, come se il domani fosse un debito che qualcun altro si impegna a saldare per noi. "
           },
           {
             "type": "text",
@@ -325,23 +255,7 @@
                 }
               }
             ],
-            "text": "il tempo non è mai stato un patrimonio da custodire, ma una moneta che si spende comunque"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": ", anche mentre non la stai guardando."
+            "text": "Solo quando le occasioni cominciano a ridursi capisci che il tempo non è mai stato un patrimonio da custodire, ma una moneta che si spende comunque, anche mentre non la stai guardando."
           }
         ]
       },
@@ -400,7 +314,7 @@
                 }
               }
             ],
-            "text": ", dove si percepisce il valore vero del tempo, ovvero il "
+            "text": ", dove si percepisce il valore vero del tempo, ovvero "
           },
           {
             "type": "text",
@@ -419,7 +333,7 @@
                 "type": "bold"
               }
             ],
-            "text": "tempo interiore"
+            "text": "il tempo interiore"
           },
           {
             "type": "text",
@@ -443,6 +357,12 @@
         "type": "paragraph",
         "attrs": {
           "textAlign": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
         },
         "content": [
           {
@@ -459,80 +379,7 @@
                 }
               }
             ],
-            "text": "Tutto questo ragionamento ci porta a un'unica conclusione, perché "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              },
-              {
-                "type": "highlight",
-                "attrs": {
-                  "color": "#ffc8004d"
-                }
-              }
-            ],
-            "text": "non riusciamo a dare il valore vero al tempo finché ne abbiamo ancora davanti in abbondanza"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": ", e lo scopriamo soltanto quando comincia a scarseggiare. È una lezione che nessuno può insegnarci fino in fondo, perché per capirla bisogna averla già "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              },
-              {
-                "type": "bold"
-              }
-            ],
-            "text": "pagata"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": "."
+            "text": "Tutto questo ragionamento ci porta a un'unica conclusione, perché non riusciamo a dare il valore vero al tempo finché ne abbiamo ancora davanti in abbondanza, e lo scopriamo soltanto quando comincia a scarseggiare. È una lezione che nessuno può insegnarci fino in fondo, perché per capirla bisogna averla già pagata."
           }
         ]
       },
@@ -556,7 +403,7 @@
                 }
               }
             ],
-            "text": "L'unica soluzione per aumentare le probabilità di non rimanere delusi dalle proprie scelte è quella di avere qualcuno che te lo faccia capire, ogni giorno, che ti ricordi di seguire la direzione che un tempo avevi scelto, anche quando la strada si fa stanca e la voce di quel ragazzo lontano sembra ormai troppo flebile per essere ascoltata. Non un giudice, né un maestro, ma una "
+            "text": "L'unica soluzione per aumentare le probabilità di non rimanere delusi dalle proprie scelte è quella di avere qualcuno che te lo faccia capire, ogni giorno, che ti ricordi di seguire la direzione che un tempo avevi scelto, anche quando la strada si fa stanca e la voce di quel ragazzo lontano sembra ormai troppo flebile per essere ascoltata. Non un giudice, né un maestro, ma "
           },
           {
             "type": "text",
@@ -575,7 +422,7 @@
                 "type": "bold"
               }
             ],
-            "text": "presenza paziente"
+            "text": "una presenza paziente"
           },
           {
             "type": "text",
@@ -615,42 +462,7 @@
                 }
               }
             ],
-            "text": "Se fosse possibile, la soluzione migliore sarebbe poter parlare con il proprio "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              },
-              {
-                "type": "bold"
-              }
-            ],
-            "text": "io del futuro"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": null,
-                  "color": null,
-                  "fontFamily": null,
-                  "fontSize": "18px",
-                  "lineHeight": null
-                }
-              }
-            ],
-            "text": " per chiedergli consiglio di come non sbagliare e diventare la persona che oggi ci sembra giusto essere, ma quella conversazione non può esistere, perché il futuro non risponde a chi lo interroga. Possiamo solo immaginarne la voce, e sperare che somigli a quella di qualcuno che ci perdonerebbe."
+            "text": "Se fosse possibile, la soluzione migliore sarebbe poter parlare con il proprio io del futuro per chiedergli consiglio di come non sbagliare e diventare la persona che oggi ci sembra giusto essere, ma quella conversazione non può esistere, perché il futuro non risponde a chi lo interroga. Possiamo solo immaginarne la voce, e sperare che somigli a quella di qualcuno che ci perdonerebbe."
           }
         ]
       }
@@ -691,5 +503,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792499578661
+  "updated": 1792511021833
 }
