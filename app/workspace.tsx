@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { EditorContent, useEditor, type Editor } from '@tiptap/react';
+import { EditorContent, useEditor, type Editor, type JSONContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import { TextStyleKit } from '@tiptap/extension-text-style';
@@ -8,7 +8,11 @@ import TextAlign from '@tiptap/extension-text-align';
 import Image from '@tiptap/extension-image';
 import Highlight from '@tiptap/extension-highlight';
 import { Ghost, ghostKey } from '../lib/ghost';
+import { A4, Pagination, paginationKey } from '../lib/pagination';
 import { completionProposal } from '../lib/completion';
+import { aiPreferencesKey, aiTabAction, DEFAULT_AI_PREFERENCES, readAiPreferences, storeAiPreferences, type AiPreferences } from '../lib/ai-preferences';
+import { parseAiFormatting, replaceAiFormatting } from '../lib/ai-formatting';
+import { AiFormatPreview } from './ai-format-preview';
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
 import { assistPrompts, splitWarning } from '../lib/providers';
 import { finalizeUsage, parseUsageEvent, recordTokenUsage, type UsageEvent } from '../lib/token-usage';
@@ -38,7 +42,7 @@ import { ArrowDownToLine, AlignCenter, AlignLeft, AlignRight, Bold, Check, Chevr
 type Doc = {id:string; title:string; updated:number; version:number};
 // base/para: paragraph text and start for completions; original: the text a rewrite would replace;
 // trail: whitespace between the rewritten sentence and the cursor, kept after accepting.
-type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean;trail?:number};
+type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean;trail?:number;content?:JSONContent[]};
 type Revision = {id:string;title:string;content:string;created:number};
 const EMPTY = {type:'doc',content:[{type:'paragraph'}]};
 // The static GitHub Pages build sets this flag: storage and AI calls then stay in the browser.
@@ -46,9 +50,9 @@ const LOCAL=typeof window!=='undefined'&&window.__SCRIVIA_LOCAL__===true;
 const THEMES:Theme[]=['light','dark','system'];
 function readMode():Mode{try{const m=localStorage.getItem('scrivia:mode');return isMode(m)?m:'assistita';}catch{return 'assistita';}}
 const EMPTY_FP=fingerprint('');
-// Page view: A4 pages (CSS px) laid out side by side as columns of the editor; 0 is the continuous sheet.
-const PAGE={width:794,height:1123,margin:76,gap:28},PAGE_VIEWS=[0,1,2,3,4];
-function readPages(){try{const n=Number(localStorage.getItem('scrivia:pages'));return PAGE_VIEWS.includes(n)?n:0;}catch{return 0;}}
+// One A4 page per row by default; optional continuous and side-by-side views.
+const PAGE=A4,PAGE_VIEWS=[0,1,2,3,4];
+function readPages(){try{const raw=localStorage.getItem('scrivia:pages'),n=raw===null?1:Number(raw);return PAGE_VIEWS.includes(n)?n:1;}catch{return 1;}}
 const SUGGESTION_TITLES:Record<string,string>={complete:'Continuazione proposta',continue:'Scena proposta',voice:'Riscrittura nella voce scelta'};
 function readTheme():Theme{try{const t=localStorage.getItem('scrivia:theme');return THEMES.includes(t as Theme)?t as Theme:'system';}catch{return 'system';}}
 async function api(path:string,body?:any,method='POST',signal?:AbortSignal):Promise<any> {
@@ -67,6 +71,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const [writingMemory,setWritingMemory]=useState<WritingMemory>(EMPTY_WRITING_MEMORY),[memoryOpen,setMemoryOpen]=useState(false),[memoryError,setMemoryError]=useState('');
   // General writing rules from Settings: sent with every request and enforced on the answers.
   const [rules,setRulesState]=useState<WritingRules>(()=>readWritingRules(owner)),rulesRef=useRef(rules);
+  const [aiPreferences,setAiPreferencesState]=useState<AiPreferences>(DEFAULT_AI_PREFERENCES);
+  useEffect(()=>{const restore=setTimeout(()=>setAiPreferencesState(readAiPreferences(owner)),0);const sync=(event:StorageEvent)=>{if(event.key===aiPreferencesKey(owner)||event.key===null){clearSuggestion();setAiPreferencesState(readAiPreferences(owner));}};window.addEventListener('storage',sync);return()=>{clearTimeout(restore);window.removeEventListener('storage',sync);};},[owner]);
+  function changeAiPreferences(next:AiPreferences){clearSuggestion();setAiPreferencesState(next);if(!storeAiPreferences(next,ownerRef.current))setNotice('Preferenze AI in uso, ma non salvate sul dispositivo.');}
   useEffect(()=>{rulesRef.current=rules;},[rules]);
   const writingRef=useRef(writingMemory),writingReady=useRef(false),ownerRef=useRef(owner);ownerRef.current=owner;
   // Knowledge bases (style + mindset of an author) and the one guiding the predictions.
@@ -88,6 +95,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // Phones: simplified mode (bottom toolbar, panels as sheets); the A4 page view is desktop-only.
   const [narrow,simple,setSimple]=useSimpleMode(),standalone=useStandalone(),[sheet,setSheet]=useState<null|'docs'|'more'|'install'>(null);
   const pages=simple?0:pagePref;
+  const [pageCount,setPageCount]=useState(1);
   // Voice input: phrases are written at the cursor while the microphone listens.
   const [canDictate,setCanDictate]=useState(false),[listening,setListening]=useState(false),[heard,setHeard]=useState(''),[dictError,setDictError]=useState(''),dictation=useRef<Dictation|null>(null);
   useVisibleHeight(simple);
@@ -95,7 +103,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const [form,setForm]=useState<ProfileForm>(EMPTY_PROFILE_FORM),[formBusy,setFormBusy]=useState(false);
   const editorRef=useRef<Editor|null>(null),revision=useRef(0),pending=useRef<AbortController|null>(null),aiTimer=useRef<ReturnType<typeof setTimeout>|null>(null),saveTimer=useRef<ReturnType<typeof setTimeout>|null>(null);
   const current=useRef<{id:string;version:number;title:string}>({id:'',version:0,title:'Senza titolo'}),dirty=useRef(false),saving=useRef<Promise<boolean>|null>(null),selection=useRef<Suggestion|null>(null),suppress=useRef(false),settled=useRef<{para:number;text:string}|null>(null);
-  const options=useRef({profile,aiOn,autoMode,tone,delay,mode});options.current={profile,aiOn,autoMode,tone,delay,mode};
+  const options=useRef({profile,aiOn,autoMode,tone,delay,mode,...aiPreferences});options.current={profile,aiOn,autoMode,tone,delay,mode,...aiPreferences};
   const projectRef=useRef(project),projectDoc=useRef(''),projectDirty=useRef(false),projectTimer=useRef<ReturnType<typeof setTimeout>|null>(null),fpTimer=useRef<ReturnType<typeof setTimeout>|null>(null);projectRef.current=project;
   // What the model needs to know about the work: voice, scene intent, project and story memory.
   const narrative=useMemo<Ctx>(()=>{const chosen=INTENTS.find(i=>i.id===intentChoice);
@@ -105,10 +113,10 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const [governor]=useState(()=>new AiGovernor());
   const localOffline=useRef(new Set<string>());
   useEffect(()=>{governor.resetBackoff();localOffline.current.delete(profile);},[profile,governor]);
-  const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,cancel:()=>{}});
+  const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,tab:(()=>false) as (event:KeyboardEvent)=>boolean,cancel:()=>{}});
   const source=useMemo(()=>{const voiceId=project.voice.id==='mix'&&sanitizeBlend(project.voice.blend).length<2?'mine':project.voice.id;
     return styleSource({kb:activeKb?.chunks.length?activeKb:null,voiceId,voiceName:voiceName(voiceId,project.voice.blend),memoryActive:writingMemory.enabled&&(writingMemory.sources.length>0||!!writingMemory.notes.trim())});},[activeKb,project.voice,writingMemory]);
-  const proposalDiff=useMemo(()=>suggestion?.done&&suggestion.original!==undefined?wordDiff(suggestion.original,suggestion.text):null,[suggestion]);
+  const proposalDiff=useMemo(()=>suggestion?.done&&!suggestion.content&&suggestion.original!==undefined?wordDiff(suggestion.original,suggestion.text):null,[suggestion]);
   const proposalVoice=useMemo(()=>{if(!suggestion?.done||fp.words<150||wordsOf(suggestion.text).length<25)return null;return styleSimilarity(fp,fingerprint(suggestion.text));},[suggestion,fp]);
   function applyWritingMemory(next:WritingMemory,manual=true){
     if(manual)clearSuggestion();writingRef.current=next;setWritingMemory(next);
@@ -161,9 +169,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     return `Memoria aggiornata da ${samples.length} documenti letti.${failed?' '+failed+' documenti non sono stati letti; puoi riprovare.':''}`;
   }
   const editor=useEditor({immediatelyRender:false,shouldRerenderOnTransaction:true,
-    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Ghost],
+    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Ghost,Pagination.configure({onPages:setPageCount})],
     content:EMPTY,editorProps:{attributes:{class:'manuscript',role:'textbox','aria-label':'Contenuto del documento',spellcheck:'true'},handleKeyDown:(_view,event)=>{
-      if(event.key==='Tab' && callbacks.current.accept()){event.preventDefault();return true;}
+      if(event.key==='Tab' && callbacks.current.tab(event)){event.preventDefault();return true;}
       if(event.key==='Escape'){callbacks.current.cancel();return false;}
       return false;
     }},onUpdate:()=>callbacks.current.update(),onSelectionUpdate:({transaction})=>callbacks.current.selection(transaction.docChanged),
@@ -172,16 +180,26 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   function clearSuggestion() { if(aiTimer.current)clearTimeout(aiTimer.current);pending.current?.abort();pending.current=null;selection.current=null;setSuggestion(null);setBusy(false);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,null)); }
   function showSuggestion(s:Suggestion|null) { selection.current=s;setSuggestion(s);const e=editorRef.current;if(e&&!e.isDestroyed)e.view.dispatch(e.state.tr.setMeta(ghostKey,s?{kind:s.original===undefined&&(s.mode==='complete'||s.mode==='continue')?'complete':'replace',from:s.from,to:s.to,text:s.text,done:s.done}:null)); }
   // Typing the first characters of a completion keeps the rest on screen instead of asking again.
-  function continued():Suggestion|null { const s=selection.current,e=editorRef.current;if(!s||!e||s.mode!=='complete'||s.original!==undefined||!s.done||s.base===undefined||!e.state.selection.empty)return null;
+  function continued():Suggestion|null { const s=selection.current,e=editorRef.current;if(!s||!e||s.content||s.mode!=='complete'||s.original!==undefined||!s.done||s.base===undefined||!e.state.selection.empty)return null;
     const {$from}=e.state.selection;if($from.start()!==s.para)return null;const now=beforeCursor($from);if(!now.startsWith(s.base))return null;
     // A space typed before a proposal that starts with a word keeps it: the space was implied.
     const typed=now.slice(s.base.length),text=/^\s/.test(typed)&&!/^\s/.test(s.text)?' '+s.text:s.text;if(!typed||!text.startsWith(typed)||text.length<=typed.length)return null;
     return {...s,text:text.slice(typed.length),from:$from.pos,to:$from.pos,base:now}; }
   function acceptSuggestion() { const s=selection.current,e=editorRef.current;if(!s||!s.done||!e||s.revision!==revision.current)return false;
-    clearSuggestion(); e.chain().focus().insertContentAt({from:s.from,to:s.to},s.text.split('\n').flatMap((line,i)=>[...(i?[{type:'hardBreak'}]:[]),...(line?[{type:'text',text:line}]:[])])).run();
+    clearSuggestion();
+    if(s.content)e.chain().focus().command(({tr})=>{replaceAiFormatting(tr,s.from,s.to,s.content!);return true;}).run();
+    else e.chain().focus().insertContentAt({from:s.from,to:s.to},s.text.split('\n').flatMap((line,i)=>[...(i?[{type:'hardBreak'}]:[]),...(line?[{type:'text',text:line}]:[])])).run();
     // An improved sentence is settled: automatic rewrites move on to the next one instead of improving it again.
     if(s.mode==='rewrite'){const {$from}=e.state.selection;settled.current={para:$from.start(),text:beforeCursor($from)};}
     if(s.trail)e.commands.setTextSelection(Math.min(e.state.selection.to+s.trail,e.state.selection.$to.end()));return true; }
+  function handleAiTab(event:KeyboardEvent):boolean {
+    const e=editorRef.current;if(!e?.isEditable||!loaded||e.isActive('table')||e.isActive('codeBlock'))return false;
+    const s=selection.current,opts=options.current;
+    const action=aiTabAction({trigger:opts.trigger,mode:opts.mode,modified:event.shiftKey||event.ctrlKey||event.altKey||event.metaKey,composing:event.isComposing||e.view.composing,repeat:event.repeat,busy:!!pending.current,proposal:s?s.done?'ready':'pending':'none'});
+    if(action==='accept')return acceptSuggestion();
+    if(action==='request'){void ask(e.state.selection.empty?opts.autoMode:'rewrite');return true;}
+    return action==='wait';
+  }
 
   const save=useCallback(async():Promise<boolean>=>{
     if(saving.current)return saving.current;
@@ -234,30 +252,41 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     // No proposal is drawn inside an IME composition (mobile keyboards): try again once it is over.
     if(automatic&&e.view.composing){aiTimer.current=setTimeout(()=>void ask(mode,true),opts.delay);return;}
     const inline=mode==='complete'||mode==='continue',para=$from.start();
-    const completion=mode==='complete'?sentenceTarget(beforeCursor($from)):null;
+    const formatting=opts.formatting&&(mode==='complete'||mode==='rewrite');
+    if(mode==='complete'&&!e.state.selection.empty){if(!automatic)setAiError('Posiziona il cursore per completare il testo, oppure scegli «Migliora frase» per elaborare una selezione.');return;}
+    const completion=mode==='complete'?(formatting?{start:0,end:$from.parentOffset}:sentenceTarget(beforeCursor($from))):null;
     // Automatic improvements work on the sentence being written, never on text already accepted.
     const sentence=automatic&&mode==='rewrite'?sentenceTarget(beforeCursor($from),settled.current?.para===para?settled.current.text:''):null;
     const start=completion?para+completion.start:sentence?para+sentence.start:inline?from:(from===to?para:from);
     // A voice rewrite without selection takes the whole paragraph, so the voice applies to a full unit.
     const end=sentence?para+sentence.end:inline?from:mode==='voice'&&from===to?$from.end():to;
-    const text=completion?beforeCursor($from).slice(completion.start):sentence?beforeCursor($from).slice(sentence.start,sentence.end):mode==='continue'?e.state.doc.textBetween(Math.max(0,from-2000),from,'\n'):e.state.doc.textBetween(start,end,'\n');
+    const text=completion?beforeCursor($from).slice(completion.start):sentence?beforeCursor($from).slice(sentence.start,sentence.end):mode==='continue'?e.state.doc.textBetween(Math.max(0,from-2000),from,'\n'):e.state.doc.textBetween(start,end,formatting?'\n\n':'\n');
     if(text.trim().length<(mode==='continue'?20:3)){if(!automatic)setAiError(mode==='continue'?'Scrivi qualche frase: la scena continuerà dal cursore.':'Scrivi o seleziona almeno qualche parola.');return;}
     if(text.length>10000){setAiError('Seleziona un brano più breve (massimo 10.000 caratteri).');return;}
     const contextEnd=mode==='continue'?Math.max(0,from-2000):start,n=narrativeRef.current;
     const payload={profile:opts.profile,mode,...voiceFields(mode,text),text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+1000),'\n'),tone:opts.tone,
-      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='continue'||mode==='voice'?n.memory:'',direction,...rulesField()};
+      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='continue'||mode==='voice'?n.memory:'',direction,formatting,formatContext:formatting?JSON.stringify({block:$from.parent.type.name,level:$from.parent.attrs.level}):'',...rulesField()};
     const rev=revision.current,scope=String(para),key=AiGovernor.key([payload]);
     const extra=mode==='complete'?{base:beforeCursor($from),para}:mode==='continue'?{}:{original:text,trail:sentence?from-end:0};
     // A generated scene starting right after a word needs a separating space.
     const spaced=(a:string)=>mode==='continue'&&/\S$/.test(text)&&/^[\p{L}\p{N}«"“(]/u.test(a)?' '+a:a;
     const proposal=(answer:string,done:boolean,cached=false):Suggestion|null=>{
+      if(formatting&&done){
+        const formatted=parseAiFormatting(clean(answer));
+        if(formatted.rich){
+          const keepPrefix=mode==='complete'&&clean(answer).startsWith(text)&&!parseAiFormatting(text).rich;
+          const part=keepPrefix?parseAiFormatting(clean(answer).slice(text.length),true):formatted;
+          if(!part.text.trim())return null;
+          return {...extra,text:part.text,content:part.content,from:keepPrefix?end:start,to:end,original:keepPrefix?undefined:text,revision:rev,mode,done,cached};
+        }
+      }
       if(mode==='complete'){const p=completionProposal(text,answer,done);return p?{...extra,...p,text:clean(p.text),from:start+p.offset,to:end,revision:rev,mode,done,cached}:null;}
       return {text:spaced(clean(answer)),from:start,to:end,revision:rev,mode,done,cached,...extra};
     };
     // A problem reported by the model is shown as a warning, never as text to accept;
     // an automatic improvement that changes nothing is not shown either.
     const finish=(answer:string,cached:boolean)=>{if(automatic)governor.asked(mode,scope,text);const p=splitWarning(answer);setAiWarning(p.warning);
-      if(!p.text.trim()||(automatic&&mode==='rewrite'&&sameText(p.text,text))){showSuggestion(null);return;}showSuggestion(proposal(p.text,true,cached));};
+      if(!p.text.trim()||(automatic&&mode==='rewrite'&&(formatting?p.text===text&&!parseAiFormatting(p.text).rich:sameText(p.text,text)))){showSuggestion(null);return;}showSuggestion(proposal(p.text,true,cached));};
     const hit=governor.cached(key);
     if(hit!==undefined){finish(hit,true);return;}
     if(automatic&&!governor.worthAsking(mode,scope,text))return;
@@ -276,8 +305,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     if(fpTimer.current)clearTimeout(fpTimer.current);fpTimer.current=setTimeout(()=>{const ed=editorRef.current;if(ed&&!ed.isDestroyed)setFp(fingerprint(ed.getText({blockSeparator:'\n'})));},full?0:2500);}
   callbacks.current={update:()=>{if(suppress.current||!loaded)return;const next=continued();if(!next)clearSuggestion();markDirty();const e=editorRef.current;setWords(e?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(e?.getText().length||0);const opts=options.current;analyseLocally();
     if(next){showSuggestion({...next,revision:revision.current});return;}
-    if(opts.mode==='assistita'&&opts.aiOn&&opts.profile)aiTimer.current=setTimeout(()=>void ask(opts.autoMode,true),opts.delay);
-  },selection:(typing)=>{if(!typing)clearSuggestion();},accept:acceptSuggestion,cancel:clearSuggestion};
+    if(opts.mode==='assistita'&&opts.trigger==='pause'&&opts.aiOn&&opts.profile)aiTimer.current=setTimeout(()=>void ask(opts.autoMode,true),opts.delay);
+  },selection:(typing)=>{if(!typing)clearSuggestion();},accept:acceptSuggestion,tab:handleAiTab,cancel:clearSuggestion};
 
   // The creative project (brief, voice, story memory) is saved separately from the text, per document.
   const setProject=useCallback((update:(p:Project)=>Project)=>{projectDirty.current=true;setProjectState(p=>update(p));},[]);
@@ -293,7 +322,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   async function reloadProfiles(){const data=await api('profiles');setProfiles(data.profiles);setVaultReady(data.vaultReady);setProfile(p=>data.profiles.some((x:Profile)=>x.id===p)?p:data.profiles[0]?.id||'');}
   useEffect(()=>{if(!editor)return;let cancelled=false;(async()=>{try{const list=await api('documents');if(cancelled)return;setDocs(list);await reloadProfiles();if(cancelled)return;if(list.length)await loadDocument(list[0].id);else{suppress.current=true;editor.commands.setContent(EMPTY);suppress.current=false;markDirty();await save();await attachProject(current.current.id);}setMode(readMode());setLoaded(true);}catch(err){setError((err as Error).message);setStatus('Connessione non riuscita');}})();return()=>{cancelled=true;};},[editor]);
   useEffect(()=>{const before=(e:BeforeUnloadEvent)=>{void saveProject();if(dirty.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',before);return()=>{window.removeEventListener('beforeunload',before);void saveProject();if(fpTimer.current)clearTimeout(fpTimer.current);pending.current?.abort();if(aiTimer.current)clearTimeout(aiTimer.current);if(saveTimer.current)clearTimeout(saveTimer.current);};},[saveProject]);
-  useEffect(()=>{clearSuggestion();setAiWarning('');},[profile,aiOn,autoMode,tone,mode]);
+  useEffect(()=>{clearSuggestion();setAiWarning('');},[profile,aiOn,autoMode,tone,mode,aiPreferences]);
+  useEffect(()=>{if(!loaded)return;const timer=setInterval(()=>{void (async()=>{if(await save())await saveProject();})();},5*60*1000);return()=>clearInterval(timer);},[loaded,save,saveProject]);
   function changeMode(next:Mode){setMode(next);try{localStorage.setItem('scrivia:mode',next);}catch{}}
   useEffect(()=>{setTheme(readTheme());},[]);
   // The static build registers the service worker in site/main.tsx; the server build does it here.
@@ -318,10 +348,12 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const layoutPages=useCallback(()=>{const paper=paperRef.current,canvas=canvasRef.current,dom=editorRef.current?.isDestroyed?null:editorRef.current?.view.dom as HTMLElement|undefined;if(!paper||!canvas||!dom)return;
     if(!pages){paper.style.removeProperty('--pages');paper.style.zoom='';return;}
     const box=dom.getBoundingClientRect(),scale=box.width/(dom.offsetWidth||1)||1,last=dom.lastElementChild?.getBoundingClientRect();
-    const filled=last?Math.floor(((last.right-box.left)/scale-PAGE.margin)/(PAGE.width+PAGE.gap))+1:1;paper.style.setProperty('--pages',String(Math.max(1,filled)));
+    const filled=pages===1?1:last?Math.floor(((last.right-box.left)/scale-PAGE.margin)/(PAGE.width+PAGE.gap))+1:1;paper.style.setProperty('--pages',String(Math.max(1,filled)));
     const style=getComputedStyle(canvas),room=canvas.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),height=canvas.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
-    const fitWidth=room/(pages*(PAGE.width+PAGE.gap)-PAGE.gap),fit=pages>1?Math.min(fitWidth,height/PAGE.height):fitWidth;paper.style.zoom=String(Math.max(0.15,Math.min(1,fit)));},[pages]);
-  useEffect(()=>{if(!editor)return;layoutPages();editor.on('update',layoutPages);const observer=new ResizeObserver(()=>layoutPages());if(canvasRef.current)observer.observe(canvasRef.current);return()=>{editor.off('update',layoutPages);observer.disconnect();};},[editor,layoutPages]);
+    const caption=canvas.querySelector<HTMLElement>('.page-topline'),captionStyle=caption?getComputedStyle(caption):null;
+    const heading=caption?caption.offsetHeight+parseFloat(captionStyle!.marginTop)+parseFloat(captionStyle!.marginBottom):0;
+    const fitWidth=room/(pages*(PAGE.width+PAGE.gap)-PAGE.gap),fit=Math.min(fitWidth,Math.max(1,height-heading-4)/PAGE.height);paper.style.zoom=String(Math.max(0.15,Math.min(1,fit)));},[pages]);
+  useEffect(()=>{if(!editor)return;editor.view.dispatch(editor.state.tr.setMeta(paginationKey,{enabled:pages===1,breaks:[],pages:1}).setMeta('addToHistory',false));layoutPages();editor.on('update',layoutPages);const observer=new ResizeObserver(()=>layoutPages());if(canvasRef.current)observer.observe(canvasRef.current);return()=>{editor.off('update',layoutPages);observer.disconnect();};},[editor,layoutPages,pages]);
   useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),3500);return()=>clearTimeout(timer);},[notice]);
 
   async function saveToRepository(copy=false){
@@ -381,7 +413,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // Browser prompt where there is one (Chrome, Edge, Android); otherwise the steps (Safari on iPhone, Firefox…).
   function installApp(){setSheet(null);if(installable)void promptInstall();else setSheet('install');}
   const closeSheet=useCallback(()=>setSheet(null),[]);
-  return <div className={'app '+(focus?'focus-mode':'')+(sidebar?'':' sidebar-hidden')+(mobileAI?' mobile-ai':'')+(pages?' paged':'')+(simple?' simple':'')+(simple&&sheet==='docs'?' m-docs':'')}>
+  return <div className={'app '+(focus?'focus-mode':'')+(sidebar?'':' sidebar-hidden')+(mobileAI?' mobile-ai':'')+(pages?' paged':'')+(pages===1?' a4-stack':'')+(simple?' simple':'')+(simple&&sheet==='docs'?' m-docs':'')}>
     <Tooltips/>
     <aside className="library"><div className="brand"><span className="brand-icon"><WandSparkles size={21}/></span><span>scrivia<span className="brand-dot">.</span></span><small>AI</small></div>
       <button className="new-doc" data-tip="Crea un documento vuoto; quello aperto viene salvato prima" onClick={()=>{setSheet(null);void newDocument();}} disabled={!loaded}><Plus size={17}/>Nuovo documento<span>＋</span></button>
@@ -401,32 +433,34 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
         <Tool label="Elenco puntato" tip="Trasforma i paragrafi in un elenco puntato" icon={List} action={()=>{editor?.chain().focus().toggleBulletList().run();}}/><Tool label="Elenco numerato" tip="Trasforma i paragrafi in un elenco numerato" icon={ListOrdered} action={()=>{editor?.chain().focus().toggleOrderedList().run();}}/><Tool label="Inserisci tabella" tip="Inserisce una tabella 3×3 nel punto del cursore" icon={Table2} action={()=>{editor?.chain().focus().insertTable({rows:3,cols:3,withHeaderRow:true}).run();}}/><Tool label="Inserisci collegamento" tip="Trasforma il testo selezionato in un link a una pagina web" icon={Link2} action={()=>{const url=window.prompt('Indirizzo del collegamento (https://…)');if(url&&/^https?:\/\//i.test(url))editor?.chain().focus().setLink({href:url}).run();}}/>
         <label className="tool image-upload" data-tip="Inserisci un’immagine PNG, JPEG o WebP (fino a 800 KB)"><ImagePlus size={17}/><input type="file" aria-label="Inserisci immagine" accept="image/png,image/jpeg,image/webp" onChange={e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>800000){setError('Scegli un’immagine fino a 800 KB.');return;}const reader=new FileReader();reader.onload=()=>editor?.chain().focus().setImage({src:String(reader.result),alt:f.name}).run();reader.readAsDataURL(f);e.target.value='';}}/></label>
       </div>
+      {editor&&!editor.state.selection.empty&&<div className="ai-selection-actions"><button disabled={busy||!loaded} onMouseDown={e=>e.preventDefault()} onClick={()=>void ask('rewrite')}><WandSparkles size={16}/>Migliora selezione con AI</button><span>Modifica solo il testo selezionato, con anteprima prima di accettare.</span></div>}
       {editor?.isActive('table')&&<div className="table-actions"><button data-tip="Aggiunge una riga sotto quella del cursore" onClick={()=>editor.chain().focus().addRowAfter().run()}>+ Riga</button><button data-tip="Aggiunge una colonna a destra di quella del cursore" onClick={()=>editor.chain().focus().addColumnAfter().run()}>+ Colonna</button><button data-tip="Elimina la riga in cui si trova il cursore" onClick={()=>editor.chain().focus().deleteRow().run()}>Elimina riga</button><button data-tip="Elimina la colonna in cui si trova il cursore" onClick={()=>editor.chain().focus().deleteColumn().run()}>Elimina colonna</button><button data-tip="Elimina l’intera tabella" onClick={()=>editor.chain().focus().deleteTable().run()}>Rimuovi tabella</button></div>}
       {showFind&&<div className="findbar"><Search size={15}/><input aria-label="Cerca nel testo" placeholder="Trova nel testo" value={find} onChange={e=>setFind(e.target.value)}/><input aria-label="Sostituisci con" placeholder="Sostituisci con" value={replace} onChange={e=>setReplace(e.target.value)}/><button data-tip="Seleziona la prossima occorrenza nel testo (senza distinzione tra maiuscole e minuscole)" onClick={()=>findNext()}>Trova</button><button data-tip="Sostituisce l’occorrenza selezionata e passa alla successiva con «Trova»" onClick={()=>findNext(true)}>Sostituisci selezione</button><button aria-label="Chiudi ricerca" onClick={()=>setShowFind(false)}><X size={16}/></button></div>}
       {repoError&&<div role="alert" className="error-banner">{repoError}<button onClick={()=>setRepoOpen('load')}>Apri GitHub</button><button aria-label="Chiudi errore GitHub" onClick={()=>setRepoError('')}><X size={15}/></button></div>}
       {error&&<div role="alert" className="error-banner">{error}<button data-tip="Prova di nuovo a salvare le modifiche" onClick={()=>void save()}>Riprova salvataggio</button><button aria-label="Chiudi errore" onClick={()=>setError('')}><X size={15}/></button></div>}
-      <div className="writing-area"><div className="canvas" ref={canvasRef}><div className="page-topline"><span>DOCUMENTO PERSONALE</span><SourceBadge source={source} busy={busy} onClick={()=>setKbOpen(true)}/></div>{simple&&<div className="m-source"><SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/></div>}<div className="paper" ref={paperRef} style={pages?{'--page-width':PAGE.width+'px','--page-height':PAGE.height+'px','--page-margin':PAGE.margin+'px','--page-gap':PAGE.gap+'px'} as CSSProperties:undefined}><EditorContent editor={editor}/></div><div className="page-bottom">Le idee sono tue. Le possibilità, infinite.</div></div>
+      <div className="writing-area"><div className="canvas" ref={canvasRef}><div className="page-topline"><span>DOCUMENTO PERSONALE</span><SourceBadge source={source} busy={busy} onClick={()=>setKbOpen(true)}/></div>{simple&&<div className="m-source"><SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/></div>}<div className="paper" ref={paperRef} style={pages?{'--page-width':PAGE.width+'px','--page-height':PAGE.height+'px','--page-margin':PAGE.margin+'px','--page-gap':PAGE.gap+'px'} as CSSProperties:undefined}>{pages===1&&<div className="a4-sheets" aria-hidden="true">{Array.from({length:pageCount},(_,i)=><div className="a4-sheet" key={i}><span>Pagina {i+1} di {pageCount}</span></div>)}</div>}<EditorContent editor={editor}/></div><div className="page-bottom">Le idee sono tue. Le possibilità, infinite.</div></div>
         <aside className="assistant"><div className="assistant-title"><span className="spark-icon"><Sparkles size={19}/></span><div><h2>Il tuo assistente</h2><p>Un passo avanti, insieme.</p></div><span className="live-dot"/><button className="m-close" aria-label="Chiudi assistente" onClick={()=>setMobileAI(false)}><X size={22}/></button></div>
           <ModeSwitch mode={mode} setMode={changeMode}/>
-          {mode==='libera'?<FreeCard fp={fp}/>:<>
+          {mode==='libera'&&<FreeCard fp={fp}/>}
+          {mode!=='libera'&&<>
           <button className="writing-memory-button" aria-label="Gestisci la memoria della mia voce" onClick={()=>setMemoryOpen(true)}><span>La mia voce</span><small>{writingMemory.enabled?writingMemory.sources.length+' testi in memoria':'In pausa'}</small></button>
           <button className="writing-memory-button" aria-label="Gestisci le knowledge base di stile" onClick={()=>setKbOpen(true)}><span>Knowledge base</span><small>{activeKb?'In uso: '+activeKb.name:kbs.length?kbs.length+' disponibili · nessuna in uso':'Carica testi tuoi o di un autore'}</small></button>
           <ProjectChip project={project} onOpen={()=>setProjectOpen(true)}/>
           <label className="profile-select" data-tip="Account AI usato per suggerimenti e analisi: aggiungine altri da Impostazioni › Provider AI">PROFILO AI<select value={profile} onChange={e=>setProfile(e.target.value)}><option value="">Collega un provider</option>{profiles.map(p=><option key={p.id} value={p.id}>{p.name} · {PROVIDERS[p.provider].name}</option>)}</select></label>
-          {mode==='assistita'&&<section className="ai-card"><div className="ai-card-heading"><span>Suggerimenti discreti</span><button role="switch" aria-checked={aiOn} aria-label="Suggerimenti automatici" data-tip={aiOn?'Metti in pausa i suggerimenti automatici':'Riattiva i suggerimenti automatici mentre scrivi'} className={'switch '+(aiOn?'on':'')} onClick={()=>setAiOn(!aiOn)}><span/></button></div><p>Le parole giuste, nella tua voce, mentre scrivi.</p><div className="segmented"><button className={autoMode==='complete'?'active':''} data-tip="Propone come continuare la frase, correggendo refusi e ripetizioni accidentali" onClick={()=>setAutoMode('complete')}>Completa</button><button className={autoMode==='rewrite'?'active':''} data-tip="Mentre scrivi propone una versione più chiara della frase corrente" onClick={()=>setAutoMode('rewrite')}>Migliora frase</button></div><IntentRow detected={detected} choice={intentChoice} setChoice={setIntentChoice}/><label className="delay-label" data-tip="Quanto aspettare dopo l’ultima battuta prima di chiedere un suggerimento: più lunga, meno richieste al provider">Pausa prima del suggerimento <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label><div className="ai-card-footer"><span className={'tiny-dot '+(!aiOn?'off':'')}/>{!aiOn?'Suggerimenti in pausa':activeProfile?'Pronto a scrivere con te':'In attesa del tuo provider'}</div></section>}
+          {mode==='assistita'&&<section className="ai-card"><div className="ai-card-heading"><span>{aiPreferences.trigger==='tab'?'Suggerimenti su richiesta':'Suggerimenti discreti'}</span>{aiPreferences.trigger==='pause'&&<button role="switch" aria-checked={aiOn} aria-label="Suggerimenti automatici" data-tip={aiOn?'Metti in pausa i suggerimenti automatici':'Riattiva i suggerimenti automatici mentre scrivi'} className={'switch '+(aiOn?'on':'')} onClick={()=>setAiOn(!aiOn)}><span/></button>}</div><p>Le parole giuste, nella tua voce, mentre scrivi.</p><label>Avvio AI<select aria-label="Avvio AI" value={aiPreferences.trigger} onChange={e=>changeAiPreferences({...aiPreferences,trigger:e.target.value as AiPreferences['trigger']})}><option value="pause">Automatico dopo una pausa</option><option value="tab">Quando premo Tab</option></select></label>{aiPreferences.trigger==='tab'&&<button className="ai-request-button" disabled={busy} onMouseDown={e=>e.preventDefault()} onClick={()=>void ask(editor?.state.selection.empty?autoMode:'rewrite')}>Chiedi ora <kbd>Tab</kbd></button>}<div className="segmented"><button className={autoMode==='complete'?'active':''} data-tip="Propone come continuare la frase, correggendo refusi e ripetizioni accidentali" onClick={()=>setAutoMode('complete')}>Completa</button><button className={autoMode==='rewrite'?'active':''} data-tip="Mentre scrivi propone una versione più chiara della frase corrente" onClick={()=>setAutoMode('rewrite')}>Migliora frase</button></div><IntentRow detected={detected} choice={intentChoice} setChoice={setIntentChoice}/>{aiPreferences.trigger==='pause'&&<label className="delay-label" data-tip="Quanto aspettare dopo l’ultima battuta prima di chiedere un suggerimento: più lunga, meno richieste al provider">Pausa prima del suggerimento <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label>}<div className="ai-card-footer"><span className={'tiny-dot '+(!aiOn?'off':'')}/>{aiPreferences.trigger==='tab'?'Premi Tab per chiedere, poi Tab per accettare':!aiOn?'Suggerimenti in pausa':activeProfile?'Pronto a scrivere con te':'In attesa del tuo provider'}</div></section>}
           {mode==='coscrittura'&&<><IntentRow detected={detected} choice={intentChoice} setChoice={setIntentChoice}/>
             <div className="segmented cowrite-tabs" role="tablist"><button role="tab" aria-selected={coTab==='genera'} className={coTab==='genera'?'active':''} data-tip="Fai scrivere o riscrivere un brano all’AI" onClick={()=>setCoTab('genera')}><PenLine size={13}/>Genera</button><button role="tab" aria-selected={coTab==='direzioni'} className={coTab==='direzioni'?'active':''} data-tip="Esplora tre possibili sviluppi della trama dal punto del cursore" onClick={()=>setCoTab('direzioni')}><GitBranch size={13}/>Direzioni</button></div>
             {coTab==='genera'?<div className="rewrite-actions"><button data-tip="Scrive il paragrafo successivo partendo dal cursore, nella voce scelta nel progetto" onClick={()=>void ask('continue')}><PenLine size={17}/><span>Continua la scena<small>Un paragrafo dal cursore, nella voce scelta</small></span><ChevronRight size={15}/></button><button data-tip="Riscrive la selezione (o il paragrafo del cursore) nella voce d’autore scelta, senza cambiarne il contenuto" onClick={()=>void ask('voice')}><Drama size={17}/><span>Riscrivi nella voce scelta<small>Selezione o paragrafo, stesso contenuto</small></span><ChevronRight size={15}/></button><button data-tip="Propone una versione più chiara e scorrevole della selezione o del paragrafo" onClick={()=>void ask('rewrite')}><WandSparkles size={17}/><span>Migliora la scrittura<small>Più chiara, sempre tua</small></span><ChevronRight size={15}/></button><button data-tip="Accorcia la selezione o il paragrafo togliendo il superfluo" onClick={()=>void ask('shorten')}><AlignLeft size={17}/><span>Rendi più conciso<small>Vai dritto al punto</small></span><ChevronRight size={15}/></button><button data-tip="Riscrive la selezione o il paragrafo con un registro professionale" onClick={()=>void ask('formal')}><FileText size={17}/><span>Tono professionale<small>Il registro giusto</small></span><ChevronRight size={15}/></button></div>
             :editor&&<Directions editor={editor} run={run} ctx={narrative} ready={!!activeProfile} onWrite={direction=>void ask('continue',false,direction)}/>}</>}
           {mode==='revisione'&&editor&&<Review editor={editor} project={project} setProject={setProject} run={run} ctx={narrative} fp={fp} ready={!!activeProfile} jump={jump}/>}
-          {mode!=='revisione'&&<div className={'suggestion-box'+(suggestion?' has-proposal':'')+(busy?' is-busy':'')} aria-live="polite"><div><Sparkles size={15}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(SUGGESTION_TITLES[suggestion.mode]||'Correzione proposta'):'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/>}{(busy||suggestion)&&<button aria-label="Scarta suggerimento" data-tip="Scarta il suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{[aiWarning,aiError].filter(Boolean).map(w=><p key={w} className="ai-warning" role="alert"><TriangleAlert size={14}/><span>{w}</span><button aria-label="Chiudi avviso" onClick={()=>{setAiWarning('');setAiError('');}}><X size={12}/></button>{isDeviceProfile(profile)&&aiError===w&&<button onClick={()=>{const p=profiles.find(p=>p.id===profile);if(p)setForm({id:p.id,name:p.name,provider:p.provider,model:p.model,key:'',baseUrl:p.baseUrl||'',dailyLimit:p.daily_limit});setSettings('ai');}}>Configura modello locale</button>}</p>)}{suggestion?<><p className="proposal">{(suggestion.mode==='complete'||suggestion.mode==='continue')&&suggestion.original===undefined?<>{suggestion.base&&<span className="proposal-context">{suggestion.base.length>70?'…'+suggestion.base.slice(-70).trimStart():suggestion.base}</span>}<mark>{suggestion.text}</mark></>:proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>{proposalDiff&&<small className="proposal-note">{proposalDiff.some(p=>p.type!=='same')?<><ins>in verde</ins> le parole nuove, <del>barrate</del> quelle rimosse</>:'Nessuna modifica necessaria: il testo va già bene.'}</small>}{proposalVoice!==null&&<small className="proposal-note voice-match"><Drama size={12}/>Vicinanza alla tua impronta stilistica: <strong>{proposalVoice}%</strong></small>}{suggestion.cached&&<small className="proposal-note">Dalla memoria: nessuna nuova chiamata al provider.</small>}<div className="proposal-actions"><button className="accept" data-tip="Inserisce la proposta nel testo (tasto Tab)" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta<kbd>Tab</kbd></button><button className="dismiss" data-tip="Ignora la proposta e continua a scrivere (tasto Esc)" onClick={clearSuggestion}>Scarta<kbd>Esc</kbd></button></div></>:!aiWarning&&!aiError&&<p>{!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.'}</p>}{!profiles.length&&<button className="connect" data-tip="Aggiungi la chiave API di un provider per attivare l’AI" onClick={()=>setSettings('ai')}><Plus size={14}/>Collega il tuo provider</button>}</div>}
           </>}
-          <div className="assistant-footnote"><ShieldCheck size={15}/><p>Il testo viene inviato al provider selezionato; con Ollama e LM Studio va al modello sul dispositivo. <button data-tip="Apri Impostazioni › Provider AI" onClick={()=>setSettings('ai')}>Gestisci le API</button> · <button data-tip="Apri Impostazioni › Regole di scrittura" onClick={()=>setSettings('rules')}>Regole di scrittura</button></p></div><div className="shortcuts"><span><kbd>Tab</kbd> accetta</span><span><kbd>Esc</kbd> ignora</span></div>
+          {((mode!=='revisione'&&mode!=='libera')||suggestion||busy||aiError||aiWarning)&&<div className={'suggestion-box'+(suggestion?' has-proposal':'')+(busy?' is-busy':'')} aria-live="polite"><div><Sparkles size={15}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(SUGGESTION_TITLES[suggestion.mode]||'Correzione proposta'):'Il prossimo pensiero'}</strong>{(busy||suggestion)&&<SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/>}{(busy||suggestion)&&<button aria-label="Scarta suggerimento" data-tip="Scarta il suggerimento" onClick={clearSuggestion}><X size={14}/></button>}</div>{[aiWarning,aiError].filter(Boolean).map(w=><p key={w} className="ai-warning" role="alert"><TriangleAlert size={14}/><span>{w}</span><button aria-label="Chiudi avviso" onClick={()=>{setAiWarning('');setAiError('');}}><X size={12}/></button>{isDeviceProfile(profile)&&aiError===w&&<button onClick={()=>{const p=profiles.find(p=>p.id===profile);if(p)setForm({id:p.id,name:p.name,provider:p.provider,model:p.model,key:'',baseUrl:p.baseUrl||'',dailyLimit:p.daily_limit});setSettings('ai');}}>Configura modello locale</button>}</p>)}{suggestion?<>{suggestion.content?<AiFormatPreview content={suggestion.content}/>:<p className="proposal">{(suggestion.mode==='complete'||suggestion.mode==='continue')&&suggestion.original===undefined?<>{suggestion.base&&<span className="proposal-context">{suggestion.base.length>70?'…'+suggestion.base.slice(-70).trimStart():suggestion.base}</span>}<mark>{suggestion.text}</mark></>:proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>}{suggestion.content&&<small className="proposal-note">Titoli, paragrafi, grassetti e corsivi si applicano con Accetta o Tab.</small>}{proposalDiff&&<small className="proposal-note">{proposalDiff.some(p=>p.type!=='same')?<><ins>in verde</ins> le parole nuove, <del>barrate</del> quelle rimosse</>:'Nessuna modifica necessaria: il testo va già bene.'}</small>}{proposalVoice!==null&&<small className="proposal-note voice-match"><Drama size={12}/>Vicinanza alla tua impronta stilistica: <strong>{proposalVoice}%</strong></small>}{suggestion.cached&&<small className="proposal-note">Dalla memoria: nessuna nuova chiamata al provider.</small>}<div className="proposal-actions"><button className="accept" data-tip="Inserisce la proposta nel testo (tasto Tab)" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={15}/>Accetta<kbd>Tab</kbd></button><button className="dismiss" data-tip="Ignora la proposta e continua a scrivere (tasto Esc)" onClick={clearSuggestion}>Scarta<kbd>Esc</kbd></button></div></>:!aiWarning&&!aiError&&<p>{!profiles.length?'Collega una chiave API per dare una marcia in più alle tue idee.':'Scrivi una frase. Il suggerimento apparirà qui, senza interrompere il tuo ritmo.'}</p>}{!profiles.length&&<button className="connect" data-tip="Aggiungi la chiave API di un provider per attivare l’AI" onClick={()=>setSettings('ai')}><Plus size={14}/>Collega il tuo provider</button>}</div>}
+          <div className="assistant-footnote"><ShieldCheck size={15}/><p>Il testo viene inviato al provider selezionato; con Ollama e LM Studio va al modello sul dispositivo. <button data-tip="Apri Impostazioni › Provider AI" onClick={()=>setSettings('ai')}>Gestisci le API</button> · <button data-tip="Apri Impostazioni › Regole di scrittura" onClick={()=>setSettings('rules')}>Regole di scrittura</button></p></div><div className="shortcuts"><span><kbd>Tab</kbd> {aiPreferences.trigger==='tab'?'chiedi / accetta':'accetta'}</span><span><kbd>Esc</kbd> ignora</span></div>
         </aside></div>
       {simple&&!mobileAI&&(suggestion||busy||aiError||aiWarning)&&<div className="m-proposal" aria-live="polite" onMouseDown={e=>e.preventDefault()}>
         <div className="m-proposal-head"><Sparkles size={16}/><strong>{busy&&!suggestion?'Sto pensando…':suggestion?(SUGGESTION_TITLES[suggestion.mode]||'Correzione proposta'):'Avviso'}</strong>{(busy||suggestion)&&<SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/>}<button aria-label="Scarta" onClick={()=>{clearSuggestion();setAiWarning('');setAiError('');}}><X size={20}/></button></div>
         {[aiWarning,aiError].filter(Boolean).map(w=><p key={w} className="m-proposal-warning"><TriangleAlert size={15}/>{w}</p>)}
-        {suggestion&&<><p className="m-proposal-text proposal">{proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p><div className="m-proposal-actions"><button className="m-accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={19}/>Accetta</button><button onClick={clearSuggestion}>Scarta</button></div></>}
+        {suggestion&&<>{suggestion.content?<AiFormatPreview content={suggestion.content}/>:<p className="m-proposal-text proposal">{proposalDiff?proposalDiff.map((part,i)=>part.type==='same'?<span key={i}>{part.text}</span>:part.type==='add'?<ins key={i}>{part.text}</ins>:<del key={i}>{part.text}</del>):suggestion.text}</p>}<div className="m-proposal-actions"><button className="m-accept" disabled={!suggestion.done} onClick={acceptSuggestion}><Check size={19}/>Accetta</button><button onClick={clearSuggestion}>Scarta</button></div></>}
       </div>}
       {(listening||dictError)&&<div className={'dictation-bar'+(dictError&&!listening?' bad':'')} role="status" onMouseDown={e=>e.preventDefault()}>{listening?<><span className="dictation-pulse" aria-hidden="true"/><span className="dictation-heard">{heard||'In ascolto… parla pure. Di’ «punto», «virgola», «a capo».'}</span><button onClick={toggleDictation}>Ferma</button></>:<><TriangleAlert size={15}/><span className="dictation-heard">{dictError}</span><button aria-label="Chiudi avviso" onClick={()=>setDictError('')}><X size={15}/></button></>}</div>}
       {simple&&<nav className="m-toolbar" aria-label="Strumenti di scrittura">
@@ -462,7 +496,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       provider={{local:LOCAL,owner,profiles,vaultReady,error,form,setForm,formBusy,onSave:()=>void saveProfile(),onRemove:p=>void removeProfile(p)}}
       github={{busy:repoBusy,loaded,onSaveNow:()=>{setSettings(null);void requestRepositorySave();},onOpenDocuments:()=>{setSettings(null);setRepoOpen('load');}}}
       rules={{rules,onChange:changeRules}}
-      general={{theme,setTheme:changeTheme,pages:pagePref,pageViews:PAGE_VIEWS,setPages:changePages,pagesAvailable:!simple,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple}}/>}
+      general={{theme,setTheme:changeTheme,pages:pagePref,pageViews:PAGE_VIEWS,setPages:changePages,pagesAvailable:!simple,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences:changeAiPreferences}}/>}
     {projectOpen&&<ProjectModal project={project} setProject={setProject} onClose={()=>setProjectOpen(false)}/>}
     {history&&<div className="modal-backdrop" onClick={()=>setHistory(null)}><section className="modal history-modal" role="dialog" aria-modal="true" aria-label="Cronologia versioni" onClick={e=>e.stopPropagation()}><button className="modal-close tool" aria-label="Chiudi cronologia" onClick={()=>setHistory(null)}><X size={20}/></button><Clock3 size={26}/><h2>La storia delle tue idee.</h2><p className="modal-subtitle">Fino a 30 versioni precedenti, registrate al massimo una volta al minuto.</p>{!history.length&&<p className="empty-state">Le versioni appariranno qui dopo le prossime modifiche salvate.</p>}{history.map(r=><div className="revision-row" key={r.id}><div><strong>{r.title}</strong><small>{new Date(r.created).toLocaleString('it-IT')}</small></div><button data-tip="Riporta il documento a questa versione; quella attuale resta nella cronologia" onClick={async()=>{if(!window.confirm('Ripristinare questa versione? La versione attuale sarà conservata nella cronologia.'))return;if(!await save())return;try{await api('revisions',{document:active,title:current.current.title,content:editor?.getJSON()});clearSuggestion();editor?.commands.setContent(JSON.parse(r.content));current.current.title=r.title;setTitle(r.title);markDirty();if(await save())setHistory(null);}catch(err){setError((err as Error).message);}}}>Ripristina</button></div>)}</section></div>}
   </div>;

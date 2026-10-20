@@ -10,7 +10,7 @@ import type { Project } from '../lib/project';
 
 export type Mode = 'libera' | 'assistita' | 'coscrittura' | 'revisione';
 export const MODES: { id: Mode; name: string; icon: typeof Feather; hint: string }[] = [
-  { id: 'libera', name: 'Libera', icon: Feather, hint: 'Nessun intervento: scrivi e basta. Nessun testo lascia il dispositivo.' },
+  { id: 'libera', name: 'Libera', icon: Feather, hint: 'Nessun intervento automatico: scrivi e chiedi aiuto solo quando vuoi.' },
   { id: 'assistita', name: 'Assistita', icon: Sparkles, hint: 'Suggerimenti discreti mentre scrivi, nella tua voce. Tab per accettare.' },
   { id: 'coscrittura', name: 'Co-scrittura', icon: PenLine, hint: 'Generazione creativa solo quando la chiedi: scene, voci, direzioni.' },
   { id: 'revisione', name: 'Revisione', icon: ScanSearch, hint: 'Analisi approfondite: coerenza con prove, stile, domande sul testo.' },
@@ -52,7 +52,7 @@ export function IntentRow({ detected, choice, setChoice }: { detected: DetectedI
 
 export function FreeCard({ fp }: { fp: Fingerprint }) {
   return <section className="free-card"><Feather size={20} /><h3>Solo tu e la pagina.</h3>
-    <p>In scrittura libera l’AI non interviene e nessun testo viene inviato. La tua impronta stilistica continua a formarsi in locale.</p>
+    <p>In scrittura libera l’AI non interviene automaticamente. Per chiedere aiuto, seleziona un passaggio e premi «Migliora selezione con AI». Il testo viene inviato solo quando lo richiedi; la tua impronta stilistica continua a formarsi in locale.</p>
     <div className="mini-stats"><span><strong>{fp.words}</strong> parole</span><span><strong>{fp.avgSentence || '—'}</strong> parole per frase</span><span><strong>{Math.round(fp.dialogue * 100)}%</strong> dialogo</span></div>
   </section>;
 }
