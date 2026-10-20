@@ -1,10 +1,27 @@
-import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType, ExternalHyperlink, ImageRun, type ParagraphChild } from 'docx';
+import { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, HeadingLevel, AlignmentType, ExternalHyperlink, ImageRun, ShadingType, type ParagraphChild } from 'docx';
 import type { JSONContent } from '@tiptap/core';
+const NAMED:Record<string,string>={black:'000000',white:'FFFFFF',red:'FF0000',green:'008000',blue:'0000FF',yellow:'FFFF00',orange:'FFA500',purple:'800080',gray:'808080',grey:'808080'};
+// Word accepts only 6-digit hex. Pasted text and the editor can carry rgb(), rgba(),
+// #rgb or #rrggbbaa: translucent colors are blended onto the white page. Anything
+// unrecognized is dropped, so one odd color never blocks the export.
+export function wordColor(value:unknown):string|undefined{
+  if(typeof value!=='string')return undefined;const v=value.trim().toLowerCase();
+  let rgb:number[]|null=null,alpha=1;
+  const hex=/^#?([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/.exec(v);
+  if(hex){const h=hex[1].length<=4?[...hex[1]].map(c=>c+c).join(''):hex[1];rgb=[0,2,4].map(i=>parseInt(h.slice(i,i+2),16));if(h.length===8)alpha=parseInt(h.slice(6,8),16)/255;}
+  const fn=/^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)(?:\s*[,/]\s*([\d.]+%?))?\s*\)$/.exec(v);
+  if(fn){const part=(x:string,max:number)=>x.endsWith('%')?parseFloat(x)/100*max:parseFloat(x);rgb=[1,2,3].map(i=>part(fn[i],255));if(fn[4]!==undefined)alpha=part(fn[4],1);}
+  if(!rgb&&NAMED[v])return NAMED[v];
+  if(!rgb||rgb.some(n=>!Number.isFinite(n)))return undefined;
+  alpha=Math.max(0,Math.min(1,alpha));
+  return rgb.map(n=>Math.round(Math.max(0,Math.min(255,n))*alpha+255*(1-alpha)).toString(16).padStart(2,'0')).join('').toUpperCase();
+}
 function runs(nodes:JSONContent[]=[]):ParagraphChild[]{return nodes.flatMap((n):ParagraphChild[]=>{
   if(n.type==='hardBreak')return [new TextRun({break:1})];
   if(n.type!=='text')return runs(n.content);
-  const marks=n.marks||[],style=marks.find(m=>m.type==='textStyle')?.attrs||{};
-  const run=new TextRun({text:n.text||'',bold:marks.some(m=>m.type==='bold'),italics:marks.some(m=>m.type==='italic'),underline:marks.some(m=>m.type==='underline')?{}:undefined,strike:marks.some(m=>m.type==='strike'),font:style.fontFamily||'Arial',size:style.fontSize?Math.round(parseFloat(style.fontSize)*1.5):24,color:style.color?.replace('#','')});
+  const marks=n.marks||[],style=marks.find(m=>m.type==='textStyle')?.attrs||{},highlight=marks.find(m=>m.type==='highlight');
+  const fill=highlight?wordColor(highlight.attrs?.color||'#ffc8004d'):undefined;
+  const run=new TextRun({text:n.text||'',bold:marks.some(m=>m.type==='bold'),italics:marks.some(m=>m.type==='italic'),underline:marks.some(m=>m.type==='underline')?{}:undefined,strike:marks.some(m=>m.type==='strike'),font:style.fontFamily||'Arial',size:style.fontSize?Math.round(parseFloat(style.fontSize)*1.5):24,color:wordColor(style.color),shading:fill?{type:ShadingType.CLEAR,fill,color:'auto'}:undefined});
   const link=marks.find(m=>m.type==='link')?.attrs?.href;
   return link&&/^https?:\/\//.test(link)?[new ExternalHyperlink({link,children:[run]})]:[run];
 });}
