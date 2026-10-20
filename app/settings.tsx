@@ -7,6 +7,7 @@ import { githubConnected, githubSettings } from '../lib/github-documents';
 import { ModelPicker } from './model-picker';
 import { TokenStats } from './token-stats';
 import { GitHubConnection } from './github-documents';
+import type { AiPreferences } from '../lib/ai-preferences';
 
 export type SettingsTab = 'ai' | 'github' | 'rules' | 'general';
 export type Profile = {id:string;name:string;provider:Provider;model:string;baseUrl?:string;hint:string;daily_limit:number;used:number};
@@ -24,7 +25,7 @@ const TABS: {id:SettingsTab;label:string;hint:string;icon:typeof KeyRound}[] = [
 type ProviderProps = {local:boolean;owner:string;profiles:Profile[];vaultReady:boolean;error:string;form:ProfileForm;setForm:Dispatch<SetStateAction<ProfileForm>>;formBusy:boolean;onSave:()=>void;onRemove:(p:Profile)=>void};
 type GitHubProps = {busy:boolean;loaded:boolean;onSaveNow:()=>void;onOpenDocuments:()=>void};
 type RulesProps = {rules:WritingRules;onChange:(rules:WritingRules)=>void};
-type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void};
+type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void};
 
 export function SettingsModal({tab,setTab,onClose,provider,github,rules,general}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps}) {
   return <div className="modal-backdrop" onClick={onClose}><section className="modal settings-modal" role="dialog" aria-modal="true" aria-label="Impostazioni" onClick={e=>e.stopPropagation()}>
@@ -84,16 +85,21 @@ function RulesSettings({rules,onChange}:RulesProps) {
   </>;
 }
 
-function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple}:GeneralProps) {
+function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences}:GeneralProps) {
   const themes:[Theme,string,typeof Sun][]=[['light','Chiaro',Sun],['dark','Scuro',Moon],['system','Di sistema',Monitor]];
   return <>
     <h3>Aspetto</h3>
+    <p className="form-note">Il documento si salva dopo le modifiche, con un ulteriore salvataggio automatico di documento e progetto ogni 5 minuti.</p>
     <div className="segmented settings-segmented" role="radiogroup" aria-label="Tema">{themes.map(([id,label,Icon])=><button key={id} type="button" role="radio" aria-checked={theme===id} className={theme===id?'active':''} onClick={()=>setTheme(id)}><Icon size={14}/>{label}</button>)}</div>
     {pagesAvailable&&<label>Vista del documento<select value={pages} onChange={e=>setPages(+e.target.value)}>{pageViews.map(n=><option key={n} value={n}>{n?n===1?'1 pagina A4':n+' pagine A4 affiancate':'Vista continua'}</option>)}</select></label>}
     {narrow&&<label className="rule-toggle"><input type="checkbox" checked={simple} onChange={e=>setSimple(e.target.checked)}/><span>Modalità semplice per telefono<small>Barra degli strumenti in basso e pannelli a scomparsa</small></span></label>}
     <h3>Suggerimenti mentre scrivi</h3>
-    <label className="rule-toggle"><input type="checkbox" checked={aiOn} onChange={e=>setAiOn(e.target.checked)}/><span>Suggerimenti automatici<small>Propone la continuazione o una frase migliore dopo una breve pausa</small></span></label>
-    <label>Pausa prima del suggerimento: <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label>
-    <p className="form-note">Una pausa più lunga riduce le richieste al provider.</p>
+    <label>Quando avviare l’AI<select aria-label="Quando avviare l’AI" value={aiPreferences.trigger} onChange={e=>setAiPreferences({...aiPreferences,trigger:e.target.value as AiPreferences['trigger']})}><option value="pause">Automaticamente dopo una pausa</option><option value="tab">Solo quando premo Tab</option></select></label>
+    {aiPreferences.trigger==='tab'?<p className="form-note">In scrittura assistita, premi Tab nell’editor per chiedere un completamento o «Migliora frase». Premi di nuovo Tab per accettare la proposta pronta. Shift+Tab mantiene la navigazione normale. Sul telefono puoi usare «Chiedi ora».</p>:<>
+      <label className="rule-toggle"><input type="checkbox" checked={aiOn} onChange={e=>setAiOn(e.target.checked)}/><span>Suggerimenti automatici<small>Propone la continuazione o una frase migliore dopo una breve pausa</small></span></label>
+      <label>Pausa prima del suggerimento: <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label>
+      <p className="form-note">Una pausa più lunga riduce le richieste al provider.</p>
+    </>}
+    <label className="rule-toggle"><input type="checkbox" checked={aiPreferences.formatting} onChange={e=>setAiPreferences({...aiPreferences,formatting:e.target.checked})}/><span>Sistema anche la formattazione<small>Nei completamenti e in «Migliora frase», l’AI sceglie titoli, paragrafi, elenchi, grassetti e corsivi in base al significato e all’importanza del passaggio. Li vedi nell’anteprima prima di accettare.</small></span></label>
   </>;
 }
