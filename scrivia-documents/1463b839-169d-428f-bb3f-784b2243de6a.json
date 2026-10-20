@@ -1,0 +1,67 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "1463b839-169d-428f-bb3f-784b2243de6a",
+  "title": "perchè esiste la musica ?",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "la musica è un mistero. La sua vera forza sta nel fatto di provocare un'emozione ancora prima che ci rendiamo conto di averla ascoltata. Il corpo risponde per primo, con un brivido sulla pelle o un nodo in gola, e solo dopo, a fatica, la mente si mette a cercare le parole per spiegare ciò che è già accaduto. questo è la vera forza . "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Qualcosa di inspiegabile. Eppure non c'è nulla di cui vergognarsi, perché il corpo sa ascoltare molto prima di noi. Noi arriviamo dopo, con le nostre parole, come chi entra in una sala quando la danza è già cominciata. Mi affascina questo aspetto . mi affascina l'impossibilità di controllare queste emozioni impreviste. in un mondo ossessionato dal controllo, ossessionato dal prevedere, misurare e ottimizzare ogni cosa, trovo quasi consolante che esista qualcosa capace di coglierci di sorpresa. Una melodia ci attraversa senza chiedere permesso, e per un istante non siamo noi a decidere. Siamo ascoltatori e insieme strumento, come una corda che vibra perché qualcosa l'ha sfiorata, non perché l'abbia scelto. E in quell'istante, strano a dirsi, ci sentiamo più liberi. Questo nasce da qualcosa di intrinsecamente soggettivo oppure da qualcosa di misteriosamente inspiegabile che ereditiamo dalla nostra natura umana, come un'antica lingua che il corpo ricorda e la mente ha dimenticato? Forse la risposta non sta in una delle due ipotesi, ma nello spazio sottile che le separa, dove ogni brivido resta un indizio e nessuno è ancora una prova."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "boncinelli",
+          "weight": 61
+        },
+        {
+          "id": "rovelli",
+          "weight": 50
+        },
+        {
+          "id": "baricco",
+          "weight": 50
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792480846770
+}
