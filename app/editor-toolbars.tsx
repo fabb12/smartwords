@@ -47,7 +47,7 @@ function Dock({ side, groups, render }: { side: DockSide; groups: EditorToolbarG
   </nav>;
 }
 
-export function EditorToolbars({ groups, owner, fullscreen, disabled, resetToken, children }: { groups: EditorToolbarGroup[]; owner: string; fullscreen: boolean; disabled: boolean; resetToken: number; children: ReactNode }) {
+export function EditorToolbars({ groups, owner, fullscreen, disabled, resetToken, reloadToken = 0, children }: { groups: EditorToolbarGroup[]; owner: string; fullscreen: boolean; disabled: boolean; resetToken: number; reloadToken?: number; children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null), key = toolbarLayoutKey(owner, fullscreen);
   const [saved, setSaved] = useState<{ key: string; layout: ToolbarLayout }>({ key: '', layout: defaultToolbarLayout() });
   const [active, setActive] = useState<ToolbarId | null>(null);
@@ -57,7 +57,7 @@ export function EditorToolbars({ groups, owner, fullscreen, disabled, resetToken
     const reset = previousReset.current !== resetToken; previousReset.current = resetToken;
     const restore = setTimeout(() => { const next = reset ? defaultToolbarLayout() : readToolbarLayout(key); if (reset) storeToolbarLayout(key, next); setSaved({ key, layout: next }); setActive(null); }, 0);
     return () => clearTimeout(restore);
-  }, [key, resetToken]);
+  }, [key, resetToken, reloadToken]);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 7 } }), useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }));
   function change(next: ToolbarLayout) { setSaved({ key, layout: next }); storeToolbarLayout(key, next); }
   function place(id: ToolbarId, dock: ToolbarPlace) { change(moveToolbarGroup(layout, id, dock)); }
