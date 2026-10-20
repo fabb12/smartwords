@@ -487,6 +487,12 @@
 .local-connection code{font-size:11px;user-select:text}
 .local-connection label{margin:10px 0}
 
+.kb-paste{border:1px solid var(--line);border-radius:9px;padding:14px;margin:12px 0}
+.kb-paste summary{cursor:pointer;font-size:12px;font-weight:600;margin-bottom:12px}
+.kb-paste-input{margin:14px 0}
+.kb-paste-input textarea{min-height:140px}
+.kb-paste-input .form-note{overflow-wrap:anywhere}
+
 .ai-request-button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--soft);font-size:11px;margin-bottom:12px}
 .ai-selection-actions{display:flex;align-items:center;gap:12px;padding:9px 24px;background:var(--soft);border-bottom:1px solid var(--line);flex-wrap:wrap}
 .ai-selection-actions button{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--green)}
