@@ -1,0 +1,41 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "89307a38-0a06-4470-aba7-420f11cf9bc0",
+  "title": "Importanza del processo",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "l 'importanza del processo."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mine",
+      "intensity": "medium",
+      "custom": ""
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792499671373
+}
