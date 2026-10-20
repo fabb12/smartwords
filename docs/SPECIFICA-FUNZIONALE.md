@@ -18,8 +18,8 @@ Si scelgono in cima al pannello assistente. La scelta viene ricordata nel browse
 
 | Modalità | Comportamento | Chiamate AI | Cosa mostra il pannello |
 |---|---|---|---|
-| **Libera** | Nessun intervento: si scrive e basta. | Nessuna, nemmeno automatica. | Un messaggio di quiete e tre numeri dell’impronta: parole, parole per frase, % di dialogo. |
-| **Assistita** | Suggerimenti discreti mentre si scrive: completamento contestuale o «Migliora frase». | Automatiche, dopo una pausa (400–1600 ms) e con i limiti del governor. | Interruttore, scena riconosciuta, proposta con Tab ed Esc. |
+| **Libera** | Nessun intervento automatico. È disponibile «Migliora selezione con AI» su un brano selezionato. | Solo su richiesta esplicita sulla selezione. | Un messaggio di quiete e tre numeri dell’impronta: parole, parole per frase, % di dialogo. |
+| **Assistita** | Suggerimenti discreti mentre si scrive: completamento contestuale o «Migliora frase». | A scelta, dopo una pausa (400–1600 ms) oppure solo premendo Tab. | Avvio AI, scena riconosciuta, proposta con Tab ed Esc; «Chiedi ora» per l’avvio manuale senza tastiera. |
 | **Co-scrittura** | Generazione creativa **solo su richiesta**: continua la scena, riscrivi nella voce scelta, esplora tre direzioni. | Manuali. | Schede «Genera» e «Direzioni», scena riconosciuta, proposta. |
 | **Revisione** | Analisi approfondite: memoria narrativa con prove, verifica di coerenza, stile, domande sul manoscritto. | Manuali. | Schede «Coerenza», «Stile» e «Chiedi». |
 
@@ -27,6 +27,16 @@ Si scelgono in cima al pannello assistente. La scelta viene ricordata nel browse
 - In modalità Libera, scrivendo, il provider non riceve alcuna richiesta (e2e: *free mode sends nothing to the provider*).
 - In Assistita, il suggerimento automatico compare e si accetta con Tab (e2e).
 - Cambiando modalità, la proposta in corso viene annullata. La modalità resta dopo il ricaricamento (e2e: *mode remembered*).
+
+**Avvio, selezioni e formattazione**
+
+- Il salvataggio dopo le modifiche è affiancato da un intervallo fisso di cinque minuti che salva documento e progetto, senza sovrapporre scritture in corso. Un errore mantiene il documento da salvare e viene mostrato nell’interfaccia.
+- La vista A4 singola dispone i fogli in verticale con margini e spazio tra i fogli. Il testo prosegue automaticamente sul foglio successivo, anche all’interno di un paragrafo lungo. Le interruzioni sono decorazioni dell’editor, escluse da contenuto salvato, cronologia e annullamento. Reflow dopo modifiche, cambi di font e caricamento immagini. La modalità semplice per telefono resta continua.
+- L’avvio su Tab non programma richieste durante la digitazione: il primo Tab richiede, il successivo accetta la proposta pronta. Durante lo streaming altri Tab attendono senza duplicare la richiesta; Shift+Tab, composizione IME e navigazione nelle tabelle mantengono il comportamento nativo.
+- Se è selezionato un brano, «Migliora selezione con AI» elabora quel brano anche in Libera e Revisione. In Assistita con avvio su Tab, Tab richiede direttamente il miglioramento della selezione. Si applica soltanto all’intervallo selezionato; selezione o testo modificati annullano le proposte obsolete. Il contesto circostante può guidare il modello, senza essere sostituito.
+- L’opzione «Sistema anche la formattazione» vale per Completa e Migliora frase. Il modello sceglie titoli, paragrafi, elenchi, grassetti e corsivi in base al significato e all’importanza, preservando voce e contenuto. In Completa il paragrafo prima del cursore può essere corretto e formattato insieme alla continuazione.
+- L’anteprima mostra la struttura; Accetta o Tab applicano una sola modifica annullabile. Il parser costruisce nodi dell’editor da un sottoinsieme di Markdown; HTML, immagini, link e codice non vengono interpretati. Il testo e gli stili fuori dall’intervallo restano conservati. Avvio e formattazione sono ricordati sul dispositivo, separatamente per utente.
+- Verifica: test su parser, sostituzioni parziali, font, blocchi, prompt e preferenze; prova browser con avvio manuale, attesa, anteprima, accettazione, selezione precedente, annullamento e persistenza.
 
 ## 3. Il nucleo del prodotto
 
