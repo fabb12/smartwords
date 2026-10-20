@@ -8,13 +8,12 @@ type Break = { pos: number; height: number };
 type Layout = { enabled: boolean; breaks: Break[]; pages: number };
 const stride = A4.height + A4.gap;
 
-export function currentPageRange(view: EditorView, pos: number) {
+export function pageRangeAt(view: EditorView, index: number) {
   const layout = paginationKey.getState(view.state) as Layout;
   if (layout.enabled) {
     const edges = [0, ...layout.breaks.map(b => b.pos), view.state.doc.content.size];
-    const page = Math.max(0, edges.findIndex((edge, i) => i > 0 && pos < edge) - 1);
-    const index = pos >= edges.at(-1)! ? edges.length - 2 : page;
-    return { from: edges[index], to: edges[index + 1] };
+    const page = Math.max(0, Math.min(edges.length - 2, index));
+    return { from: edges[page], to: edges[page + 1] };
   }
   // A4 pages laid out in a grid (at most two per row) are monotonic by page index,
   // even though each page starts again at its top margin. Binary search avoids
@@ -25,9 +24,18 @@ export function currentPageRange(view: EditorView, pos: number) {
     const rect = view.coordsAtPos(p), col = Math.floor(((rect.left - box.left) / scale) / (A4.width + A4.gap));
     return cols ? Math.floor(((rect.top - box.top) / scale) / stride) * cols + Math.min(col, cols - 1) : col;
   };
-  const page = pageAt(pos), end = view.state.doc.content.size;
+  const page = Math.max(0, index), end = view.state.doc.content.size;
   const boundary = (target: number) => { let lo = 0, hi = end; while (lo < hi) { const mid = Math.floor((lo + hi) / 2); if (pageAt(mid) < target) lo = mid + 1; else hi = mid; } return lo; };
   return { from: boundary(page), to: boundary(page + 1) };
+}
+
+export function currentPageRange(view: EditorView, pos: number) {
+  const layout = paginationKey.getState(view.state) as Layout;
+  if (layout.enabled) return pageRangeAt(view, layout.breaks.filter(item => item.pos <= pos).length);
+  const dom = view.dom, box = dom.getBoundingClientRect(), scale = box.width / dom.offsetWidth || 1, cols = gridColumns(dom), rect = view.coordsAtPos(pos);
+  const col = Math.floor(((rect.left - box.left) / scale) / (A4.width + A4.gap));
+  const page = cols ? Math.floor(((rect.top - box.top) / scale) / stride) * cols + Math.min(col, cols - 1) : col;
+  return pageRangeAt(view, page);
 }
 
 // Columns per row when the browser wraps A4 columns into rows (CSS column-wrap), else 0.
