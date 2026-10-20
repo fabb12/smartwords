@@ -2,7 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Schema } from '@tiptap/pm/model';
 import { EditorState } from '@tiptap/pm/state';
-import { formatRanges, formatReplacement } from '../lib/format-only.ts';
+import { formatRanges, formatReplacement, promoteHeadings, summarizeFormatting } from '../lib/format-only.ts';
+import { parseAiFormatting } from '../lib/ai-formatting.ts';
 import { replaceAiFormatting } from '../lib/ai-formatting.ts';
 import { currentPageRange, paginationKey } from '../lib/pagination.ts';
 import { assistPrompts, ASSIST_MODES } from '../lib/providers.ts';
@@ -12,7 +13,7 @@ const schema = new Schema({ nodes: {
   heading: { group: 'block', content: 'inline*', attrs: { level: { default: 2 } } },
   hardBreak: { inline: true, group: 'inline' }, image: { group: 'block', atom: true, attrs: { src: {} } },
   codeBlock: { group: 'block', content: 'text*', code: true },
-}, marks: { bold: {}, italic: {}, code: {}, textStyle: { attrs: { fontFamily: { default: null }, fontSize: { default: null }, color: { default: null } } }, link: { attrs: { href: {} } } } });
+}, marks: { bold: {}, italic: {}, code: {}, highlight: { attrs: { color: { default: null } } }, textStyle: { attrs: { fontFamily: { default: null }, fontSize: { default: null }, color: { default: null } } }, link: { attrs: { href: {} } } } });
 const p = text => schema.node('paragraph', null, text ? schema.text(text) : undefined);
 const words = text => text.match(/[\p{L}\p{M}\p{N}]+|[^\s]/gu);
 
@@ -96,4 +97,38 @@ test('chosen hierarchy, typeface, size and color persist in Word output', async 
   const blob = await exportDocx(tr.doc.toJSON()), zip = await JSZip.loadAsync(await blob.arrayBuffer()), xml = await zip.file('word/document.xml').async('string');
   assert.match(xml, /w:pStyle w:val="Heading1"/); assert.match(xml, /w:ascii="Georgia"/);
   assert.match(xml, /w:sz w:val="57"/); assert.match(xml, /w:sz w:val="27"/); assert.match(xml, /w:color w:val="285c8e"/);
+});
+
+const body = 'Questo paragrafo sviluppa il tema con abbastanza parole da essere chiaramente un blocco di prosa.';
+
+test('obvious title lines left plain by the model become headings, prose and dialogue stay paragraphs', () => {
+  const doc = schema.node('doc', null, [p('Il mio viaggio'), p(body), p('Capitolo secondo'), p(body), p('Disse piano'), p('Va bene.')]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatReplacement(doc, range, range.text);
+  assert.deepEqual(part.content.map(n => n.type + (n.attrs?.level ?? '')), ['heading1', 'paragraph', 'heading2', 'paragraph', 'paragraph', 'paragraph']);
+  const tr = replaceAiFormatting(EditorState.create({ schema, doc }).tr, part.from, part.to, part.content, false);
+  assert.equal(tr.doc.firstChild.type.name, 'heading'); assert.equal(tr.doc.firstChild.firstChild.marks.find(m => m.type.name === 'textStyle').attrs.fontSize, '38px');
+  assert.deepEqual(words(tr.doc.textContent), words(doc.textContent)); tr.doc.check();
+});
+
+test('fully bold standalone lines are promoted without bold, sentences ending with a period are not', () => {
+  const promoted = promoteHeadings(parseAiFormatting('**Metodo di lavoro**\n\n' + body + '\n\nUna frase breve.\n\n' + body).content);
+  assert.equal(promoted[0].type, 'heading'); assert.equal(promoted[0].attrs.level, 2);
+  assert.ok(!promoted[0].content.some(n => n.marks?.some(m => m.type === 'bold')));
+  assert.equal(promoted[2].type, 'paragraph');
+});
+
+test('==highlight== marks the key idea, and the summary lists structure and emphasized concepts compactly', () => {
+  const parsed = parseAiFormatting('# Guida\n\nIntro con **memoria**.\n\n## Primo passo\n\nLa ==regola decisiva== e il **ritmo**.\n\nAltro paragrafo.\n\n- punto');
+  assert.deepEqual(parsed.content[3].content[1].marks, [{ type: 'highlight', attrs: { color: '#e0e8b9' } }]);
+  assert.equal(parseAiFormatting('a == b e c == d').text, 'a == b e c == d');
+  const summary = summarizeFormatting([{ content: parsed.content.slice(0, 3) }, { content: parsed.content.slice(3) }]);
+  assert.deepEqual(summary.outline, [{ level: 1, text: 'Guida', paragraphs: 1 }, { level: 2, text: 'Primo passo', paragraphs: 2 }]);
+  assert.equal(summary.headings, 2); assert.equal(summary.paragraphs, 3); assert.equal(summary.lists, 1);
+  assert.deepEqual(summary.concepts, ['memoria', 'ritmo']); assert.deepEqual(summary.highlights, ['regola decisiva']);
+});
+
+test('format prompts ask for a semantic outline, content-based paragraphs and graded importance', () => {
+  const { system } = assistPrompts({ mode: 'format', text: 'Testo.', formatting: true });
+  assert.match(system, /build its outline/); assert.match(system, /new paragraph at each change of topic/); assert.match(system, /==double equals==/);
 });
