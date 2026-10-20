@@ -3,7 +3,10 @@ import { Fragment, Slice } from '@tiptap/pm/model';
 import { TextSelection, type Transaction } from '@tiptap/pm/state';
 import { applyTypography, headingTypography, typographyDirective, type Typography } from './ai-typography.ts';
 
-export const HIGHLIGHT = { type: 'highlight', attrs: { color: '#e0e8b9' } };
+// Translucent amber: a light yellow on white paper and a warm olive on dark
+// sheets, so the text keeps its own theme color and stays readable on both.
+export const HIGHLIGHT_COLOR = '#ffc8004d';
+export const HIGHLIGHT = { type: 'highlight', attrs: { color: HIGHLIGHT_COLOR } };
 
 // The model can describe a small set of semantic formatting choices. We build
 // editor JSON ourselves: HTML, links, images, CSS and scripts are never interpreted.
@@ -53,9 +56,10 @@ export function parseAiFormatting(answer: string, preserveEdges = false): { cont
     if (!line.trim()) { flush(); continue; }
     const directive = typographyDirective(line);
     if (directive) { flush(); pendingStyle = directive; continue; }
-    const heading = /^(#{1,3})[ \t]+(.+)$/.exec(line);
+    // "##? Title" is a title the model proposes: new words, shown and applied separately.
+    const heading = /^(#{1,3})(\?)?[ \t]+(.+)$/.exec(line);
     const bullet = /^[ \t]*[-+*][ \t]+(.+)$/.exec(line), ordered = /^[ \t]*(\d+)[.)][ \t]+(.+)$/.exec(line);
-    if (heading) { flush(); content.push(styled({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[2]) }, { ...headingTypography(heading[1].length), ...pendingStyle })); pendingStyle = null; }
+    if (heading) { flush(); content.push({ ...styled({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[3]) }, { ...headingTypography(heading[1].length), ...pendingStyle }), ...(heading[2] ? { proposed: true } : {}) }); pendingStyle = null; }
     else if (bullet || ordered) {
       flush(); const type = bullet ? 'bulletList' : 'orderedList', last = content.at(-1);
       const item = styled({ type: 'listItem', content: [{ type: 'paragraph', content: inline(bullet ? bullet[1] : ordered![2]) }] }, pendingStyle); pendingStyle = null;

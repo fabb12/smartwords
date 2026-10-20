@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Schema } from '@tiptap/pm/model';
 import { EditorState } from '@tiptap/pm/state';
-import { formatRanges, formatReplacement, promoteHeadings, summarizeFormatting } from '../lib/format-only.ts';
+import { formatRanges, formatReplacement, promoteHeadings, summarizeFormatting, withProposedTitles } from '../lib/format-only.ts';
 import { parseAiFormatting } from '../lib/ai-formatting.ts';
 import { replaceAiFormatting } from '../lib/ai-formatting.ts';
 import { currentPageRange, paginationKey } from '../lib/pagination.ts';
@@ -16,11 +16,13 @@ const schema = new Schema({ nodes: {
 }, marks: { bold: {}, italic: {}, code: {}, highlight: { attrs: { color: { default: null } } }, textStyle: { attrs: { fontFamily: { default: null }, fontSize: { default: null }, color: { default: null } } }, link: { attrs: { href: {} } } } });
 const p = text => schema.node('paragraph', null, text ? schema.text(text) : undefined);
 const words = text => text.match(/[\p{L}\p{M}\p{N}]+|[^\s]/gu);
+// Headings change letter case by importance; the words themselves stay the same.
+const lower = text => words(text.toLocaleLowerCase('it'));
 
 test('format-only requests explicitly preserve spelling, punctuation and order, without requesting completion', () => {
   assert.ok(ASSIST_MODES.includes('format'));
   const prompt = assistPrompts({ mode: 'format', text: 'Un errore ortograffico.', formatting: true });
-  assert.match(prompt.system, /Preserve every original word/); assert.match(prompt.system, /Never add a heading title/);
+  assert.match(prompt.system, /Preserve every original word/); assert.match(prompt.system, /Never add a heading title/); assert.match(prompt.system, /proposed titles/);
   assert.match(prompt.system, /Do not summarize, complete sentences, correct grammar/);
 });
 
@@ -86,7 +88,8 @@ test('format-only repairs small titles and oversized prose, applies chosen typef
   const note = blocks[3].firstChild.marks.find(m => m.type.name === 'textStyle').attrs;
   assert.equal(note.fontFamily, 'Arial'); assert.equal(note.color, '#285c8e');
   blocks.slice(0,4).forEach(n => n.forEach(child => assert.equal(child.marks.find(m => m.type.name === 'link').attrs.href, 'https://example.com')));
-  assert.equal(blocks[4].textContent, 'Fuori ambito.'); assert.deepEqual(words(tr.doc.textContent), words(doc.textContent)); tr.doc.check();
+  assert.equal(blocks[4].textContent, 'Fuori ambito.'); assert.deepEqual(lower(tr.doc.textContent), lower(doc.textContent));
+  assert.equal(blocks[0].textContent, 'IL VIAGGIO.'); assert.equal(blocks[1].textContent, 'Sottotitolo.'); tr.doc.check();
 });
 
 test('chosen hierarchy, typeface, size and color persist in Word output', async () => {
@@ -108,7 +111,7 @@ test('obvious title lines left plain by the model become headings, prose and dia
   assert.deepEqual(part.content.map(n => n.type + (n.attrs?.level ?? '')), ['heading1', 'paragraph', 'heading2', 'paragraph', 'paragraph', 'paragraph']);
   const tr = replaceAiFormatting(EditorState.create({ schema, doc }).tr, part.from, part.to, part.content, false);
   assert.equal(tr.doc.firstChild.type.name, 'heading'); assert.equal(tr.doc.firstChild.firstChild.marks.find(m => m.type.name === 'textStyle').attrs.fontSize, '38px');
-  assert.deepEqual(words(tr.doc.textContent), words(doc.textContent)); tr.doc.check();
+  assert.deepEqual(lower(tr.doc.textContent), lower(doc.textContent)); tr.doc.check();
 });
 
 test('fully bold standalone lines are promoted without bold, sentences ending with a period are not', () => {
@@ -120,7 +123,7 @@ test('fully bold standalone lines are promoted without bold, sentences ending wi
 
 test('==highlight== marks the key idea, and the summary lists structure and emphasized concepts compactly', () => {
   const parsed = parseAiFormatting('# Guida\n\nIntro con **memoria**.\n\n## Primo passo\n\nLa ==regola decisiva== e il **ritmo**.\n\nAltro paragrafo.\n\n- punto');
-  assert.deepEqual(parsed.content[3].content[1].marks, [{ type: 'highlight', attrs: { color: '#e0e8b9' } }]);
+  assert.deepEqual(parsed.content[3].content[1].marks, [{ type: 'highlight', attrs: { color: '#ffc8004d' } }]);
   assert.equal(parseAiFormatting('a == b e c == d').text, 'a == b e c == d');
   const summary = summarizeFormatting([{ content: parsed.content.slice(0, 3) }, { content: parsed.content.slice(3) }]);
   assert.deepEqual(summary.outline, [{ level: 1, text: 'Guida', paragraphs: 1 }, { level: 2, text: 'Primo passo', paragraphs: 2 }]);
@@ -131,4 +134,28 @@ test('==highlight== marks the key idea, and the summary lists structure and emph
 test('format prompts ask for a semantic outline, content-based paragraphs and graded importance', () => {
   const { system } = assistPrompts({ mode: 'format', text: 'Testo.', formatting: true });
   assert.match(system, /build its outline/); assert.match(system, /new paragraph at each change of topic/); assert.match(system, /==double equals==/);
+});
+
+test('heading case follows importance: main title in capitals, other headings with a capital initial', () => {
+  const doc = schema.node('doc', null, [p('guida al metodo'), p(body), p('il primo passo'), p(body)]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatReplacement(doc, range, '# guida al metodo\n\n' + body + '\n\n## il primo passo\n\n' + body);
+  assert.deepEqual(part.content.filter(n => n.type === 'heading').map(n => n.content.map(c => c.text).join('')), ['GUIDA AL METODO', 'Il primo passo']);
+  assert.equal(part.content[1].content.map(c => c.text).join(''), body);
+});
+
+test('proposed titles are the only words the model may add, and can be left out on accept', () => {
+  const doc = schema.node('doc', null, [p(body), p(body)]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatReplacement(doc, range, '##? il metodo\n\n' + body + '\n\n' + body);
+  assert.equal(part.content[0].type, 'heading'); assert.equal(part.content[0].proposed, true);
+  assert.equal(part.content[0].content.map(c => c.text).join(''), 'Il metodo');
+  assert.equal(summarizeFormatting([part]).proposed, 1); assert.equal(summarizeFormatting([part]).headings, 0);
+  const apply = include => replaceAiFormatting(EditorState.create({ schema, doc }).tr, part.from, part.to, withProposedTitles(part.content, include), false).doc;
+  const withTitle = apply(true), without = apply(false);
+  assert.equal(withTitle.firstChild.type.name, 'heading'); assert.equal(withTitle.firstChild.textContent, 'Il metodo'); withTitle.check();
+  assert.ok(!('proposed' in withProposedTitles(part.content, true)[0]));
+  assert.equal(without.firstChild.type.name, 'paragraph'); assert.deepEqual(words(without.textContent), words(doc.textContent));
+  // Unmarked new words are still rejected.
+  assert.throws(() => formatReplacement(doc, range, '## Il metodo\n\n' + body + '\n\n' + body), /cambiato parole/);
 });

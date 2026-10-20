@@ -1,7 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { summarizeFormatting, type FormatReplacement } from '../lib/format-only';
+import { summarizeFormatting, withProposedTitles, type FormatReplacement } from '../lib/format-only';
 import { AiFormatPreview } from './ai-format-preview';
 
 const OUTLINE_ROWS = 10, CHIPS = 8;
@@ -10,23 +10,28 @@ const LEVEL_NAMES = ['Introduzione', 'Titolo', 'Sottotitolo', 'Titolo minore'];
 
 // The side panel shows what changes (structure, counts, emphasized concepts)
 // instead of the whole text; the formatted text stays one click away.
-export function AiBatchFormatPreview({ parts }: { parts: FormatReplacement[] }) {
+export function AiBatchFormatPreview({ parts, includeTitles = true, onIncludeTitles }: { parts: FormatReplacement[]; includeTitles?: boolean; onIncludeTitles?: (value: boolean) => void }) {
   const [index, setIndex] = useState(0), [allOutline, setAllOutline] = useState(false), [allChips, setAllChips] = useState(false);
   const current = Math.min(index, parts.length - 1), summary = useMemo(() => summarizeFormatting(parts), [parts]);
-  const outline = allOutline ? summary.outline : summary.outline.slice(0, OUTLINE_ROWS);
+  const rows = includeTitles ? summary.outline : summary.outline.filter(row => !row.proposed);
+  const outline = allOutline ? rows : rows.slice(0, OUTLINE_ROWS);
   const chips = [...summary.highlights.map(text => ({ text, key: true })), ...summary.concepts.map(text => ({ text, key: false }))];
   const shownChips = allChips ? chips : chips.slice(0, CHIPS);
-  const stats = [summary.headings && plural(summary.headings, 'titolo', 'titoli'), plural(summary.paragraphs, 'paragrafo', 'paragrafi'), summary.lists && plural(summary.lists, 'elenco', 'elenchi'), chips.length && plural(chips.length, 'concetto in evidenza', 'concetti in evidenza')].filter(Boolean) as string[];
+  const stats = [summary.headings && plural(summary.headings, 'titolo', 'titoli'), includeTitles && summary.proposed && plural(summary.proposed, 'titolo proposto', 'titoli proposti'), plural(summary.paragraphs, 'paragrafo', 'paragrafi'), summary.lists && plural(summary.lists, 'elenco', 'elenchi'), chips.length && plural(chips.length, 'concetto in evidenza', 'concetti in evidenza')].filter(Boolean) as string[];
   return <section className="format-batch-preview format-summary">
     <ul className="format-stats" aria-label="Riepilogo della formattazione">{stats.map(s => <li key={s}>{s}</li>)}</ul>
     {outline.length ? <div className="format-outline">
       <p className="format-label">Struttura</p>
-      <ol>{outline.map((row, i) => <li key={i} className={'level-' + row.level} title={LEVEL_NAMES[row.level]}>
+      <ol>{outline.map((row, i) => <li key={i} className={'level-' + row.level + (row.proposed ? ' proposed' : '')} title={LEVEL_NAMES[row.level] + (row.proposed ? ' proposto' : '')}>
         <span className="format-outline-text">{row.level ? row.text : <em>Testo iniziale</em>}</span>
         {row.paragraphs > 0 && <span className="format-outline-count" title={plural(row.paragraphs, 'paragrafo', 'paragrafi')}>{row.paragraphs} §</span>}
       </li>)}</ol>
-      {summary.outline.length > OUTLINE_ROWS && <button className="format-more" onClick={() => setAllOutline(!allOutline)}>{allOutline ? 'Mostra meno' : `Altri ${summary.outline.length - OUTLINE_ROWS} titoli`}</button>}
+      {rows.length > OUTLINE_ROWS && <button className="format-more" onClick={() => setAllOutline(!allOutline)}>{allOutline ? 'Mostra meno' : `Altri ${rows.length - OUTLINE_ROWS} titoli`}</button>}
     </div> : <p className="format-empty">Nessun titolo riconosciuto: il testo resta organizzato in paragrafi.</p>}
+    {summary.proposed > 0 && onIncludeTitles && <label className="format-proposed-toggle">
+      <input type="checkbox" checked={includeTitles} onChange={e => onIncludeTitles(e.target.checked)}/>
+      <span>Aggiungi i {plural(summary.proposed, 'titolo proposto', 'titoli proposti')} <small>(parole nuove, segnate con «proposto»)</small></span>
+    </label>}
     {chips.length > 0 && <div className="format-concepts">
       <p className="format-label">In evidenza</p>
       <ul>{shownChips.map(c => <li key={(c.key ? '!' : '') + c.text} className={c.key ? 'key' : ''} title={c.key ? 'Idea principale (evidenziata)' : 'Concetto chiave (grassetto)'}>{c.text}</li>)}</ul>
@@ -39,8 +44,8 @@ export function AiBatchFormatPreview({ parts }: { parts: FormatReplacement[] }) 
         <span>Passaggio {current + 1} di {parts.length}</span>
         <button aria-label="Passaggio successivo" disabled={current === parts.length - 1} onClick={() => setIndex(current + 1)}><ChevronRight size={16}/></button>
       </div>}
-      <AiFormatPreview content={parts[current].content} compact/>
+      <AiFormatPreview content={includeTitles ? parts[current].content : withProposedTitles(parts[current].content, false)} compact/>
     </details>
-    <p className="format-batch-note">Solo formattazione: parole e punteggiatura restano quelle originali. Accetta applica tutto.</p>
+    <p className="format-batch-note">Solo formattazione: parole e punteggiatura restano quelle originali{summary.proposed && includeTitles ? ', salvo i titoli proposti' : ''}; i titoli prendono maiuscole e dimensione in base all’importanza. Accetta applica tutto.</p>
   </section>;
 }

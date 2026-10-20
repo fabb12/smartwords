@@ -14,6 +14,7 @@ export function AiFormatPreview({ content, compact = false }: { content: JSONCon
     if (node.type === 'hardBreak') return <br key={key}/>;
     const tag = node.type === 'heading' ? 'h' + Math.max(1, Math.min(3, Number(node.attrs?.level) || 2))
       : node.type === 'bulletList' ? 'ul' : node.type === 'orderedList' ? 'ol' : node.type === 'listItem' ? 'li' : 'p';
+    if (node.proposed) return createElement(tag, { key, className: 'proposed-title', title: 'Titolo proposto dall’AI: non era nel testo' }, <span className="proposed-badge">proposto</span>, node.content?.map(render));
     return createElement(tag, { key, ...(tag === 'ol' ? { start: node.attrs?.start } : {}) }, node.content?.map(render));
   }
   return <div className={'ai-format-preview' + (compact ? ' compact' : '')} role="region" aria-label="Anteprima della formattazione">{content.map(render)}</div>;
