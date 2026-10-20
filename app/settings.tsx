@@ -91,7 +91,7 @@ function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable
     <h3>Aspetto</h3>
     <p className="form-note">Il documento si salva dopo le modifiche, con un ulteriore salvataggio automatico di documento e progetto ogni 5 minuti.</p>
     <div className="segmented settings-segmented" role="radiogroup" aria-label="Tema">{themes.map(([id,label,Icon])=><button key={id} type="button" role="radio" aria-checked={theme===id} className={theme===id?'active':''} onClick={()=>setTheme(id)}><Icon size={14}/>{label}</button>)}</div>
-    {pagesAvailable&&<label>Vista del documento<select value={pages} onChange={e=>setPages(+e.target.value)}>{pageViews.map(n=><option key={n} value={n}>{n?n===1?'1 pagina A4':n+' pagine A4 affiancate':'Vista continua'}</option>)}</select></label>}
+    {pagesAvailable&&<label>Vista del documento<select value={pages} onChange={e=>setPages(+e.target.value)}>{pageViews.map(n=><option key={n} value={n}>{n?n===1?'1 pagina A4':n===2?'2 pagine A4 affiancate':n+' pagine A4 in griglia (2 per riga)':'Vista continua'}</option>)}</select></label>}
     {narrow&&<label className="rule-toggle"><input type="checkbox" checked={simple} onChange={e=>setSimple(e.target.checked)}/><span>Modalità semplice per telefono<small>Barra degli strumenti in basso e pannelli a scomparsa</small></span></label>}
     <h3>Suggerimenti mentre scrivi</h3>
     <label>Quando avviare l’AI<select aria-label="Quando avviare l’AI" value={aiPreferences.trigger} onChange={e=>setAiPreferences({...aiPreferences,trigger:e.target.value as AiPreferences['trigger']})}><option value="pause">Automaticamente dopo una pausa</option><option value="tab">Solo quando premo Tab</option></select></label>
