@@ -6,7 +6,8 @@ export function AiFormatPreview({ content }: { content: JSONContent[] }) {
     if (node.type === 'text') {
       let text: ReactNode = node.text || '';
       for (const mark of node.marks || []) if (mark.type === 'bold' || mark.type === 'italic') text = createElement(mark.type === 'bold' ? 'strong' : 'em', null, text);
-      return <span key={key}>{text}</span>;
+      const typography = node.marks?.find(mark => mark.type === 'textStyle')?.attrs;
+      return <span key={key} style={typography ? { fontFamily: typography.fontFamily || undefined, fontSize: typography.fontSize || undefined, color: typography.color || undefined } : undefined}>{text}</span>;
     }
     if (node.type === 'hardBreak') return <br key={key}/>;
     const tag = node.type === 'heading' ? 'h' + Math.max(1, Math.min(3, Number(node.attrs?.level) || 2))

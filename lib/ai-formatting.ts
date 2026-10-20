@@ -1,6 +1,7 @@
 import type { JSONContent } from '@tiptap/core';
 import { Fragment, Slice } from '@tiptap/pm/model';
 import { TextSelection, type Transaction } from '@tiptap/pm/state';
+import { applyTypography, headingTypography, typographyDirective, type Typography } from './ai-typography.ts';
 
 // The model can describe a small set of semantic formatting choices. We build
 // editor JSON ourselves: HTML, links, images, CSS and scripts are never interpreted.
@@ -32,23 +33,27 @@ function plain(node: JSONContent): string {
 export function parseAiFormatting(answer: string, preserveEdges = false): { content: JSONContent[]; text: string; rich: boolean } {
   answer = answer.replace(/^```(?:markdown|md)?[ \t]*\r?\n([\s\S]*?)\r?\n```[ \t]*$/i, '$1');
   const lines = answer.replace(/\r\n?/g, '\n').split('\n'), content: JSONContent[] = [];
+  let pendingStyle: Typography | null = null, paragraphStyle: Typography | null = null;
   let paragraph: string[] = [];
+  const styled = (node: JSONContent, style: Typography | null) => style ? applyTypography(node, style) : node;
   const flush = () => {
     if (!paragraph.length) return;
-    content.push({ type: 'paragraph', content: paragraph.flatMap((line, i) => [...(i ? [{ type: 'hardBreak' }] : []), ...inline(line)]) });
-    paragraph = [];
+    content.push(styled({ type: 'paragraph', content: paragraph.flatMap((line, i) => [...(i ? [{ type: 'hardBreak' }] : []), ...inline(line)]) }, paragraphStyle));
+    paragraph = []; paragraphStyle = null;
   };
   for (const line of lines) {
     if (!line.trim()) { flush(); continue; }
+    const directive = typographyDirective(line);
+    if (directive) { flush(); pendingStyle = directive; continue; }
     const heading = /^(#{1,3})[ \t]+(.+)$/.exec(line);
     const bullet = /^[ \t]*[-+*][ \t]+(.+)$/.exec(line), ordered = /^[ \t]*(\d+)[.)][ \t]+(.+)$/.exec(line);
-    if (heading) { flush(); content.push({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[2]) }); }
+    if (heading) { flush(); content.push(styled({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[2]) }, { ...headingTypography(heading[1].length), ...pendingStyle })); pendingStyle = null; }
     else if (bullet || ordered) {
       flush(); const type = bullet ? 'bulletList' : 'orderedList', last = content.at(-1);
-      const item = { type: 'listItem', content: [{ type: 'paragraph', content: inline(bullet ? bullet[1] : ordered![2]) }] };
+      const item = styled({ type: 'listItem', content: [{ type: 'paragraph', content: inline(bullet ? bullet[1] : ordered![2]) }] }, pendingStyle); pendingStyle = null;
       if (last?.type === type) last.content!.push(item);
       else content.push({ type, ...(ordered ? { attrs: { start: Math.max(1, Math.min(100000, Number(ordered[1]))) } } : {}), content: [item] });
-    } else paragraph.push(line);
+    } else { if (!paragraph.length) { paragraphStyle = pendingStyle; pendingStyle = null; } paragraph.push(line); }
   }
   flush();
   if (preserveEdges && content.length) {
@@ -69,8 +74,9 @@ export function replaceAiFormatting(tr: Transaction, from: number, to: number, c
   const inherited = inheritStyle ? (tr.storedMarks || (from < to && $from.nodeAfter?.isText ? $from.nodeAfter.marks : $from.marks())).filter(m => m.type.name === 'textStyle') : [];
   const inherit = (n: JSONContent): JSONContent => {
     if (n.type === 'text') {
-      const marks = [...inherited.map(m => m.toJSON()), ...(n.marks || [])];
-      return { ...n, marks: marks.filter((m, i) => marks.findIndex(other => other.type === m.type) === i) };
+      const marks = n.marks || [], own = marks.find(m => m.type === 'textStyle');
+      const attrs = { ...inherited[0]?.attrs, ...own?.attrs };
+      return { ...n, marks: [...marks.filter(m => m.type !== 'textStyle'), ...(own || inherited.length ? [{ type: 'textStyle', attrs }] : [])] };
     }
     return { ...n, ...(n.content ? { content: n.content.map(inherit) } : {}) };
   };
