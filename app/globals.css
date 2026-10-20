@@ -280,6 +280,15 @@
 .format-batch-navigation button{display:grid;place-items:center;padding:5px}
 .format-batch-note{font-size:11px!important;line-height:1.5!important;color:var(--muted)!important}
 .manuscript img{display:block;margin:12px auto;object-fit:contain}
+.manuscript h3{font-size:22px;font-weight:600;line-height:1.4;margin:28px 0 16px}
+.manuscript span[style*="color"] em{color:inherit}
+/* Saved colors remain suitable for paper; adapt their display on dark sheets. */
+@media screen{
+:root[data-theme=dark] :is(.manuscript,.ai-format-preview) span:is([style*="#345847"],[style*="rgb(52, 88, 71)"]){color:#aac9b3!important}
+:root[data-theme=dark] :is(.manuscript,.ai-format-preview) span:is([style*="#285c8e"],[style*="rgb(40, 92, 142)"]){color:#a5c9ed!important}
+:root[data-theme=dark] :is(.manuscript,.ai-format-preview) span:is([style*="#7a334c"],[style*="rgb(122, 51, 76)"]){color:#e7b2c2!important}
+:root[data-theme=dark] :is(.manuscript,.ai-format-preview) span:is([style*="#5f6368"],[style*="rgb(95, 99, 104)"]){color:#b9bec4!important}
+}
 .ai-feedback{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--soft);border-bottom:1px solid var(--line);font-size:12px;line-height:1.5;max-height:140px;overflow:auto}
 .ai-feedback span{flex:1;min-width:0;overflow-wrap:anywhere}
 .ai-feedback button{flex-shrink:0;font-size:11px;text-decoration:underline;padding:5px}
@@ -400,7 +409,7 @@
 .github-modal .github-connection-actions,.settings-modal .github-connection-actions{display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin:16px 0}
 .github-modal .form-note a,.settings-modal .form-note a{text-decoration:underline}
 .github-modal .github-document-list{max-height:340px;overflow:auto}
-.menu-bar{overflow-x:auto;white-space:nowrap}
+.menu-bar{height:auto;min-height:43px;overflow:visible;white-space:normal}
 .menu-bar>button{flex-shrink:0}
 
 .writing-memory-button{display:flex;justify-content:space-between;gap:8px;align-items:center;width:100%;padding:10px 0;font-size:12px;color:inherit;text-align:left}.writing-memory-button small{opacity:.7;font-size:10px}

@@ -11,7 +11,7 @@ const schema = new Schema({ nodes: {
   hardBreak: { inline: true, group: 'inline' }, heading: { group: 'block', content: 'inline*', attrs: { level: { default: 2 } } },
   bulletList: { group: 'block', content: 'listItem+' }, orderedList: { group: 'block', content: 'listItem+', attrs: { start: { default: 1 } } },
   listItem: { content: 'paragraph block*' },
-}, marks: { bold: {}, italic: {}, textStyle: { attrs: { fontFamily: { default: null } } } } });
+}, marks: { bold: {}, italic: {}, textStyle: { attrs: { fontFamily: { default: null }, fontSize: { default: null }, color: { default: null } } } } });
 const p = (text, marks = []) => schema.node('paragraph', null, text ? schema.text(text, marks) : undefined);
 
 test('semantic formatting parses headings, paragraphs, lists and emphasis into editor nodes', () => {
@@ -139,4 +139,30 @@ test('formatting can correct an inappropriate heading back to an ordinary paragr
   const result = state.apply(replaceAiFormatting(state.tr, 1, state.doc.firstChild.nodeSize - 1, parseAiFormatting('Una frase normale.').content));
   assert.equal(result.doc.firstChild.type.name, 'paragraph'); assert.equal(result.doc.childCount, 2);
   assert.equal(result.doc.lastChild.textContent, 'Dopo'); result.doc.check();
+});
+
+test('AI typography overrides inherited size and color without changing text outside the selection', () => {
+  const original = schema.mark('textStyle', { fontFamily: 'Arial', fontSize: '14px', color: '#ff0000' });
+  const state = EditorState.create({ schema, doc: schema.node('doc', null, [p('Prima.'), p('Un titolo', [original]), p('Dopo.', [original])]) });
+  const from = state.doc.firstChild.nodeSize + 1;
+  const parsed = parseAiFormatting(':::style font=serif size=32 color=blue\n# Un titolo');
+  assert.equal(parsed.text, 'Un titolo'); assert.equal(parsed.rich, true);
+  const result = state.apply(replaceAiFormatting(state.tr, from, from + 'Un titolo'.length, parsed.content));
+  assert.equal(result.doc.child(1).type.name, 'heading');
+  assert.deepEqual({ ...result.doc.child(1).firstChild.marks.find(m => m.type.name === 'textStyle').attrs }, { fontFamily: 'Georgia', fontSize: '32px', color: '#285c8e' });
+  assert.deepEqual(result.doc.lastChild.toJSON(), state.doc.lastChild.toJSON()); result.doc.check();
+});
+
+test('typography accepts only closed font, size and color choices and never arbitrary CSS', () => {
+  const valid = parseAiFormatting(':::style font=mono size=16 color=muted\nUna **nota**.\n\nParagrafo normale.');
+  assert.equal(valid.text, 'Una nota.\n\nParagrafo normale.');
+  assert.equal(valid.content[0].content[1].marks.find(m => m.type === 'textStyle').attrs.fontFamily, 'Courier New');
+  assert.equal(valid.content[1].content[0].marks, undefined, 'a directive does not leak into the following paragraph');
+  for (const directive of [':::style font=url(evil)', ':::style size=9999', ':::style color=expression(evil)', ':::style font=serif font=sans', ':::style position=fixed'])
+    assert.ok(parseAiFormatting(directive + '\nTesto.').text.includes(directive));
+  for (const mode of ['format','complete','rewrite']) {
+    const request = assistPrompts({ mode, formatting: true, text: 'Un titolo.' });
+    assert.match(request.system, /Infer genuine titles, subtitles and paragraph breaks from meaning/);
+    assert.match(request.system, /font=sans\|serif\|mono/);
+  }
 });

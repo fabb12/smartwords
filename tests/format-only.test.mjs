@@ -12,7 +12,7 @@ const schema = new Schema({ nodes: {
   heading: { group: 'block', content: 'inline*', attrs: { level: { default: 2 } } },
   hardBreak: { inline: true, group: 'inline' }, image: { group: 'block', atom: true, attrs: { src: {} } },
   codeBlock: { group: 'block', content: 'text*', code: true },
-}, marks: { bold: {}, italic: {}, code: {}, textStyle: { attrs: { fontFamily: { default: null } } }, link: { attrs: { href: {} } } } });
+}, marks: { bold: {}, italic: {}, code: {}, textStyle: { attrs: { fontFamily: { default: null }, fontSize: { default: null }, color: { default: null } } }, link: { attrs: { href: {} } } } });
 const p = text => schema.node('paragraph', null, text ? schema.text(text) : undefined);
 const words = text => text.match(/[\p{L}\p{M}\p{N}]+|[^\s]/gu);
 
@@ -70,4 +70,30 @@ test('the current A4 page scope follows page boundaries instead of selecting the
   assert.deepEqual(currentPageRange(view, 50), { from: 0, to: 100 });
   assert.deepEqual(currentPageRange(view, 100), { from: 100, to: 200 });
   assert.deepEqual(currentPageRange(view, 250), { from: 200, to: doc.content.size });
+});
+
+test('format-only repairs small titles and oversized prose, applies chosen typeface/color and preserves links', () => {
+  const bad = schema.mark('textStyle', { fontFamily: 'Georgia', fontSize: '14px', color: '#ff0000' });
+  const doc = schema.node('doc', null, [schema.node('paragraph', null, [schema.text('Il viaggio. Sottotitolo. Un concetto importante. Una nota.', [bad, schema.mark('link', { href: 'https://example.com' })])]), p('Fuori ambito.')]);
+  const range = formatRanges(doc, 1, doc.firstChild.nodeSize - 1).ranges[0];
+  const part = formatReplacement(doc, range, '# Il viaggio.\n\n## Sottotitolo.\n\nUn **concetto** importante.\n\n:::style font=sans size=16 color=blue\nUna *nota*.');
+  const tr = replaceAiFormatting(EditorState.create({ schema, doc }).tr, part.from, part.to, part.content, false);
+  const blocks = tr.doc.content.content;
+  assert.deepEqual(blocks.map(n => n.type.name), ['heading','heading','paragraph','paragraph','paragraph']);
+  assert.deepEqual(blocks.slice(0,4).map(n => n.firstChild.marks.find(m => m.type.name === 'textStyle').attrs.fontSize), ['38px','28px','18px','16px']);
+  assert.equal(blocks[0].firstChild.marks.find(m => m.type.name === 'textStyle').attrs.color, null);
+  const note = blocks[3].firstChild.marks.find(m => m.type.name === 'textStyle').attrs;
+  assert.equal(note.fontFamily, 'Arial'); assert.equal(note.color, '#285c8e');
+  blocks.slice(0,4).forEach(n => n.forEach(child => assert.equal(child.marks.find(m => m.type.name === 'link').attrs.href, 'https://example.com')));
+  assert.equal(blocks[4].textContent, 'Fuori ambito.'); assert.deepEqual(words(tr.doc.textContent), words(doc.textContent)); tr.doc.check();
+});
+
+test('chosen hierarchy, typeface, size and color persist in Word output', async () => {
+  const { exportDocx } = await import('../lib/docx.ts'); const { default: JSZip } = await import('jszip');
+  const doc = schema.node('doc', null, [p('Il titolo. La frase.')]), range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatReplacement(doc, range, ':::style font=serif color=blue\n# Il titolo.\n\nLa frase.');
+  const tr = replaceAiFormatting(EditorState.create({ schema, doc }).tr, part.from, part.to, part.content, false);
+  const blob = await exportDocx(tr.doc.toJSON()), zip = await JSZip.loadAsync(await blob.arrayBuffer()), xml = await zip.file('word/document.xml').async('string');
+  assert.match(xml, /w:pStyle w:val="Heading1"/); assert.match(xml, /w:ascii="Georgia"/);
+  assert.match(xml, /w:sz w:val="57"/); assert.match(xml, /w:sz w:val="27"/); assert.match(xml, /w:color w:val="285c8e"/);
 });

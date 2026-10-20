@@ -42,8 +42,8 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
   if (!parsed.content.length || words(parsed.text) !== words(range.text))
     throw new Error('L’AI ha cambiato parole o punteggiatura: la proposta di sola formattazione è stata scartata. Il documento è rimasto invariato.');
 
-  // Preserve links, code and typeface data character by character. Only semantic
-  // emphasis and block layout come from the model, never new wording or URLs.
+  // Preserve links and non-visual marks character by character. Typeface may be
+  // retained, but old sizes/colors must not override the AI's new hierarchy.
   const original: NonNullable<JSONContent['marks']>[] = [];
   doc.nodesBetween(range.from, range.to, (node, pos) => {
     if (!node.isText) return;
@@ -52,19 +52,20 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
     for (const char of text) if (!/\s/u.test(char)) original.push(marks);
   });
   let at = 0, previous: NonNullable<JSONContent['marks']> = [];
-  const restore = (node: JSONContent): JSONContent[] => {
-    if (node.type !== 'text') return [{ ...node, ...(node.content ? { content: node.content.flatMap(restore) } : {}) }];
+  const restore = (node: JSONContent, heading = false): JSONContent[] => {
+    if (node.type !== 'text') return [{ ...node, ...(node.content ? { content: node.content.flatMap(child => restore(child, heading || node.type === 'heading')) } : {}) }];
     const result: JSONContent[] = [];
     for (const char of node.text || '') {
       const marks = /\s/u.test(char) ? previous : original[at++] || [];
       previous = marks;
-      const combined = [...(node.marks || []), ...marks], last = result.at(-1);
+      const retained = marks.find(m => m.type === 'textStyle')?.attrs || {}, chosen = node.marks?.find(m => m.type === 'textStyle')?.attrs || {};
+      const combined = [...(node.marks || []).filter(m => m.type !== 'textStyle'), ...marks.filter(m => m.type !== 'textStyle'), { type: 'textStyle', attrs: { ...retained, fontSize: heading ? chosen.fontSize : '18px', color: null, ...chosen } }], last = result.at(-1);
       if (last && JSON.stringify(last.marks) === JSON.stringify(combined)) last.text += char;
       else result.push({ type: 'text', text: char, marks: combined });
     }
     return result;
   };
-  const content = parsed.content.flatMap(restore);
+  const content = parsed.content.flatMap(node => restore(node));
   // Keep the separator where a selected range or page ends inside a paragraph.
   const left = doc.textBetween(Math.max(0, range.from - 1), range.from), right = doc.textBetween(range.to, Math.min(doc.content.size, range.to + 1));
   if (/\S$/.test(left) && /^\s/.test(range.text) && !/^\s/.test(parsed.text) && content[0].type === 'paragraph')
