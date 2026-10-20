@@ -95,6 +95,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // Phones: simplified mode (bottom toolbar, panels as sheets); the A4 page view is desktop-only.
   const [narrow,simple,setSimple]=useSimpleMode(),standalone=useStandalone(),[sheet,setSheet]=useState<null|'docs'|'more'|'install'>(null);
   const pages=simple?0:pagePref;
+  const [pageCount,setPageCount]=useState(1);
   // Voice input: phrases are written at the cursor while the microphone listens.
   const [canDictate,setCanDictate]=useState(false),[listening,setListening]=useState(false),[heard,setHeard]=useState(''),[dictError,setDictError]=useState(''),dictation=useRef<Dictation|null>(null);
   useVisibleHeight(simple);
@@ -168,7 +169,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     return `Memoria aggiornata da ${samples.length} documenti letti.${failed?' '+failed+' documenti non sono stati letti; puoi riprovare.':''}`;
   }
   const editor=useEditor({immediatelyRender:false,shouldRerenderOnTransaction:true,
-    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Ghost,Pagination],
+    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Ghost,Pagination.configure({onPages:setPageCount})],
     content:EMPTY,editorProps:{attributes:{class:'manuscript',role:'textbox','aria-label':'Contenuto del documento',spellcheck:'true'},handleKeyDown:(_view,event)=>{
       if(event.key==='Tab' && callbacks.current.tab(event)){event.preventDefault();return true;}
       if(event.key==='Escape'){callbacks.current.cancel();return false;}
@@ -349,7 +350,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const box=dom.getBoundingClientRect(),scale=box.width/(dom.offsetWidth||1)||1,last=dom.lastElementChild?.getBoundingClientRect();
     const filled=pages===1?1:last?Math.floor(((last.right-box.left)/scale-PAGE.margin)/(PAGE.width+PAGE.gap))+1:1;paper.style.setProperty('--pages',String(Math.max(1,filled)));
     const style=getComputedStyle(canvas),room=canvas.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight),height=canvas.clientHeight-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom);
-    const fitWidth=room/(pages*(PAGE.width+PAGE.gap)-PAGE.gap),fit=pages>1?Math.min(fitWidth,height/PAGE.height):fitWidth;paper.style.zoom=String(Math.max(0.15,Math.min(1,fit)));},[pages]);
+    const caption=canvas.querySelector<HTMLElement>('.page-topline'),captionStyle=caption?getComputedStyle(caption):null;
+    const heading=caption?caption.offsetHeight+parseFloat(captionStyle!.marginTop)+parseFloat(captionStyle!.marginBottom):0;
+    const fitWidth=room/(pages*(PAGE.width+PAGE.gap)-PAGE.gap),fit=Math.min(fitWidth,Math.max(1,height-heading-4)/PAGE.height);paper.style.zoom=String(Math.max(0.15,Math.min(1,fit)));},[pages]);
   useEffect(()=>{if(!editor)return;editor.view.dispatch(editor.state.tr.setMeta(paginationKey,{enabled:pages===1,breaks:[],pages:1}).setMeta('addToHistory',false));layoutPages();editor.on('update',layoutPages);const observer=new ResizeObserver(()=>layoutPages());if(canvasRef.current)observer.observe(canvasRef.current);return()=>{editor.off('update',layoutPages);observer.disconnect();};},[editor,layoutPages,pages]);
   useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),3500);return()=>clearTimeout(timer);},[notice]);
 
@@ -435,7 +438,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       {showFind&&<div className="findbar"><Search size={15}/><input aria-label="Cerca nel testo" placeholder="Trova nel testo" value={find} onChange={e=>setFind(e.target.value)}/><input aria-label="Sostituisci con" placeholder="Sostituisci con" value={replace} onChange={e=>setReplace(e.target.value)}/><button data-tip="Seleziona la prossima occorrenza nel testo (senza distinzione tra maiuscole e minuscole)" onClick={()=>findNext()}>Trova</button><button data-tip="Sostituisce l’occorrenza selezionata e passa alla successiva con «Trova»" onClick={()=>findNext(true)}>Sostituisci selezione</button><button aria-label="Chiudi ricerca" onClick={()=>setShowFind(false)}><X size={16}/></button></div>}
       {repoError&&<div role="alert" className="error-banner">{repoError}<button onClick={()=>setRepoOpen('load')}>Apri GitHub</button><button aria-label="Chiudi errore GitHub" onClick={()=>setRepoError('')}><X size={15}/></button></div>}
       {error&&<div role="alert" className="error-banner">{error}<button data-tip="Prova di nuovo a salvare le modifiche" onClick={()=>void save()}>Riprova salvataggio</button><button aria-label="Chiudi errore" onClick={()=>setError('')}><X size={15}/></button></div>}
-      <div className="writing-area"><div className="canvas" ref={canvasRef}><div className="page-topline"><span>DOCUMENTO PERSONALE</span><SourceBadge source={source} busy={busy} onClick={()=>setKbOpen(true)}/></div>{simple&&<div className="m-source"><SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/></div>}<div className="paper" ref={paperRef} style={pages?{'--page-width':PAGE.width+'px','--page-height':PAGE.height+'px','--page-margin':PAGE.margin+'px','--page-gap':PAGE.gap+'px'} as CSSProperties:undefined}><EditorContent editor={editor}/></div><div className="page-bottom">Le idee sono tue. Le possibilità, infinite.</div></div>
+      <div className="writing-area"><div className="canvas" ref={canvasRef}><div className="page-topline"><span>DOCUMENTO PERSONALE</span><SourceBadge source={source} busy={busy} onClick={()=>setKbOpen(true)}/></div>{simple&&<div className="m-source"><SourceBadge source={source} busy={busy} compact onClick={()=>setKbOpen(true)}/></div>}<div className="paper" ref={paperRef} style={pages?{'--page-width':PAGE.width+'px','--page-height':PAGE.height+'px','--page-margin':PAGE.margin+'px','--page-gap':PAGE.gap+'px'} as CSSProperties:undefined}>{pages===1&&<div className="a4-sheets" aria-hidden="true">{Array.from({length:pageCount},(_,i)=><div className="a4-sheet" key={i}><span>Pagina {i+1} di {pageCount}</span></div>)}</div>}<EditorContent editor={editor}/></div><div className="page-bottom">Le idee sono tue. Le possibilità, infinite.</div></div>
         <aside className="assistant"><div className="assistant-title"><span className="spark-icon"><Sparkles size={19}/></span><div><h2>Il tuo assistente</h2><p>Un passo avanti, insieme.</p></div><span className="live-dot"/><button className="m-close" aria-label="Chiudi assistente" onClick={()=>setMobileAI(false)}><X size={22}/></button></div>
           <ModeSwitch mode={mode} setMode={changeMode}/>
           {mode==='libera'&&<FreeCard fp={fp}/>}

@@ -241,7 +241,10 @@
 .paged .manuscript{min-height:0;box-sizing:border-box;height:var(--page-height);padding:var(--page-margin);width:calc(var(--pages,1)*(var(--page-width) + var(--page-gap)) - var(--page-gap));column-count:var(--pages,1);column-gap:calc(2*var(--page-margin) + var(--page-gap));column-fill:auto;background:repeating-linear-gradient(to right,var(--page-paper) 0 var(--page-width),transparent var(--page-width) calc(var(--page-width) + var(--page-gap)))}
 .paged .manuscript table,.paged .manuscript img{break-inside:avoid}
 /* A4 flow: page spacers belong only to the view, never to saved prose. */
-.a4-stack .paper{width:var(--page-width);background:repeating-linear-gradient(to bottom,var(--page-paper) 0 var(--page-height),transparent var(--page-height) calc(var(--page-height) + var(--page-gap)))}
+.a4-stack .paper{position:relative;isolation:isolate;width:var(--page-width);background:none}
+.a4-sheets{position:absolute;inset:0;pointer-events:none;user-select:none;z-index:-1}
+.a4-sheet{position:relative;width:var(--page-width);height:var(--page-height);margin-bottom:var(--page-gap);background:var(--page-paper);outline:1px solid var(--line);box-shadow:0 3px 14px #18251a1a}
+.a4-sheet>span{position:absolute;bottom:25px;left:var(--page-margin);right:var(--page-margin);font-size:11px;line-height:1.4;text-align:right;color:var(--muted)}
 .a4-stack .manuscript{width:var(--page-width);height:auto;min-height:calc(var(--a4-pages,1)*(var(--page-height) + var(--page-gap)) - var(--page-gap));columns:auto;background:none}
 .a4-page-break{display:block;pointer-events:none;user-select:none;width:100%;padding:0!important;margin:0!important;border:0!important;line-height:0;font-size:0}
 .pagination-measuring .a4-page-break,.pagination-measuring .ghost-text{display:none!important}
@@ -250,7 +253,7 @@
 :root[data-theme=dark] .paged .canvas{background:#0e1110}
 :root[data-theme=dark] .paged .paper{--page-paper:#1d2220;background:none;border:0;box-shadow:none}
 @media print{.paged .paper{zoom:1!important;width:auto}.paged .manuscript{height:auto;width:auto;padding:0;columns:auto;background:none}}
-@media print{.a4-page-break,.ai-selection-actions{display:none!important}.a4-stack .paper{background:none}.a4-stack .manuscript{min-height:0}}
+@media print{.a4-page-break,.a4-sheets,.ai-selection-actions{display:none!important}.a4-stack .paper{background:none}.a4-stack .manuscript{min-height:0}}
 /* Version in the status bar and the banner announcing a newer deploy. */
 .build-label{color:var(--muted)}
 .update-banner{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;padding:10px 12px 10px 16px;max-width:calc(100vw - 32px);background:#355843;color:#fff;border-radius:8px;box-shadow:0 6px 30px #0003;font-size:12px}

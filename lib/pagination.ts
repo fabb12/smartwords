@@ -54,7 +54,9 @@ function measure(view: EditorView): { breaks: Break[]; pages: number } {
 
 export const Pagination = Extension.create({
   name: 'pagination',
+  addOptions() { return { onPages: undefined as ((pages: number) => void) | undefined }; },
   addProseMirrorPlugins() {
+    const onPages = this.options.onPages;
     return [new Plugin<Layout>({
       key: paginationKey,
       state: {
@@ -83,8 +85,9 @@ export const Pagination = Extension.create({
           frame = requestAnimationFrame(() => {
             frame = 0; if (destroyed || view.composing) return;
             const old = paginationKey.getState(view.state) as Layout;
-            if (!old.enabled) { view.dom.style.removeProperty('--a4-pages'); return; }
+            if (!old.enabled) { view.dom.style.removeProperty('--a4-pages'); onPages?.(1); return; }
             const layout = measure(view); view.dom.style.setProperty('--a4-pages', String(layout.pages));
+            onPages?.(layout.pages);
             if (JSON.stringify(layout.breaks) !== JSON.stringify(old.breaks) || layout.pages !== old.pages) {
               const tr = view.state.tr.setMeta(paginationKey, layout).setMeta('addToHistory', false);
               if (view.hasFocus()) tr.scrollIntoView();
