@@ -236,6 +236,34 @@
 /* Page view: the text flows into A4 pages placed side by side (columns of the editor), zoomed to fit. */
 .page-view{display:flex;align-items:center;gap:6px;color:inherit}
 .page-view select{font-size:11px;border:1px solid #dfe5d7;border-radius:4px;padding:3px 4px;background:white;color:inherit}
+.command-group{display:inline-flex;flex-shrink:0;align-items:center}
+.command-trigger{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:5px;font-size:12px;white-space:nowrap}
+.command-trigger:hover,.command-trigger[aria-expanded=true]{background:var(--soft);color:var(--green)}
+.command-panel{position:fixed;inset:auto;margin:0;width:245px;max-width:calc(100vw - 16px);padding:8px;border:1px solid var(--line);border-radius:9px;background:var(--page-paper,#fff);color:inherit;box-shadow:0 8px 30px #17261b26;overflow:auto}
+.command-panel:popover-open{display:grid;gap:4px}
+.command-panel button,.command-panel .tool,.command-panel .import-label{display:flex;align-items:center;justify-content:flex-start;gap:9px;width:100%;height:auto;min-height:36px;padding:8px 10px;border-radius:5px;text-align:left;font-size:12px;white-space:normal}
+.command-panel button:hover,.command-panel .import-label:hover{background:var(--soft)}
+.command-panel button[aria-label]::after{content:attr(aria-label)}
+.command-panel label{font-size:11px;padding:7px 9px}
+.command-panel label:not(.tool):not(.import-label):not(.color-tool){display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.command-panel select{width:100%;min-width:0;padding:7px;background:var(--soft);color:inherit;border:1px solid var(--line);border-radius:4px;font-size:12px}
+.command-panel .color-tool{display:flex;align-items:center;gap:12px;width:auto;height:auto}
+.command-panel .color-tool::before{content:'Colore testo'}
+.command-panel .color-tool input{position:static;width:32px;height:26px;opacity:1}
+.command-panel .image-upload::after{content:'Immagine'}
+.editor-zoom{display:flex;align-items:center;gap:3px;flex-shrink:0;border:1px solid var(--line);border-radius:6px;padding:2px;background:var(--soft)}
+.editor-zoom button{display:grid;place-items:center;width:28px;height:28px;border-radius:4px}
+.editor-zoom button:hover{background:var(--line)}
+.editor-zoom select{max-width:190px;border:0;background:transparent;color:inherit;font-size:11px;padding:4px;outline-offset:0}
+.menu-bar:has(.command-group){gap:4px;padding-top:5px;padding-bottom:5px;min-height:43px}
+.formatbar:has(.command-group){gap:5px;min-height:43px}
+.ai-feedback{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--soft);border-bottom:1px solid var(--line);font-size:12px;line-height:1.5;max-height:140px;overflow:auto}
+.ai-feedback span{flex:1;min-width:0;overflow-wrap:anywhere}
+.ai-feedback button{flex-shrink:0;font-size:11px;text-decoration:underline;padding:5px}
+.ai-feedback.bad{color:var(--warn);background:var(--warn-soft)}
+:root[data-theme=dark] .command-panel{background:#202622;color:#d6dfd1}
+@media(max-width:1000px){.editor-zoom select{max-width:155px}.command-trigger{padding:7px 6px;font-size:11px}}
+@media print{.command-panel,.ai-feedback{display:none!important}}
 .paged .canvas{background:#e4e7df}
 .paged .paper{--page-paper:#fff;background:none;border:0;box-shadow:none;border-radius:0;padding:0;min-height:0;max-width:none;width:max-content;margin:0 auto}
 .paged .manuscript{min-height:0;box-sizing:border-box;height:var(--page-height);padding:var(--page-margin);width:calc(var(--pages,1)*(var(--page-width) + var(--page-gap)) - var(--page-gap));column-count:var(--pages,1);column-gap:calc(2*var(--page-margin) + var(--page-gap));column-fill:auto;background:repeating-linear-gradient(to right,var(--page-paper) 0 var(--page-width),transparent var(--page-width) calc(var(--page-width) + var(--page-gap)))}

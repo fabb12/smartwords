@@ -15,6 +15,16 @@ async function read(events, provider = 'openai') {
 }
 const prose = { choices: [{ delta: { content: 'È una frase.' }, finish_reason: 'stop' }] };
 
+test('output-limit failures end the stream with an actionable error and never enable acceptance', async () => {
+  const frames = [ { choices: [{ delta: { content: 'Una parte della risposta.' } }] }, { choices: [{ delta: {}, finish_reason: 'length' }] }, '[DONE]' ];
+  let cleaned = 0;
+  const result = await new Response(assistStream(sse(frames), 'openai', { provider: 'openai', model: 'test', system: '', prompt: '' }, () => { cleaned++; })).text();
+  const events = result.trim().split('\n').map(line => JSON.parse(line));
+  assert.ok(events.some(e => e.text));
+  assert.match(events.at(-1).error, /Seleziona un brano più breve/);
+  assert.ok(!events.some(e => e.done)); assert.equal(cleaned, 1);
+});
+
 test('OpenAI compatible streams preserve trailing usage-only frames and cached input without doubling totals', async () => {
   const { text, usage } = await read([prose, { choices: [], usage: { prompt_tokens: 120, completion_tokens: 8, total_tokens: 128, prompt_tokens_details: { cached_tokens: 40 } } }, '[DONE]']);
   assert.equal(text, 'È una frase.');

@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const key=await unseal(p.secret,master,owner);
     const {system,prompt,maxTokens}=assistPrompts(b);
     const config=providerRequest(p.provider,p.model,key,system,prompt,maxTokens); const controller=new AbortController();
-    const timer=setTimeout(()=>controller.abort(),45000);
+    const timer=setTimeout(()=>controller.abort(),b.text.length>2000&&['complete','rewrite','voice','formal'].includes(b.mode)?120000:45000);
     request.signal.addEventListener('abort',()=>controller.abort(),{once:true});
     let upstream: Response;
     try { upstream=await fetch(config.url,{ method:'POST',headers:config.headers,body:JSON.stringify(config.body),signal:controller.signal,redirect:'error' }); }

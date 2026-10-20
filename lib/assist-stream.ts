@@ -9,7 +9,7 @@ export function assistStream(body: ReadableStream<Uint8Array>, parser: Provider,
   let cancelled = false;
   return new ReadableStream<Uint8Array>({
     async start(out) {
-      const encoder = new TextEncoder(); let answer = '', completed = false, usage: ProviderUsage = {};
+      const encoder = new TextEncoder(); let answer = '', completed = false, failure = errorMessage, usage: ProviderUsage = {};
       const send = (data: unknown) => out.enqueue(encoder.encode(JSON.stringify(data) + '\n'));
       try {
         for await (const text of readTokens(body, parser, update => { usage = { ...usage, ...update }; })) {
@@ -18,12 +18,16 @@ export function assistStream(body: ReadableStream<Uint8Array>, parser: Provider,
           if (!cancelled) send({ text });
         }
         completed = true;
-      } catch { /* Partial answers still consume tokens. */ }
+      } catch (error) {
+        // Keep the manuscript intact and make output-limit failures actionable.
+        if (error instanceof Error && ['Limite risposta raggiunto.', 'Risposta troncata dal provider.', 'Risposta troppo lunga.'].includes(error.message))
+          failure = 'La risposta supera il limite del modello. Seleziona un brano più breve e riprova.';
+      }
       finally {
         if (!cancelled) {
           try {
             send({ usage: { ...finalizeUsage(usage, meta.system, meta.prompt, answer), provider: meta.provider, model: meta.model } });
-            send(completed ? { done: true } : { error: errorMessage });
+            send(completed ? { done: true } : { error: failure });
             out.close();
           } catch { /* The consumer may have disconnected. */ }
         }
