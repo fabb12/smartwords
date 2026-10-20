@@ -257,6 +257,29 @@
 .editor-zoom select{max-width:190px;border:0;background:transparent;color:inherit;font-size:11px;padding:4px;outline-offset:0}
 .menu-bar:has(.command-group){gap:4px;padding-top:5px;padding-bottom:5px;min-height:43px}
 .formatbar:has(.command-group){gap:5px;min-height:43px}
+.icon-menu,.formatbar{flex-wrap:wrap;overflow:visible;gap:3px}
+.icon-menu .tool,.formatbar .tool{flex-shrink:0;width:29px;height:29px;padding:5px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px}
+.icon-menu .tool:hover,.formatbar .tool:hover{background:var(--soft)}
+.toolbar-section{display:inline-flex;align-items:center;gap:3px;flex-wrap:wrap;border-left:1px solid var(--line);padding-left:6px;margin-left:3px}
+.formatbar .toolbar-section select{max-width:115px;font-size:11px;padding:4px}
+.formatbar .toolbar-section .font-size{max-width:62px}
+.icon-import{cursor:pointer}
+.icon-import input{display:none}
+.icon-export{padding:8px 10px;gap:5px}
+.assistant-hidden .assistant{display:none!important}
+.assistant-hidden .m-proposal,.focus-mode:not(.simple) .m-proposal{display:block;flex-shrink:0;max-height:32%;overflow:auto;padding:10px 20px;background:var(--soft);border-top:1px solid var(--line)}
+.assistant-hidden .m-proposal-actions button,.focus-mode:not(.simple) .m-proposal-actions button{height:34px;font-size:12px;border-radius:5px}
+.info-hidden .page-topline,.info-hidden .page-bottom,.info-hidden .statusbar{display:none}
+.editor-fullscreen:not(.simple) .topbar{height:52px;padding:0 18px}
+.editor-fullscreen:not(.simple) .document-heading input{font-size:14px}
+.view-menu-heading{font-size:11px;font-weight:600;color:var(--muted);margin:5px 9px}
+.command-panel .view-toggle{display:flex;flex-wrap:nowrap!important;gap:8px;padding:6px 9px;cursor:pointer}
+.view-toggle input{width:15px;height:15px;flex-shrink:0;accent-color:var(--green)}
+.view-toggle span{font-size:12px;white-space:normal;line-height:1.4}
+.format-batch-navigation{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:11px}
+.format-batch-navigation button{display:grid;place-items:center;padding:5px}
+.format-batch-note{font-size:11px!important;line-height:1.5!important;color:var(--muted)!important}
+.manuscript img{display:block;margin:12px auto;object-fit:contain}
 .ai-feedback{display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--soft);border-bottom:1px solid var(--line);font-size:12px;line-height:1.5;max-height:140px;overflow:auto}
 .ai-feedback span{flex:1;min-width:0;overflow-wrap:anywhere}
 .ai-feedback button{flex-shrink:0;font-size:11px;text-decoration:underline;padding:5px}

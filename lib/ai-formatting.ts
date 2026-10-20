@@ -63,10 +63,10 @@ export function parseAiFormatting(answer: string, preserveEdges = false): { cont
 
 // Open paragraph edges join the untouched prefix/suffix. Semantic block nodes
 // (headings/lists) replace a whole selected text block when that is the scope.
-export function replaceAiFormatting(tr: Transaction, from: number, to: number, content: JSONContent[]): Transaction {
+export function replaceAiFormatting(tr: Transaction, from: number, to: number, content: JSONContent[], inheritStyle = true): Transaction {
   if (!content.length) return tr;
   const $from = tr.doc.resolve(from), $to = tr.doc.resolve(to);
-  const inherited = (tr.storedMarks || (from < to && $from.nodeAfter?.isText ? $from.nodeAfter.marks : $from.marks())).filter(m => m.type.name === 'textStyle');
+  const inherited = inheritStyle ? (tr.storedMarks || (from < to && $from.nodeAfter?.isText ? $from.nodeAfter.marks : $from.marks())).filter(m => m.type.name === 'textStyle') : [];
   const inherit = (n: JSONContent): JSONContent => {
     if (n.type === 'text') {
       const marks = [...inherited.map(m => m.toJSON()), ...(n.marks || [])];

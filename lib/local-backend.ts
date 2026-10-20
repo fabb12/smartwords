@@ -98,7 +98,7 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   const { system, prompt, maxTokens } = assistPrompts(b);
   const config = providerRequest(p.provider, p.model, key, system, prompt, maxTokens);
   if (p.provider === 'anthropic') config.headers['anthropic-dangerous-direct-browser-access'] = 'true';
-  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), b.text.length>2000&&['complete','rewrite','voice','formal'].includes(b.mode)?120000:45000);
+  const controller = new AbortController(); const timer = setTimeout(() => controller.abort(), b.text.length>2000&&['complete','rewrite','format','voice','formal'].includes(b.mode)?120000:45000);
   signal.addEventListener('abort', () => controller.abort(), { once: true });
   let upstream: Response;
   try { upstream = await fetch(config.url, { method: 'POST', headers: config.headers, body: JSON.stringify(config.body), signal: controller.signal }); }
