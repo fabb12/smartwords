@@ -77,7 +77,7 @@ export async function* readTokens(body: ReadableStream<Uint8Array>, provider: Pr
     if (!finished) throw new Error('Risposta incompleta.');
   } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
 }
-export const ASSIST_MODES = ['complete','rewrite','shorten','formal','voice','continue','directions','memory','check','ask','persona'] as const;
+export const ASSIST_MODES = ['complete','rewrite','format','shorten','formal','voice','continue','directions','memory','check','ask','persona'] as const;
 export type AssistMode = typeof ASSIST_MODES[number];
 // Modes whose answer is JSON, parsed and verified by the browser before anything is shown.
 export const JSON_MODES: readonly string[] = ['directions','memory','check','persona'];
@@ -101,6 +101,7 @@ export const MAX_TOKENS: Record<string, number> = { directions: 2200, memory: 26
 const field = (v: unknown, max: number) => typeof v === 'string' ? v.slice(0, max) : '';
 const fieldEnd = (v: unknown, max: number) => typeof v === 'string' ? v.slice(-max) : '';
 const INSTRUCTIONS: Record<string, string> = {
+  format: 'Format the passage without rewriting it. Preserve every original word, spelling, accent, punctuation mark, number and their order EXACTLY, including apparent mistakes. Change only whitespace, paragraph boundaries, headings, lists, bold and italic to reflect meaning and importance. Never add a heading title or list label: use words already present in the passage. Do not summarize, complete sentences, correct grammar or remove text. Formatting must not change the original wording, even to satisfy general writing preferences.',
   complete: 'Return the entire current sentence in text followed by its missing continuation, completing it naturally. First correct clear spelling errors, typos and accidentally repeated words in text, then continue the sentence. Make only necessary corrections: preserve meaning, facts, tense, voice and deliberate repetitions; do not rewrite for style. Copy every unchanged part of text exactly, including whitespace. If no corrections are needed, your answer must start with text verbatim. Respect afterCursor: do not repeat or replace the text after the cursor. Add at most two sentences. First infer the narrative intent of the scene (for example romantic, suspense, mystery, action, melancholic, ironic, reflective, dialogue, descriptive) and its emotional tone from the context, then continue in that register instead of offering a generic continuation.',
   rewrite: 'Improve grammar, clarity and fluency of the selected text, preserving meaning, facts and the author\'s voice. If the last sentence is incomplete, complete it naturally.',
   shorten: 'Rewrite the selected text more concisely while preserving its meaning and the author\'s voice.',
@@ -117,7 +118,7 @@ export function assistPrompts(b: Record<string, unknown>) {
   const mode = typeof b.mode === 'string' && INSTRUCTIONS[b.mode] ? b.mode : 'rewrite';
   const tone = typeof b.tone === 'string' && ['Naturale','Professionale','Creativo'].includes(b.tone) ? b.tone : 'Naturale';
   const plain = !JSON_MODES.includes(mode);
-  const formatting = b.formatting === true && (mode === 'complete' || mode === 'rewrite');
+  const formatting = b.formatting === true && (mode === 'complete' || mode === 'rewrite' || mode === 'format');
   const personal = PERSONAL_VOICE_MODES.includes(mode) && field(b.authorVoice,4500).trim();
   const kb = KB_MODES.includes(mode) && field(b.knowledgeBase,4500).trim();
   const rules = field(b.rules, 3000).trim();
@@ -130,8 +131,8 @@ export function assistPrompts(b: Record<string, unknown>) {
   if(personal)input.authorVoice=field(b.authorVoice,4500);
   if(kb)input.knowledgeBase=field(b.knowledgeBase,4500);
   // Completions now include the existing sentence as well as the new words.
-  const maxTokens = ['complete','rewrite','voice','formal'].includes(mode) ? Math.max(1024, Math.ceil(input.text.length / 2) + (formatting ? 1024 : 512)) : MAX_TOKENS[mode] ?? 1024;
-  return { system: system.replace(/\s+/g, ' ').trim(), prompt: JSON.stringify(input), maxTokens };
+  const maxTokens = ['complete','rewrite','format','voice','formal'].includes(mode) ? Math.max(1024, Math.ceil(input.text.length / 2) + (formatting ? 1024 : 512)) : MAX_TOKENS[mode] ?? 1024;
+  return { system: (mode==='format'?system.replace('Correct spacing and punctuation and arrange readable paragraphs.','Correct spacing and paragraph structure; preserve punctuation exactly.'):system).replace(/\s+/g, ' ').trim(), prompt: JSON.stringify(input), maxTokens };
 }
 export function providerError(status: number) {
   return status===401||status===403?'Chiave API non valida o modello non autorizzato.':status===429?'Quota del provider esaurita o troppe richieste.':`Il provider ha rifiutato la richiesta (${status}). Controlla il modello.`;

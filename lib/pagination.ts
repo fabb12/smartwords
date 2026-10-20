@@ -8,6 +8,23 @@ type Break = { pos: number; height: number };
 type Layout = { enabled: boolean; breaks: Break[]; pages: number };
 const stride = A4.height + A4.gap;
 
+export function currentPageRange(view: EditorView, pos: number) {
+  const layout = paginationKey.getState(view.state) as Layout;
+  if (layout.enabled) {
+    const edges = [0, ...layout.breaks.map(b => b.pos), view.state.doc.content.size];
+    const page = Math.max(0, edges.findIndex((edge, i) => i > 0 && pos < edge) - 1);
+    const index = pos >= edges.at(-1)! ? edges.length - 2 : page;
+    return { from: edges[index], to: edges[index + 1] };
+  }
+  // Side-by-side A4 columns are monotonic by page index, even though each column
+  // starts again at its top margin. Binary search avoids scanning a manuscript.
+  const dom = view.dom, box = dom.getBoundingClientRect(), scale = box.width / dom.offsetWidth || 1;
+  const pageAt = (p: number) => Math.floor(((view.coordsAtPos(p).left - box.left) / scale) / (A4.width + A4.gap));
+  const page = pageAt(pos), end = view.state.doc.content.size;
+  const boundary = (target: number) => { let lo = 0, hi = end; while (lo < hi) { const mid = Math.floor((lo + hi) / 2); if (pageAt(mid) < target) lo = mid + 1; else hi = mid; } return lo; };
+  return { from: boundary(page), to: boundary(page + 1) };
+}
+
 // Page spacers are view decorations, never manuscript nodes. Reflow therefore
 // leaves selection positions, undo history, exports and saved content intact.
 function measure(view: EditorView): { breaks: Break[]; pages: number } {
