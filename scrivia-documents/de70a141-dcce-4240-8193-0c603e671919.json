@@ -7,6 +7,31 @@
     "type": "doc",
     "content": [
       {
+        "type": "heading",
+        "attrs": {
+          "textAlign": null,
+          "level": 1
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "IL TEMPO E IL POTENZIALE"
+          }
+        ]
+      },
+      {
         "type": "paragraph",
         "attrs": {
           "textAlign": null
@@ -120,7 +145,47 @@
                 }
               }
             ],
-            "text": ", e che chi ti stava davanti aveva già fatto i conti con ciò che a te restava ancora da scoprire. Solo quando ti ritrovi dall'altra parte ti rendi conto davvero che quel "
+            "text": ", e che chi ti stava davanti aveva già fatto i conti con ciò che a te restava ancora da scoprire. Solo quando ti ritrovi dall'altra parte ti rendi conto davvero che quel potenziale inespresso è prezioso, e che non è il tempo a renderlo tale, ma "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "",
+                  "color": null,
+                  "fontFamily": "",
+                  "fontSize": "18px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "la possibilità che ti lascia di scegliere ancora chi diventare."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "La "
           },
           {
             "type": "text",
@@ -139,7 +204,7 @@
                 "type": "bold"
               }
             ],
-            "text": "potenziale inespresso"
+            "text": "spavaldatezza"
           },
           {
             "type": "text",
@@ -155,69 +220,9 @@
                 }
               }
             ],
-            "text": " è prezioso, e che non è il tempo a renderlo tale, ma"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": "",
-                  "color": "rgb(15, 138, 77)",
-                  "fontFamily": "",
-                  "fontSize": "18px",
-                  "lineHeight": ""
-                }
-              }
-            ],
-            "text": " "
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": "",
-                  "color": "rgb(15, 138, 77)",
-                  "fontFamily": "",
-                  "fontSize": "18px",
-                  "lineHeight": ""
-                }
-              },
-              {
-                "type": "highlight",
-                "attrs": {
-                  "color": "#e0e8b9"
-                }
-              }
-            ],
-            "text": "la possibilità che ti lascia di scegliere ancora chi diventare"
-          },
-          {
-            "type": "text",
-            "marks": [
-              {
-                "type": "textStyle",
-                "attrs": {
-                  "backgroundColor": "",
-                  "color": "rgb(15, 138, 77)",
-                  "fontFamily": "",
-                  "fontSize": "18px",
-                  "lineHeight": ""
-                }
-              }
-            ],
-            "text": ". "
+            "text": " dei giovani nasce da questa convinzione che il tempo sia un capitale inesauribile, e che chi ci precede abbia semplicemente sbagliato a investirlo. Ma la sicurezza di chi non ha ancora perso nulla somiglia più a un'assenza di memoria che a una forma di coraggio. È una memoria che ancora non ha avuto occasione di formarsi, perché per ricordare una perdita bisogna prima averla subita, e chi è giovane la conosce solo come una voce lontana."
           }
         ]
-      },
-      {
-        "type": "paragraph",
-        "attrs": {
-          "textAlign": null
-        }
       },
       {
         "type": "paragraph",
@@ -232,14 +237,420 @@
                 "type": "textStyle",
                 "attrs": {
                   "backgroundColor": null,
-                  "color": "#f7eeee",
+                  "color": null,
                   "fontFamily": null,
                   "fontSize": "18px",
                   "lineHeight": null
                 }
               }
             ],
-            "text": "La spavaldatezza dei giovani nasce da queta convinzione che il tempo sia un capitale inesauribile, e che chi ci precede abbia semplicemente sbagliato a investirlo. Ma la sicurezza di chi non ha ancora perso nulla somiglia più a un'assenza di memoria che a una forma di coraggio.  "
+            "text": "Se incanalato bene il potenziale permette di guardare quella versione di te stesso con soddisfazione e senza rimpianto, perché ti accorgi che ciò che sei diventato non ha tradito ciò che avresti potuto essere. Se invece resta una promessa lasciata a metà, quella stessa versione ti guarda da lontano, come una voce che conosci e a cui non hai più saputo rispondere. A quel punto ti senti deluso, ma la delusione non nasce da ciò che gli altri hanno fatto o non fatto, nasce dal confronto con quella voce, che ti ricorda con pazienza quanto spazio c'era e quanto ne hai lasciato vuoto e soprattutto quanto ne hai sprecato."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Il problema è sempre stato l'assenza di "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "consapevolezza"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " di quella possibile perdita futura e l'arroganza di avere tutto il tempo del mondo, come se il domani fosse un debito che qualcun altro si impegna a saldare per noi. Solo quando le occasioni cominciano a ridursi capisci che "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "il tempo non è mai stato un patrimonio da custodire, ma una moneta che si spende comunque"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", anche mentre non la stai guardando."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "È interessante il paragone con la filosofia che c'è dietro all'opera di Michael Ende, "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Momo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", dove si percepisce il valore vero del tempo, ovvero il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "tempo interiore"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", quello che davvero senti tuo e che nessuno può portarti via, nemmeno quando il mondo intorno corre e pretende di misurarlo per te."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Tutto questo ragionamento ci porta a un'unica conclusione, perché "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "non riusciamo a dare il valore vero al tempo finché ne abbiamo ancora davanti in abbondanza"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", e lo scopriamo soltanto quando comincia a scarseggiare. È una lezione che nessuno può insegnarci fino in fondo, perché per capirla bisogna averla già "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "pagata"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "L'unica soluzione per aumentare le probabilità di non rimanere delusi dalle proprie scelte è quella di avere qualcuno che te lo faccia capire, ogni giorno, che ti ricordi di seguire la direzione che un tempo avevi scelto, anche quando la strada si fa stanca e la voce di quel ragazzo lontano sembra ormai troppo flebile per essere ascoltata. Non un giudice, né un maestro, ma una "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "presenza paziente"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", come una lampada lasciata accesa in una stanza che credevi di aver già abbandonato."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Se fosse possibile, la soluzione migliore sarebbe poter parlare con il proprio "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "io del futuro"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " per chiedergli consiglio di come non sbagliare e diventare la persona che oggi ci sembra giusto essere, ma quella conversazione non può esistere, perché il futuro non risponde a chi lo interroga. Possiamo solo immaginarne la voce, e sperare che somigli a quella di qualcuno che ci perdonerebbe."
           }
         ]
       }
@@ -268,6 +679,10 @@
         {
           "id": "baricco",
           "weight": 61
+        },
+        {
+          "id": "carrere",
+          "weight": 50
         }
       ]
     },
@@ -276,5 +691,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792493334380
+  "updated": 1792499578661
 }
