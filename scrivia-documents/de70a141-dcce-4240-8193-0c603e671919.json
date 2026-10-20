@@ -1,0 +1,280 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "de70a141-dcce-4240-8193-0c603e671919",
+  "title": "punti di vista",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Quando sei giovane e osservi una persona più grande di te, ti senti con un "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "potenziale"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " enorme a dispetto di quella più grande, come se il tempo che ancora hai davanti fosse una ricchezza che l'altra ha già speso."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Solo più tardi capisci che quel potenziale era "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "una promessa, non un possesso"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", e che chi ti stava davanti aveva già fatto i conti con ciò che a te restava ancora da scoprire. Solo quando ti ritrovi dall'altra parte ti rendi conto davvero che quel "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "potenziale inespresso"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " è prezioso, e che non è il tempo a renderlo tale, ma"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "",
+                  "color": "rgb(15, 138, 77)",
+                  "fontFamily": "",
+                  "fontSize": "18px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "",
+                  "color": "rgb(15, 138, 77)",
+                  "fontFamily": "",
+                  "fontSize": "18px",
+                  "lineHeight": ""
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#e0e8b9"
+                }
+              }
+            ],
+            "text": "la possibilità che ti lascia di scegliere ancora chi diventare"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "",
+                  "color": "rgb(15, 138, 77)",
+                  "fontFamily": "",
+                  "fontSize": "18px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": ". "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": "#f7eeee",
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "La spavaldatezza dei giovani nasce da queta convinzione che il tempo sia un capitale inesauribile, e che chi ci precede abbia semplicemente sbagliato a investirlo. Ma la sicurezza di chi non ha ancora perso nulla somiglia più a un'assenza di memoria che a una forma di coraggio.  "
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "saggio divulgativo ",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "boncinelli",
+          "weight": 50
+        },
+        {
+          "id": "rovelli",
+          "weight": 50
+        },
+        {
+          "id": "baricco",
+          "weight": 61
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792493334380
+}
