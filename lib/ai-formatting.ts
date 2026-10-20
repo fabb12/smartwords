@@ -3,17 +3,28 @@ import { Fragment, Slice } from '@tiptap/pm/model';
 import { TextSelection, type Transaction } from '@tiptap/pm/state';
 import { applyTypography, headingTypography, typographyDirective, type Typography } from './ai-typography.ts';
 
+// Translucent amber: a light yellow on white paper and a warm olive on dark
+// sheets, so the text keeps its own theme color and stays readable on both.
+export const HIGHLIGHT_COLOR = '#ffc8004d';
+export const HIGHLIGHT = { type: 'highlight', attrs: { color: HIGHLIGHT_COLOR } };
+
 // The model can describe a small set of semantic formatting choices. We build
 // editor JSON ourselves: HTML, links, images, CSS and scripts are never interpreted.
 function inline(text: string, depth = 0): JSONContent[] {
   const out: JSONContent[] = []; let at = 0;
   if (depth >= 3) return text ? [{ type: 'text', text }] : [];
   while (at < text.length) {
-    const star = text.indexOf('*', at), underscore = text.indexOf('_', at);
-    const start = star < 0 ? underscore : underscore < 0 ? star : Math.min(star, underscore);
-    if (start < 0) { out.push({ type: 'text', text: text.slice(at) }); break; }
+    const start = Math.min(...['*', '_', '=='].map(m => text.indexOf(m, at)).map(i => i < 0 ? Infinity : i));
+    if (start === Infinity) { out.push({ type: 'text', text: text.slice(at) }); break; }
     if (start > at) out.push({ type: 'text', text: text.slice(at, start) });
     const char = text[start];
+    // ==text== marks the single most important idea of a section.
+    if (char === '=') {
+      const end = text.indexOf('==', start + 2), body = end >= 0 ? text.slice(start + 2, end) : '';
+      if (end < 0 || !body.trim() || /^[\s=]|[\s=]$/.test(body)) { out.push({ type: 'text', text: '==' }); at = start + 2; continue; }
+      out.push(...inline(body, depth + 1).map(n => ({ ...n, marks: [...(n.marks || []), HIGHLIGHT] })));
+      at = end + 2; continue;
+    }
     // An underscore inside an identifier is literal, not italic Markdown.
     if (char === '_' && start > 0 && /[\p{L}\p{N}]/u.test(text[start - 1])) { out.push({ type: 'text', text: char }); at = start + 1; continue; }
     const marker = text.startsWith(char.repeat(3), start) ? char.repeat(3) : text.startsWith(char.repeat(2), start) ? char.repeat(2) : char, end = text.indexOf(marker, start + marker.length);
@@ -45,9 +56,10 @@ export function parseAiFormatting(answer: string, preserveEdges = false): { cont
     if (!line.trim()) { flush(); continue; }
     const directive = typographyDirective(line);
     if (directive) { flush(); pendingStyle = directive; continue; }
-    const heading = /^(#{1,3})[ \t]+(.+)$/.exec(line);
+    // "##? Title" is a title the model proposes: new words, shown and applied separately.
+    const heading = /^(#{1,3})(\?)?[ \t]+(.+)$/.exec(line);
     const bullet = /^[ \t]*[-+*][ \t]+(.+)$/.exec(line), ordered = /^[ \t]*(\d+)[.)][ \t]+(.+)$/.exec(line);
-    if (heading) { flush(); content.push(styled({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[2]) }, { ...headingTypography(heading[1].length), ...pendingStyle })); pendingStyle = null; }
+    if (heading) { flush(); content.push({ ...styled({ type: 'heading', attrs: { level: heading[1].length }, content: inline(heading[3]) }, { ...headingTypography(heading[1].length), ...pendingStyle }), ...(heading[2] ? { proposed: true } : {}) }); pendingStyle = null; }
     else if (bullet || ordered) {
       flush(); const type = bullet ? 'bulletList' : 'orderedList', last = content.at(-1);
       const item = styled({ type: 'listItem', content: [{ type: 'paragraph', content: inline(bullet ? bullet[1] : ordered![2]) }] }, pendingStyle); pendingStyle = null;

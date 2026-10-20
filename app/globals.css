@@ -36,7 +36,9 @@
 :root[data-theme=dark] .manuscript h2{color:#d5e0d0}
 :root[data-theme=dark] .manuscript em{color:#a8b2a5}
 :root[data-theme=dark] .manuscript a{color:#9cc79f}
-:root[data-theme=dark] .manuscript mark{color:#1e2420}
+.manuscript mark{color:inherit;border-radius:2px;padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+/* Older highlights used an opaque pale green: on dark sheets show them with the translucent amber. */
+:root[data-theme=dark] .manuscript mark:is([data-color="#e0e8b9"],:not([data-color])){background-color:#ffc8004d!important;color:inherit!important}
 :root[data-theme=dark] .manuscript td,:root[data-theme=dark] .manuscript th{border-color:#3a443d}
 :root[data-theme=dark] .manuscript th{background:#252c27}
 :root[data-theme=dark] .manuscript .selectedCell{background:#2c3a2e}
@@ -597,3 +599,47 @@
 .ai-format-preview ul,.ai-format-preview ol{list-style:revert;padding-left:22px;margin:8px 0}
 .ai-format-preview li p{margin:3px 0!important}
 @media(max-width:720px){.ai-selection-actions{padding:9px 12px}.ai-selection-actions span{display:none}}
+/* Formatting proposal: a compact summary instead of the full text. */
+.suggestion-box .ai-format-preview{max-height:300px;overflow:auto}
+.format-summary{display:flex;flex-direction:column;gap:10px;margin:10px 0 4px}
+.format-summary p{margin:0}
+.format-stats{display:flex;flex-wrap:wrap;gap:5px;list-style:none;margin:0;padding:0}
+.format-stats li{font-size:11px;line-height:1.4;padding:3px 8px;border-radius:999px;background:var(--panel-soft);color:var(--panel-strong)}
+.format-summary .format-label{font-size:10px!important;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--panel-muted)!important;margin:0 0 4px!important}
+.format-outline ol{list-style:none;margin:0;padding:0;max-height:220px;overflow:auto;border-left:2px solid var(--panel-line)}
+.format-outline li{display:flex;align-items:baseline;gap:8px;font-size:12px;line-height:1.45;padding:2px 0 2px 8px;color:var(--panel-strong)}
+.format-outline li.level-1{font-weight:700;font-size:13px}
+.format-outline li.level-2{padding-left:16px;font-weight:600}
+.format-outline li.level-3{padding-left:28px}
+.format-outline li.level-0{color:var(--panel-muted)}
+.format-outline-text{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.format-outline-count{flex-shrink:0;font-size:10px;font-weight:400;color:var(--panel-muted)}
+.format-concepts ul{display:flex;flex-wrap:wrap;gap:4px;list-style:none;margin:0;padding:0}
+.format-concepts li{max-width:100%;font-size:11px;font-weight:600;line-height:1.4;padding:2px 7px;border-radius:5px;border:1px solid var(--panel-line);color:var(--panel-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.format-concepts li.key{background:#ffc8004d;border-color:#e0b43a;color:inherit}
+.format-more{align-self:flex-start;margin-top:4px;padding:0;font-size:11px;font-weight:600;color:var(--green)}
+:root[data-theme=dark] .format-more{color:var(--panel-text)}
+.format-summary .format-empty{font-size:12px!important;line-height:1.5!important;color:var(--panel-muted)!important}
+.format-sample{border-top:1px solid var(--panel-line);padding-top:8px}
+.format-sample summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--panel-text)}
+.format-sample .format-batch-navigation{margin-top:6px}
+.ai-format-preview mark{background:#ffc8004d;color:inherit;border-radius:3px;padding:0 2px}
+
+.ai-format-preview.compact{max-height:240px;font-size:13px;line-height:1.6}
+.ai-format-preview.compact h1{font-size:17px}.ai-format-preview.compact h2{font-size:15px}.ai-format-preview.compact h3{font-size:14px}
+/* Page grid: 2 or more A4 pages in rows of at most two (needs CSS column-wrap; otherwise side by side). */
+@supports (column-wrap:wrap){
+.page-grid .paper{position:relative;isolation:isolate}
+.page-grid .manuscript{width:calc(var(--cols,2)*(var(--page-width) + var(--page-gap)) - var(--page-gap));height:auto;min-height:calc(var(--grid-rows,1)*(var(--page-height) + var(--page-gap)) - var(--page-gap));column-count:var(--cols,2);column-height:calc(var(--page-height) - 2*var(--page-margin));column-wrap:wrap;row-gap:calc(2*var(--page-margin) + var(--page-gap));background:none}
+.page-grid .a4-sheets{display:grid;grid-template-columns:repeat(var(--cols,2),var(--page-width));gap:var(--page-gap);align-content:start}
+.page-grid .a4-sheet{margin-bottom:0}
+}
+@media print{.page-grid .manuscript{column-wrap:nowrap;column-height:auto;min-height:0}.page-grid .a4-sheets{display:none!important}}
+/* Titles proposed by the AI: new words, shown apart until accepted. */
+.ai-format-preview .proposed-title{border-left:3px dashed var(--muted);padding-left:8px}
+.proposed-badge{display:inline-block;margin-right:6px;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.3px;vertical-align:middle;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
+.format-outline li.proposed .format-outline-text{font-style:italic}
+.format-outline li.proposed .format-outline-text::before{content:'+ ';color:var(--muted)}
+.format-proposed-toggle{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.4;margin:10px 0;cursor:pointer}
+.format-proposed-toggle input{margin-top:2px;accent-color:var(--green)}
+.format-proposed-toggle small{color:var(--muted)}

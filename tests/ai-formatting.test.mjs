@@ -162,7 +162,7 @@ test('typography accepts only closed font, size and color choices and never arbi
     assert.ok(parseAiFormatting(directive + '\nTesto.').text.includes(directive));
   for (const mode of ['format','complete','rewrite']) {
     const request = assistPrompts({ mode, formatting: true, text: 'Un titolo.' });
-    assert.match(request.system, /Infer genuine titles, subtitles and paragraph breaks from meaning/);
+    assert.match(request.system, /build its outline, then format it/);
     assert.match(request.system, /font=sans\|serif\|mono/);
   }
 });

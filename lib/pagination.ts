@@ -16,13 +16,24 @@ export function currentPageRange(view: EditorView, pos: number) {
     const index = pos >= edges.at(-1)! ? edges.length - 2 : page;
     return { from: edges[index], to: edges[index + 1] };
   }
-  // Side-by-side A4 columns are monotonic by page index, even though each column
-  // starts again at its top margin. Binary search avoids scanning a manuscript.
+  // A4 pages laid out in a grid (at most two per row) are monotonic by page index,
+  // even though each page starts again at its top margin. Binary search avoids
+  // scanning a manuscript. Without wrapping, every page sits in a single row.
   const dom = view.dom, box = dom.getBoundingClientRect(), scale = box.width / dom.offsetWidth || 1;
-  const pageAt = (p: number) => Math.floor(((view.coordsAtPos(p).left - box.left) / scale) / (A4.width + A4.gap));
+  const cols = gridColumns(dom);
+  const pageAt = (p: number) => {
+    const rect = view.coordsAtPos(p), col = Math.floor(((rect.left - box.left) / scale) / (A4.width + A4.gap));
+    return cols ? Math.floor(((rect.top - box.top) / scale) / stride) * cols + Math.min(col, cols - 1) : col;
+  };
   const page = pageAt(pos), end = view.state.doc.content.size;
   const boundary = (target: number) => { let lo = 0, hi = end; while (lo < hi) { const mid = Math.floor((lo + hi) / 2); if (pageAt(mid) < target) lo = mid + 1; else hi = mid; } return lo; };
   return { from: boundary(page), to: boundary(page + 1) };
+}
+
+// Columns per row when the browser wraps A4 columns into rows (CSS column-wrap), else 0.
+export function gridColumns(dom: HTMLElement) {
+  const style = getComputedStyle(dom) as CSSStyleDeclaration & { columnWrap?: string };
+  return style.columnWrap === 'wrap' ? Math.max(1, Number(style.columnCount) || 1) : 0;
 }
 
 // Page spacers are view decorations, never manuscript nodes. Reflow therefore
