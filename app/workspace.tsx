@@ -14,7 +14,7 @@ import { aiPreferencesKey, aiTabAction, DEFAULT_AI_PREFERENCES, readAiPreference
 import { parseAiFormatting, replaceAiFormatting } from '../lib/ai-formatting';
 import { AiFormatPreview } from './ai-format-preview';
 import { AiBatchFormatPreview } from './ai-batch-format-preview';
-import { formatRanges, formatReplacement, type FormatReplacement } from '../lib/format-only';
+import { formatRanges, formatReplacement, sourceHeadings, type FormatReplacement } from '../lib/format-only';
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
 import { assistPrompts, splitWarning } from '../lib/providers';
 import { finalizeUsage, parseUsageEvent, recordTokenUsage, type UsageEvent } from '../lib/token-usage';
@@ -280,18 +280,22 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const original=e.state.doc,rev=revision.current,{ranges,skipped}=formatRanges(original,bounds.from,bounds.to);
     if(!ranges.length){setAiError('Non ci sono paragrafi di testo da formattare in questo ambito.');return;}
     const controller=new AbortController();pending.current=controller;setBusy(true);
-    const parts:FormatReplacement[]=[];
+    const parts:FormatReplacement[]=[],outline:string[]=[];
     try {
       for(let i=0;i<ranges.length;i++) {
         if(controller.signal.aborted||rev!==revision.current)return;
         setFormatProgress(`Sistema formattazione: passaggio ${i+1} di ${ranges.length}. Il testo originale resta invariato fino ad Accetta.`);
-        const range=ranges[i],payload={profile:opts.profile,mode:'format',text:range.text,formatting:true,formatContext:'Preserve wording, links and embedded elements. Infer titles, subtitles, paragraphs, emphasis and coherent typography from meaning. Repair inappropriate font sizes and colors. Choose a consistent typeface; use color only when useful.'};
+        const range=ranges[i],existing=sourceHeadings(original,range),opening=i===0&&(scope!=='document'||range.from<=1);
+        // Each part travels alone: tell the model where it sits and which headings came before, so levels stay coherent.
+        const formatContext=[`Part ${i+1} of ${ranges.length}.`,opening?'This part opens the text: a first standalone line naming it is the # title.':'The main title is earlier: use ## for sections and ### for sub-sections unless a new top-level part starts.','Preserve wording, links and embedded elements. Infer headings, one idea per paragraph and key concepts from meaning. Repair inappropriate font sizes and colors; use color only when useful.',existing.length?'Source headings: '+existing.slice(0,6).join(' | ')+'.':'',outline.length?'Outline so far: '+outline.slice(-8).join(' | ')+'.':''].filter(Boolean).join(' ').slice(0,800);
+        const payload={profile:opts.profile,mode:'format',text:range.text,formatting:true,formatContext};
         const key=AiGovernor.key([payload]);let answer=governor.cached(key);
         if(answer===undefined){const wait=governor.wait(false);if(wait>0)throw new Error(`Il provider richiede una pausa: riprova tra ${Math.ceil(wait/1000)} secondi.`);governor.started();
           const result=await streamAssist(payload,controller.signal);if(result===null)return;answer=result;}
         if(controller.signal.aborted||rev!==revision.current)return;
         const response=splitWarning(answer);if(!response.text.trim())throw new Error(response.warning||'Il modello non ha restituito una formattazione. Riprova.');
-        parts.push(formatReplacement(original,range,response.text));governor.remember(key,answer);
+        const part=formatReplacement(original,range,response.text);parts.push(part);governor.remember(key,answer);
+        for(const node of part.content)if(node.type==='heading')outline.push('#'.repeat(Number(node.attrs?.level)||2)+' '+(node.content||[]).map(c=>c.text||'').join('').slice(0,60));
       }
       if(controller.signal.aborted||rev!==revision.current)return;
       showSuggestion({from:bounds.from,to:bounds.to,text:parts[0].text,content:parts[0].content,replacements:parts,revision:rev,mode:'format',done:true});

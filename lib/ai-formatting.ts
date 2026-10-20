@@ -3,17 +3,25 @@ import { Fragment, Slice } from '@tiptap/pm/model';
 import { TextSelection, type Transaction } from '@tiptap/pm/state';
 import { applyTypography, headingTypography, typographyDirective, type Typography } from './ai-typography.ts';
 
+export const HIGHLIGHT = { type: 'highlight', attrs: { color: '#e0e8b9' } };
+
 // The model can describe a small set of semantic formatting choices. We build
 // editor JSON ourselves: HTML, links, images, CSS and scripts are never interpreted.
 function inline(text: string, depth = 0): JSONContent[] {
   const out: JSONContent[] = []; let at = 0;
   if (depth >= 3) return text ? [{ type: 'text', text }] : [];
   while (at < text.length) {
-    const star = text.indexOf('*', at), underscore = text.indexOf('_', at);
-    const start = star < 0 ? underscore : underscore < 0 ? star : Math.min(star, underscore);
-    if (start < 0) { out.push({ type: 'text', text: text.slice(at) }); break; }
+    const start = Math.min(...['*', '_', '=='].map(m => text.indexOf(m, at)).map(i => i < 0 ? Infinity : i));
+    if (start === Infinity) { out.push({ type: 'text', text: text.slice(at) }); break; }
     if (start > at) out.push({ type: 'text', text: text.slice(at, start) });
     const char = text[start];
+    // ==text== marks the single most important idea of a section.
+    if (char === '=') {
+      const end = text.indexOf('==', start + 2), body = end >= 0 ? text.slice(start + 2, end) : '';
+      if (end < 0 || !body.trim() || /^[\s=]|[\s=]$/.test(body)) { out.push({ type: 'text', text: '==' }); at = start + 2; continue; }
+      out.push(...inline(body, depth + 1).map(n => ({ ...n, marks: [...(n.marks || []), HIGHLIGHT] })));
+      at = end + 2; continue;
+    }
     // An underscore inside an identifier is literal, not italic Markdown.
     if (char === '_' && start > 0 && /[\p{L}\p{N}]/u.test(text[start - 1])) { out.push({ type: 'text', text: char }); at = start + 1; continue; }
     const marker = text.startsWith(char.repeat(3), start) ? char.repeat(3) : text.startsWith(char.repeat(2), start) ? char.repeat(2) : char, end = text.indexOf(marker, start + marker.length);

@@ -1,6 +1,7 @@
 import type { JSONContent } from '@tiptap/core';
 import type { Node } from '@tiptap/pm/model';
 import { parseAiFormatting } from './ai-formatting.ts';
+import { applyTypography, headingTypography } from './ai-typography.ts';
 
 export type FormatRange = { from: number; to: number; text: string };
 export type FormatReplacement = FormatRange & { content: JSONContent[] };
@@ -65,7 +66,7 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
     }
     return result;
   };
-  const content = parsed.content.flatMap(node => restore(node));
+  const content = promoteHeadings(parsed.content, range.from <= 1).flatMap(node => restore(node));
   // Keep the separator where a selected range or page ends inside a paragraph.
   const left = doc.textBetween(Math.max(0, range.from - 1), range.from), right = doc.textBetween(range.to, Math.min(doc.content.size, range.to + 1));
   if (/\S$/.test(left) && /^\s/.test(range.text) && !/^\s/.test(parsed.text) && content[0].type === 'paragraph')
@@ -73,4 +74,61 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
   if (/\S/.test(right) && /\s$/.test(range.text) && !/\s$/.test(parsed.text) && content.at(-1)!.type === 'paragraph')
     content.at(-1)!.content!.push({ type: 'text', text: ' ' });
   return { ...range, content };
+}
+
+const plainText = (node: JSONContent): string => node.type === 'text' ? node.text || '' : (node.content || []).map(plainText).join(node.type === 'listItem' ? '' : ' ');
+const isBold = (node: JSONContent) => node.type === 'text' && !!node.marks?.some(m => m.type === 'bold');
+
+// Models often leave obvious title lines as plain or fully bold paragraphs.
+// A short standalone line without final punctuation that introduces a longer
+// block is promoted to a heading; dialogue, verses and sentences are left alone.
+export function promoteHeadings(content: JSONContent[], documentStart = false): JSONContent[] {
+  const levels = content.filter(n => n.type === 'heading').map(n => Number(n.attrs?.level) || 2);
+  return content.map((node, i) => {
+    if (node.type !== 'paragraph' || !node.content?.length || node.content.some(c => c.type !== 'text')) return node;
+    const text = plainText(node).trim(), next = content[i + 1], nextText = next ? plainText(next).trim() : '';
+    if (!text || text.length > 90 || text.split(/\s+/).length > 12 || !/^[\p{Lu}\p{N}]/u.test(text)) return node;
+    const allBold = node.content.every(c => !c.text?.trim() || isBold(c));
+    const introduces = !!next && ['paragraph', 'bulletList', 'orderedList'].includes(next.type || '') && nextText.length >= Math.max(60, text.length * 2);
+    const titleLike = allBold ? !/[.,;]$/.test(text) && (introduces || !next) : introduces && !/[.,;:!?…"”»)\]]$/.test(text);
+    if (!titleLike) return node;
+    const level = documentStart && i === 0 && !levels.includes(1) ? 1 : /^\d+\.\d+/.test(text) ? 3 : 2;
+    const children = node.content.map(c => ({ ...c, marks: c.marks?.filter(m => m.type !== 'bold') })).map(c => c.marks?.length ? c : { type: 'text', text: c.text });
+    return applyTypography({ type: 'heading', attrs: { level }, content: children }, headingTypography(level));
+  });
+}
+
+// Headings already present in the source, so the model keeps a coherent hierarchy.
+export function sourceHeadings(doc: Node, range: FormatRange) {
+  const found: string[] = [];
+  doc.nodesBetween(range.from, range.to, node => { if (node.type.name === 'heading') found.push('#'.repeat(Number(node.attrs.level) || 2) + ' ' + node.textContent.slice(0, 60)); return node.isBlock && !node.isTextblock; });
+  return found;
+}
+
+export type FormatSummary = {
+  outline: { level: number; text: string; paragraphs: number }[];
+  headings: number; paragraphs: number; lists: number; concepts: string[]; highlights: string[];
+};
+
+// Compact description of a proposal: structure, counts and emphasized concepts,
+// so the side panel stays short even for a whole document.
+export function summarizeFormatting(parts: { content: JSONContent[] }[]): FormatSummary {
+  const summary: FormatSummary = { outline: [], headings: 0, paragraphs: 0, lists: 0, concepts: [], highlights: [] };
+  let intro = 0;
+  const collect = (node: JSONContent) => {
+    if (node.type === 'text') {
+      const text = node.text?.trim(), list = node.marks?.some(m => m.type === 'highlight') ? summary.highlights : node.marks?.some(m => m.type === 'bold') ? summary.concepts : null;
+      if (text && list && !list.includes(text)) list.push(text.length > 80 ? text.slice(0, 77) + '…' : text);
+      return;
+    }
+    node.content?.forEach(collect);
+  };
+  for (const node of parts.flatMap(part => part.content)) {
+    if (node.type === 'heading') { summary.headings++; summary.outline.push({ level: Number(node.attrs?.level) || 2, text: plainText(node).trim(), paragraphs: 0 }); continue; }
+    if (node.type === 'bulletList' || node.type === 'orderedList') summary.lists++;
+    else if (node.type === 'paragraph' && plainText(node).trim()) { summary.paragraphs++; const last = summary.outline.at(-1); if (last) last.paragraphs++; else intro++; }
+    collect(node);
+  }
+  if (intro && summary.outline.length) summary.outline.unshift({ level: 0, text: '', paragraphs: intro });
+  return summary;
 }
