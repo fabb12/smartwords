@@ -476,3 +476,9 @@
 .local-connection pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--soft);padding:10px;border-radius:5px;font-size:11px;user-select:text}
 .local-connection code{font-size:11px;user-select:text}
 .local-connection label{margin:10px 0}
+
+.kb-paste{border:1px solid var(--line);border-radius:9px;padding:14px;margin:12px 0}
+.kb-paste summary{cursor:pointer;font-size:12px;font-weight:600;margin-bottom:12px}
+.kb-paste-input{margin:14px 0}
+.kb-paste-input textarea{min-height:140px}
+.kb-paste-input .form-note{overflow-wrap:anywhere}

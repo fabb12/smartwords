@@ -24,10 +24,12 @@ type Props = {
 };
 export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, onActivate, onSave, onDelete, distill, onClose }: Props) {
   const [selected, setSelected] = useState(activeId || bases[0]?.id || '');
-  const [creating, setCreating] = useState(!bases.length), [form, setForm] = useState({ name: '', author: '', kind: 'personal' as KbKind });
+  const [creating, setCreating] = useState(!bases.length), [form, setForm] = useState({ name: '', author: '', kind: 'personal' as KbKind, text: '' });
+  const [paste, setPaste] = useState({ title: '', text: '' });
   const [busy, setBusy] = useState(''), [error, setError] = useState(''), [message, setMessage] = useState(''), [confirmDelete, setConfirmDelete] = useState(false);
   const pending = useRef<AbortController | null>(null);
   useEffect(() => () => pending.current?.abort(), []);
+  useEffect(() => setPaste({ title: '', text: '' }), [selected]);
   const kb = bases.find(b => b.id === selected) || null;
   const stats = kb ? kbStats(kb) : null;
   // Tokens actually sent per automatic completion with this knowledge base, vs. the whole corpus.
@@ -37,9 +39,42 @@ export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, 
   async function create() {
     if (!form.name.trim()) { setError('Dai un nome alla knowledge base.'); return; }
     if (bases.length >= KB_LIMITS.bases) { setError(`Puoi avere fino a ${KB_LIMITS.bases} knowledge base: eliminane una.`); return; }
-    const next = createKnowledgeBase(form.name, form.author, form.kind);
-    try { await onSave(next); setSelected(next.id); setCreating(false); setForm({ name: '', author: '', kind: 'personal' }); setError(''); setMessage('Knowledge base creata: ora aggiungi i testi.'); }
+    setError(''); setMessage(''); setBusy('Creo la knowledge base…');
+    try {
+      let next = createKnowledgeBase(form.name, form.author, form.kind);
+      if (form.text) next = withPastedText(next, form.name + ' · testo incollato', form.text);
+      await onSave(next); setSelected(next.id); setCreating(false); setForm({ name: '', author: '', kind: 'personal', text: '' });
+      setMessage(next.files.length ? 'Knowledge base creata dal testo incollato. Puoi usarla per le previsioni.' : 'Knowledge base creata: ora aggiungi i testi.');
+    }
     catch (err) { setError((err as Error).message); }
+    finally { setBusy(''); }
+  }
+  function withPastedText(base: KnowledgeBase, title: string, text: string) {
+    if (text.length > KB_LIMITS.fileChars) throw new Error(`Il testo supera ${fmt(KB_LIMITS.fileChars)} caratteri: dividilo in più testi.`);
+    return addKbDocument(base, title.trim() || 'Testo incollato', 'txt', text.replace(/\r\n?/g, '\n'));
+  }
+  async function readClipboard(onText: (text: string) => void) {
+    setError(''); setBusy('Leggo gli appunti…');
+    try {
+      if (!navigator.clipboard?.readText) throw new Error('clipboard');
+      const text = await navigator.clipboard.readText();
+      if (!text.trim()) { setError('Gli appunti non contengono testo. Puoi incollarlo nel campo qui sotto.'); return; }
+      if (text.length > KB_LIMITS.fileChars) { setError(`Il testo supera ${fmt(KB_LIMITS.fileChars)} caratteri: dividilo in più testi.`); return; }
+      onText(text);
+    } catch { setError('Accesso agli appunti non disponibile. Incolla nel campo di testo con Ctrl+V, ⌘V o il comando Incolla del dispositivo.'); }
+    finally { setBusy(''); }
+  }
+  function textInput(text: string, onText: (text: string) => void) {
+    return <div className="kb-paste-input"><label>Testo da incollare<textarea rows={7} value={text} disabled={!!busy} placeholder="Incolla qui un tuo testo o quello dell’autore di riferimento…" onChange={e => onText(e.target.value)} /></label>
+      <button type="button" className="kb-link" disabled={!!busy} onClick={() => void readClipboard(onText)}>Incolla dagli appunti</button>
+      <p className="form-note">{fmt(text.length)} / {fmt(KB_LIMITS.fileChars)} caratteri · almeno 20 parole. Puoi anche incollare direttamente nel campo. Il testo viene elaborato sul dispositivo.</p></div>;
+  }
+  async function addPastedText() {
+    if (!kb) return;
+    setError(''); setMessage(''); setBusy('Aggiungo il testo…');
+    try { await onSave(withPastedText(kb, paste.title, paste.text)); setPaste({ title: '', text: '' }); setMessage('Testo aggiunto. Stile e mentalità aggiornati sul dispositivo.'); }
+    catch (err) { setError((err as Error).message); }
+    finally { setBusy(''); }
   }
   async function addFiles(list: FileList) {
     if (!kb) return; let next = kb; const failed: string[] = []; let added = 0;
@@ -71,17 +106,17 @@ export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, 
   return <div className="modal-backdrop" onClick={close}><section className="modal kb-modal" role="dialog" aria-modal="true" aria-label="Knowledge base" onClick={e => e.stopPropagation()} onKeyDown={e => { if (e.key === 'Escape') { e.stopPropagation(); close(); } }}>
     <button className="modal-close tool" aria-label="Chiudi knowledge base" onClick={close}><X size={20} /></button><span className="modal-icon"><Library size={24} /></span>
     <h2>Knowledge base di stile</h2>
-    <p className="modal-subtitle">Carica testi tuoi o di un autore (PDF, Word, ODT, EPUB, RTF, HTML, Markdown, testo). Scrivia ne estrae stile, mentalità e temi, e le previsioni seguono quella voce.</p>
+    <p className="modal-subtitle">Incolla testi tuoi o di un autore, oppure carica file (PDF, Word, ODT, EPUB, RTF, HTML, Markdown, testo). Scrivia ne estrae stile, mentalità e temi, e le previsioni seguono quella voce.</p>
 
     <div className="kb-list" role="radiogroup" aria-label="Knowledge base attiva">
       <label className={'kb-item' + (!activeId ? ' active' : '')}><input type="radio" name="kb-active" checked={!activeId} onChange={() => onActivate('')} /><span className="kb-item-body"><strong>Nessuna</strong><small>Usa «La mia voce» o la voce d’autore scelta nel progetto</small></span></label>
       {bases.map(b => <div key={b.id} className={'kb-item' + (b.id === activeId ? ' active' : '') + (b.id === selected && !creating ? ' selected' : '')}>
         <input type="radio" name="kb-active" aria-label={'Usa ' + b.name + ' per le previsioni'} checked={b.id === activeId} onChange={() => onActivate(b.id)} />
-        <button type="button" className="kb-item-body" aria-label={'Apri ' + b.name} onClick={() => { setSelected(b.id); setCreating(false); setConfirmDelete(false); }}><strong>{b.name}</strong><small><span className={'kb-kind ' + b.kind}>{b.kind === 'personal' ? 'personale' : 'autore'}</span>{b.author && ' · ' + b.author} · {b.files.length} file · {fmt(b.local.words)} parole</small></button>
+        <button type="button" className="kb-item-body" disabled={!!busy} aria-label={'Apri ' + b.name} onClick={() => { setSelected(b.id); setCreating(false); setConfirmDelete(false); }}><strong>{b.name}</strong><small><span className={'kb-kind ' + b.kind}>{b.kind === 'personal' ? 'personale' : 'autore'}</span>{b.author && ' · ' + b.author} · {b.files.length} {b.files.length === 1 ? 'fonte' : 'fonti'} · {fmt(b.local.words)} parole</small></button>
       </div>)}
     </div>
-    <div className="kb-row-actions"><button className="kb-link" onClick={() => { setCreating(!creating); setError(''); }}>{creating ? 'Annulla' : '+ Nuova knowledge base'}</button>
-      <label className="kb-link kb-file">Importa (.scrivia-kb.json)<input type="file" accept=".json" aria-label="Importa knowledge base" onChange={e => { const f = e.target.files?.[0]; if (f) void importBase(f); e.target.value = ''; }} /></label></div>
+    <div className="kb-row-actions"><button className="kb-link" disabled={!!busy} onClick={() => { setCreating(!creating); setError(''); }}>{creating ? 'Annulla' : '+ Nuova knowledge base'}</button>
+      <label className="kb-link kb-file">Importa (.scrivia-kb.json)<input type="file" accept=".json" disabled={!!busy} aria-label="Importa knowledge base" onChange={e => { const f = e.target.files?.[0]; if (f) void importBase(f); e.target.value = ''; }} /></label></div>
 
     {creating && <div className="kb-create">
       <label>Nome<input value={form.name} maxLength={80} placeholder="Es. I miei racconti, Saggi di Calvino" onChange={e => setForm({ ...form, name: e.target.value })} /></label>
@@ -90,7 +125,9 @@ export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, 
         <button role="radio" aria-checked={form.kind === 'personal'} className={form.kind === 'personal' ? 'active' : ''} onClick={() => setForm({ ...form, kind: 'personal' })}>Personale · i miei testi</button>
         <button role="radio" aria-checked={form.kind === 'author'} className={form.kind === 'author' ? 'active' : ''} onClick={() => setForm({ ...form, kind: 'author' })}>Autore · testi di altri</button>
       </div>
-      <button className="primary" onClick={() => void create()}>Crea knowledge base</button>
+      <p className="form-note">Per creare subito una knowledge base dai tuoi appunti, incolla il testo qui sotto. Puoi anche lasciare il campo vuoto e aggiungere file in seguito.</p>
+      {textInput(form.text, text => setForm(current => ({ ...current, text })))}
+      <button className="primary" disabled={!!busy} onClick={() => void create()}>{form.text ? 'Crea knowledge base dal testo' : 'Crea knowledge base'}</button>
     </div>}
 
     {kb && !creating && <div className="kb-detail">
@@ -98,11 +135,16 @@ export function KnowledgeBaseModal({ bases, activeId, ready, error: storeError, 
       <label className={'kb-upload' + (busy ? ' disabled' : '')}><FileUp size={18} /><span><strong>{busy || 'Aggiungi file'}</strong><small>Anche più file insieme · fino a {KB_MAX_FILE / 1_000_000} MB ciascuno · elaborati sul dispositivo</small></span>
         <input type="file" multiple accept={KB_ACCEPT} disabled={!!busy} aria-label="Aggiungi file alla knowledge base" onChange={e => { if (e.target.files?.length) void addFiles(e.target.files); e.target.value = ''; }} /></label>
       {kb.kind === 'author' && <p className="form-note">Usa testi che possiedi o di libero uso. Le proposte evocano stile e mentalità senza copiare frasi dei testi caricati.</p>}
+      <details className="kb-paste"><summary>Incolla un testo in questa knowledge base</summary>
+        <label>Titolo del testo (facoltativo)<input maxLength={150} value={paste.title} disabled={!!busy} placeholder="Es. Capitolo iniziale" onChange={e => setPaste({ ...paste, title: e.target.value })} /></label>
+        {textInput(paste.text, text => setPaste(current => ({ ...current, text })))}
+        <button className="primary" disabled={!!busy || !paste.text.trim()} onClick={() => void addPastedText()}>Aggiungi testo alla knowledge base</button>
+      </details>
 
-      {stats && <div className="mini-stats kb-stats"><span><strong>{stats.files}</strong> file</span><span><strong>{fmt(stats.words)}</strong> parole</span><span><strong>{fmt(stats.chunks)}</strong> blocchi</span></div>}
+      {stats && <div className="mini-stats kb-stats"><span><strong>{stats.files}</strong> {stats.files === 1 ? 'fonte' : 'fonti'}</span><span><strong>{fmt(stats.words)}</strong> parole</span><span><strong>{fmt(stats.chunks)}</strong> blocchi</span></div>}
       {!!kb.chunks.length && <p className="form-note kb-tokens"><strong>Ottimizzazione token:</strong> il corpus vale circa {fmt(stats!.corpusTokens)} token; a ogni previsione ne vengono inviati circa {fmt(perRequest)} (profilo compatto + 2–3 passaggi pertinenti scelti sul dispositivo con ricerca BM25).</p>}
 
-      {!!kb.files.length && <details><summary>File ({kb.files.length})</summary>{kb.files.map(f => <div className="writing-memory-source" key={f.id}><div><strong>{f.name}</strong><small>{f.format.toUpperCase()} · {fmt(f.words)} parole</small></div><button disabled={!!busy} aria-label={'Rimuovi ' + f.name} onClick={() => void onSave(removeKbFile(kb, f.id)).catch(err => setError((err as Error).message))}>Rimuovi</button></div>)}</details>}
+      {!!kb.files.length && <details><summary>Fonti ({kb.files.length})</summary>{kb.files.map(f => <div className="writing-memory-source" key={f.id}><div><strong>{f.name}</strong><small>{f.format.toUpperCase()} · {fmt(f.words)} parole</small></div><button disabled={!!busy} aria-label={'Rimuovi ' + f.name} onClick={() => void onSave(removeKbFile(kb, f.id)).catch(err => setError((err as Error).message))}>Rimuovi</button></div>)}</details>}
 
       {kb.local.words > 0 && <dl className="writing-memory-traits">
         {kb.local.style && <div><dt>Stile</dt><dd>{kb.local.style}{!kb.local.reliable && ' (provvisorio)'}</dd></div>}
