@@ -39,7 +39,19 @@
         "content": [
           {
             "type": "text",
-            "text": "Questo cosa comporta per noi, per il modo in cui pensiamo e agiamo nel presente? Forse significa che ogni decisione, ogni giudizio che formuliamo, porta con sé il peso di tutte le volte in cui abbiamo pensato in quel modo, finché non riusciamo più a distinguere tra ciò che scegliamo e ciò che semplicemente ripetiamo. La rigidità, allora, non arriva all'improvviso: si deposita lentamente, come la polvere sugli oggetti di una casa abbandonata, finché non ci accorgiamo che è diventata parte del paesaggio stesso."
+            "text": "Questo cosa comporta per noi, per il modo in cui pensiamo e agiamo nel presente? Forse significa che ogni decisione, ogni giudizio che formuliamo, porta con sé il peso di tutte le volte in cui abbiamo pensato in quel modo, finché non riusciamo più a distinguere tra ciò che scegliamo e ciò che semplicemente ripetiamo."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "La rigidità, allora, non arriva all'improvviso: si deposita lentamente, come la polvere sugli oggetti di una casa abbandonata, finché non ci accorgiamo che è diventata parte del paesaggio stesso. "
           }
         ]
       }
@@ -76,5 +88,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792587149294
+  "updated": 1792596522315
 }
