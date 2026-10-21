@@ -1,0 +1,80 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "4e74eeff-66d1-42c8-a234-4e3a03e71f46",
+  "title": "Senza titolo",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "textAlign": null,
+          "level": 1
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "La rigidità di pensiero"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Un aspetto  interessante da studiare è come la capacità del cervello nel tempo si trasformi, accumulando esperienze come strati di sedimento in un fiume che scorre sempre uguale eppure mai identico a se stesso. Il punto è capire come faccia ad irrigidirsi nel pensiero, come cioè quella stessa fluidità che lo caratterizza finisca per cristallizzarsi in abitudini e pregiudizi, trasformando la plasticità in rigidità. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Questo cosa comporta per noi, per il modo in cui pensiamo e agiamo nel presente? Forse significa che ogni decisione, ogni giudizio che formuliamo, porta con sé il peso di tutte le volte in cui abbiamo pensato in quel modo, finché non riusciamo più a distinguere tra ciò che scegliamo e ciò che semplicemente ripetiamo. La rigidità, allora, non arriva all'improvviso: si deposita lentamente, come la polvere sugli oggetti di una casa abbandonata, finché non ci accorgiamo che è diventata parte del paesaggio stesso."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "buzzati",
+          "weight": 50
+        },
+        {
+          "id": "pavese",
+          "weight": 50
+        },
+        {
+          "id": "marquez",
+          "weight": 50
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792587149294
+}
