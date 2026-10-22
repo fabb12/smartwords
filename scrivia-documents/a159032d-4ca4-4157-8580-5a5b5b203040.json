@@ -701,7 +701,25 @@
           },
           {
             "type": "text",
-            "text": ". L'arte, dal canto suo, rivendica libertà dalla norma, territorio dell'intuizione e dell'eccezione. Due linguaggi che per secoli erano stati uno solo cominciano a parlarsi in modo diffidente, quasi stranieri."
+            "text": ". L'arte, dal canto suo, rivendica libertà dalla norma, territorio dell'intuizione e dell'eccezione. Due linguaggi che per secoli erano stati uno solo cominciano a parlarsi in modo diffidente, quasi stranieri. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Quando è avvenuta questa scissione?"
           }
         ]
       },
@@ -713,9 +731,28 @@
         "content": [
           {
             "type": "text",
-            "text": "Ma l'intreccio non è mai veramente cessato. Accade quando un astronomo traccia il cielo e un poeta legge in quelle costellazioni il proprio destino. Accade quando uno scienziato rimane senza fiato di fronte a una formula che è bella, semplicemente bella. Accade quando un artista scopre che i vincoli della materia, anziché limitarlo, gli insegnano qualcosa che la libertà da sola non avrebbe mai rivelato."
+            "text": "Nel "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Settecento"
+          },
+          {
+            "type": "text",
+            "text": ", più o meno, anche se le date esatte contano meno del processo: è un'erosione lenta, non una frattura netta, come quando una lingua perde una parola senza che nessuno si accorga del momento esatto in cui smette di essere usata. Iniziamo con la specializzazione: il naturalista che non dipinge più, il pittore che non misura più, ciascuno convinto che la propria metà del mondo sia la più vera."
           }
         ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
       },
       {
         "type": "paragraph",
@@ -725,7 +762,33 @@
         "content": [
           {
             "type": "text",
-            "text": "Forse non esiste un momento preciso. Piuttosto un'oscillazione costante, come un pendolo che la storia fa oscillare ora verso la separazione, ora verso la ricongiunzione."
+            "text": "Il primo autore è "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Leonardo"
+          },
+          {
+            "type": "text",
+            "text": ". Lui incarnava ancora quella unità intatta: osservava, misurava, immaginava, e non sentiva il bisogno di scegliere tra le due metà del mondo. Prima ancora che esistesse la parola "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "scienziato"
+          },
+          {
+            "type": "text",
+            "text": ", lui era già tutto: anatomista, ingegnere, pittore, e nessuna di queste cose separatamente."
           }
         ]
       }
@@ -766,5 +829,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792655344865
+  "updated": 1792658017973
 }
