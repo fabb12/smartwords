@@ -2,7 +2,7 @@
   "format": "scrivia-document",
   "version": 1,
   "id": "a159032d-4ca4-4157-8580-5a5b5b203040",
-  "title": "Benvenuto in Scrivia",
+  "title": "arte e scienza",
   "content": {
     "type": "doc",
     "content": [
@@ -766,5 +766,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792655321978
+  "updated": 1792655344865
 }
