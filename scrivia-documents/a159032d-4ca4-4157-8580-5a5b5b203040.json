@@ -7,25 +7,124 @@
     "type": "doc",
     "content": [
       {
-        "type": "paragraph",
+        "type": "heading",
         "attrs": {
-          "textAlign": null
+          "textAlign": null,
+          "level": 1
         },
         "content": [
           {
             "type": "text",
-            "text": "arte e scienza "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "ARTE"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "E"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "SCIENZA"
           }
         ]
       },
       {
-        "type": "paragraph",
+        "type": "heading",
         "attrs": {
-          "textAlign": null
+          "textAlign": null,
+          "level": 3
         },
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "22px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Quando arte e scienza iniziano a intrecciarsi?"
           }
         ]
@@ -38,7 +137,533 @@
         "content": [
           {
             "type": "text",
-            "text": "Forse la domanda andrebbe rovesciata. Non è che a un certo punto due discipline separate decidono di incontrarsi: è piuttosto che la loro distinzione è un'abitudine moderna, relativamente recente. Per millenni, chi osservava il mondo, chi lo misurava, chi lo rappresentava, faceva tutto insieme. L'architetto calcolava e immaginava. Il pittore studiava l'anatomia. L'orefice comprendeva le proprietà dei metalli mentre creava forme che incantavano."
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Forse la domanda andrebbe rovesciata. Non è che a un certo punto due discipline separate decidono di incontrarsi: è piuttosto che "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "la"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "loro"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " distinzione è un'abitudine moderna, relativamente recente."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Per millenni, "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "chi"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "osservava"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "il"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "mondo,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "chi"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "lo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "misurava,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "chi"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "lo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "rappresentava,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "faceva"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "tutto"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " insieme. L'architetto calcolava e immaginava. Il pittore studiava l'anatomia. L'orefice comprendeva le proprietà dei metalli mentre creava forme che incantavano."
           }
         ]
       },
@@ -141,5 +766,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792654305329
+  "updated": 1792655321978
 }
