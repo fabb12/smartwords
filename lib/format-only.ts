@@ -1,5 +1,6 @@
 import type { JSONContent } from '@tiptap/core';
 import type { Node } from '@tiptap/pm/model';
+import { parseFormatPlan } from './format-plan.ts';
 import { parseAiFormatting } from './ai-formatting.ts';
 import { applyTypography, headingTypography } from './ai-typography.ts';
 
@@ -39,7 +40,14 @@ export function formatRanges(doc: Node, from: number, to: number, limit = 6000) 
 const words = (text: string) => (text.match(/[\p{L}\p{M}\p{N}]+|[^\s]/gu) || []).join('\u0000');
 
 export function formatReplacement(doc: Node, range: FormatRange, answer: string): FormatReplacement {
-  const parsed = parseAiFormatting(answer);
+  return restoreFormatting(doc, range, parseAiFormatting(answer));
+}
+
+export function formatPlanReplacement(doc: Node, range: FormatRange, answer: string): FormatReplacement {
+  return restoreFormatting(doc, range, { content: parseFormatPlan(range.text, answer), text: range.text }, false);
+}
+
+function restoreFormatting(doc: Node, range: FormatRange, parsed: {content: JSONContent[]; text: string}, promote = true): FormatReplacement {
   // Proposed titles are the only words the model may add; everything else must match.
   const kept = parsed.content.filter(node => !node.proposed).map(node => plainText(node)).join('\n\n');
   if (!parsed.content.some(node => !node.proposed) || words(kept) !== words(range.text))
@@ -69,7 +77,7 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
     }
     return result;
   };
-  const content = promoteHeadings(parsed.content, range.from <= 1).flatMap(node => restore(node)).map(headingCase);
+  const content = (promote ? promoteHeadings(parsed.content, range.from <= 1) : parsed.content).flatMap(node => restore(node)).map(headingCase);
   // Keep the separator where a selected range or page ends inside a paragraph.
   const left = doc.textBetween(Math.max(0, range.from - 1), range.from), right = doc.textBetween(range.to, Math.min(doc.content.size, range.to + 1));
   if (/\S$/.test(left) && /^\s/.test(range.text) && !/^\s/.test(parsed.text) && content[0].type === 'paragraph')
@@ -101,7 +109,7 @@ export function withProposedTitles(content: JSONContent[], include: boolean): JS
   return content.filter(node => include || !node.proposed).map(node => { if (!node.proposed) return node; const rest = { ...node }; delete rest.proposed; return rest; });
 }
 
-const plainText = (node: JSONContent): string => node.type === 'text' ? node.text || '' : (node.content || []).map(plainText).join(node.type === 'listItem' ? '' : ' ');
+const plainText = (node: JSONContent): string => node.type === 'hardBreak' ? '\n' : node.type === 'text' ? node.text || '' : (node.content || []).map(plainText).join(['bulletList','orderedList','listItem'].includes(node.type || '') ? '\n' : '');
 const isBold = (node: JSONContent) => node.type === 'text' && !!node.marks?.some(m => m.type === 'bold');
 
 // Models often leave obvious title lines as plain or fully bold paragraphs.

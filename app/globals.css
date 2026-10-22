@@ -670,3 +670,5 @@
 .format-proposed-toggle{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.4;margin:10px 0;cursor:pointer}
 .format-proposed-toggle input{margin-top:2px;accent-color:var(--green)}
 .format-proposed-toggle small{color:var(--muted)}
+
+.keyboard-shortcuts{display:grid;gap:10px;font-size:12px}.keyboard-shortcuts>div{display:grid;grid-template-columns:minmax(130px,1fr) 2fr;gap:12px;align-items:center}.keyboard-shortcuts dd{margin:0}.keyboard-shortcuts kbd{font:inherit;font-weight:600}.keyboard-shortcuts+p{font-size:12px;color:var(--muted)}

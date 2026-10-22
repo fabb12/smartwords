@@ -1,3 +1,4 @@
+import { FORMAT_PLAN_INSTRUCTION, formatTokens } from './format-plan.ts';
 import { PERSONAL_VOICE_MODES } from './writing-memory.ts';
 import { KB_MODES } from './knowledge-base.ts';
 import { tokenCount, type ProviderUsage } from './token-usage.ts';
@@ -116,6 +117,10 @@ const INSTRUCTIONS: Record<string, string> = {
   ask: 'The writer asks a question about their own manuscript (in text). Answer using only manuscriptPassages, storyMemory and project. After each claim cite the supporting passages with their ids in square brackets, e.g. [P3] or [P3, P7]. If the manuscript does not contain the answer, say so plainly. Be concise (at most about 180 words), answer in the language of the question, and give advice only if asked: never rewrite the manuscript.',
 };
 export function assistPrompts(b: Record<string, unknown>) {
+  if (b.mode === 'format' && b.formatPlan === true) {
+    const text = field(b.text, 10000);
+    return { system: FORMAT_PLAN_INSTRUCTION, prompt: JSON.stringify({ text, tokens: formatTokens(text).map((token, i) => [i, token]), context: field(b.formatContext, 800) }), maxTokens: Math.max(1024, Math.ceil(text.length / 2) + 1024) };
+  }
   const mode = typeof b.mode === 'string' && INSTRUCTIONS[b.mode] ? b.mode : 'rewrite';
   const tone = typeof b.tone === 'string' && ['Naturale','Professionale','Creativo'].includes(b.tone) ? b.tone : 'Naturale';
   const plain = !JSON_MODES.includes(mode);
