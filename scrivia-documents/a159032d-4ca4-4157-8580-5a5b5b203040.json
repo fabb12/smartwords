@@ -1,0 +1,145 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "a159032d-4ca4-4157-8580-5a5b5b203040",
+  "title": "Benvenuto in Scrivia",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "arte e scienza "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Quando arte e scienza iniziano a intrecciarsi?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Forse la domanda andrebbe rovesciata. Non è che a un certo punto due discipline separate decidono di incontrarsi: è piuttosto che la loro distinzione è un'abitudine moderna, relativamente recente. Per millenni, chi osservava il mondo, chi lo misurava, chi lo rappresentava, faceva tutto insieme. L'architetto calcolava e immaginava. Il pittore studiava l'anatomia. L'orefice comprendeva le proprietà dei metalli mentre creava forme che incantavano."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "La scissione vera avviene più tardi, quando la scienza pretende il rigore, il metodo, la riproducibilità: quando smette di essere "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "meraviglia"
+          },
+          {
+            "type": "text",
+            "text": " e diventa "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "procedura"
+          },
+          {
+            "type": "text",
+            "text": ". L'arte, dal canto suo, rivendica libertà dalla norma, territorio dell'intuizione e dell'eccezione. Due linguaggi che per secoli erano stati uno solo cominciano a parlarsi in modo diffidente, quasi stranieri."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Ma l'intreccio non è mai veramente cessato. Accade quando un astronomo traccia il cielo e un poeta legge in quelle costellazioni il proprio destino. Accade quando uno scienziato rimane senza fiato di fronte a una formula che è bella, semplicemente bella. Accade quando un artista scopre che i vincoli della materia, anziché limitarlo, gli insegnano qualcosa che la libertà da sola non avrebbe mai rivelato."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Forse non esiste un momento preciso. Piuttosto un'oscillazione costante, come un pendolo che la storia fa oscillare ora verso la separazione, ora verso la ricongiunzione."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "baricco",
+          "weight": 50
+        },
+        {
+          "id": "eco",
+          "weight": 50
+        },
+        {
+          "id": "levi",
+          "weight": 64
+        },
+        {
+          "id": "rovelli",
+          "weight": 50
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792654305329
+}
