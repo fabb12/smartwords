@@ -159,3 +159,61 @@ test('proposed titles are the only words the model may add, and can be left out 
   // Unmarked new words are still rejected.
   assert.throws(() => formatReplacement(doc, range, '## Il metodo\n\n' + body + '\n\n' + body), /cambiato parole/);
 });
+
+test('format-only handles inline marks inside a word and hard breaks without inventing separators', () => {
+  const doc = schema.node('doc', null, [p('Riformattare\nil testo.')]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const result = formatReplacement(doc, range, 'Ri**formatta**re\nil testo.');
+  assert.ok(result.content.length);
+});
+
+test('indexed AI plans format even a two-word title using original text and linked marks', async () => {
+  const { formatPlanReplacement } = await import('../lib/format-only.ts');
+  const doc = schema.node('doc', null, [schema.node('paragraph', null, schema.text('Il viaggio', [schema.mark('link', {href:'https://example.com'})]))]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatPlanReplacement(doc, range, JSON.stringify({blocks:[{end:2,role:'title',text:'Parole inventate!'}]}));
+  const tr = replaceAiFormatting(EditorState.create({schema,doc}).tr, part.from, part.to, part.content, false);
+  assert.equal(tr.doc.firstChild.type.name,'heading');assert.equal(tr.doc.textContent,'IL VIAGGIO');
+  tr.doc.firstChild.forEach(n=>{assert.equal(n.marks.find(m=>m.type.name==='link').attrs.href,'https://example.com');assert.equal(n.marks.find(m=>m.type.name==='textStyle').attrs.fontSize,'38px');});
+});
+
+test('indexed AI formatting preserves punctuation, misspellings and literal Markdown while assigning hierarchy', async () => {
+  const { formatPlanReplacement } = await import('../lib/format-only.ts');
+  const text='Titolo breve\nUna sotto-sezione\nÈ “ortograffico”, non **corretto**: 3,14!';
+  const doc=schema.node('doc',null,[p(text)]),range=formatRanges(doc,0,doc.content.size).ranges[0];
+  const part=formatPlanReplacement(doc,range,JSON.stringify({blocks:[{end:2,role:'title'},{end:4,role:'subtitle'},{end:9,role:'paragraph',bold:[[5,6]],italic:[[7,8]],style:'font=serif color=blue'}]}));
+  const tr=replaceAiFormatting(EditorState.create({schema,doc}).tr,part.from,part.to,part.content,false);
+  assert.deepEqual(lower(tr.doc.textBetween(0,tr.doc.content.size,"\n\n")),lower(text));
+  assert.deepEqual(tr.doc.content.content.map(n=>n.type.name),['heading','heading','paragraph']);
+  assert.equal(tr.doc.child(1).attrs.level,2);
+  assert.equal(tr.doc.lastChild.textContent,'È “ortograffico”, non **corretto**: 3,14!');
+  assert.ok(tr.doc.lastChild.content.content.some(n=>n.marks.some(m=>m.type.name==='bold')));
+});
+
+test('invalid or truncated indexed formatting cannot delete, reorder or repeat source tokens', async () => {
+  const { parseFormatPlan } = await import('../lib/format-plan.ts');
+  for(const blocks of [[],[{end:1,role:'title'}],[{end:3,role:'title'}],[{end:2,role:'paragraph'},{end:1,role:'title'}],[{end:2,role:'unknown'}],[{end:2,role:'paragraph',bold:[[-1,2]]}]]) {
+    assert.throws(()=>parseFormatPlan('Due parole',JSON.stringify({blocks})),/struttura.*incompleta/);
+  }
+  assert.throws(()=>parseFormatPlan('Due parole','{"blocks":['),/incompleta/);
+});
+
+test('format plans request semantic structure for short text instead of rewriting source prose', () => {
+  const {system,prompt}=assistPrompts({mode:'format',formatPlan:true,text:'Breve titolo',formatContext:'Existing chapter'});
+  assert.match(system,/including very short input/);assert.match(system,/never rewritten text/);
+  assert.deepEqual(JSON.parse(prompt).tokens,[[0,'Breve'],[1,'titolo']]);assert.equal(JSON.parse(prompt).context,'Existing chapter');
+});
+
+test('an explicit paragraph plan remains prose and optional new titles stay removable', async () => {
+  const { formatPlanReplacement } = await import('../lib/format-only.ts');
+  const doc=schema.node('doc',null,[p('Un concetto')]),range=formatRanges(doc,0,doc.content.size).ranges[0];
+  const part=formatPlanReplacement(doc,range,JSON.stringify({blocks:[{end:2,role:'paragraph',bold:[[0,2]],proposedTitle:'Una nuova sezione',proposedLevel:2}]}));
+  assert.equal(part.content[1].type,'paragraph');assert.equal(part.content[0].proposed,true);
+  assert.deepEqual(withProposedTitles(part.content,false).map(n=>n.type),['paragraph']);
+});
+
+test('indexed plans keep genuine lists as semantic list nodes', async()=>{
+ const {parseFormatPlan}=await import('../lib/format-plan.ts');
+ const content=parseFormatPlan('Prima voce Seconda voce',JSON.stringify({blocks:[{end:2,role:'bullet'},{end:4,role:'bullet'}]}));
+ assert.equal(content[0].type,'bulletList');assert.equal(content[0].content.length,2);
+});
