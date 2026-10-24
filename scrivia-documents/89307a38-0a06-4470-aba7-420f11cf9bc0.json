@@ -21,7 +21,7 @@
                 "attrs": {
                   "backgroundColor": null,
                   "color": null,
-                  "fontFamily": null,
+                  "fontFamily": "Georgia",
                   "fontSize": "38px",
                   "lineHeight": null
                 }
@@ -39,33 +39,2123 @@
         "content": [
           {
             "type": "text",
-            "text": "Ciò che conta non è soltanto il risultato che otteniamo, ma "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Ciò che conta non è soltanto il risultato che otteniamo, ma il "
           },
           {
             "type": "text",
             "marks": [
               {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
                 "type": "bold"
               }
             ],
-            "text": "il cammino"
-          },
-          {
-            "type": "text",
-            "text": " che lo rende davvero nostro, come una mano che impara a scrivere solo scrivendo. Con l'AI il rischio è saltare quel cammino: dovremmo usarla per affinare ciò che facciamo, non per farlo al posto nostro. Ma non è facile distinguere quello che è nostra vera volontà da quello che non lo è, perché il confine si sposta ogni volta che una risposta pronta ci sembra già una nostra idea. Forse la domanda onesta da farci è un'altra: sarei in grado di arrivarci da solo, anche più lentamente, a ciò che ho appena accettato? Se la risposta è no, forse non ho ancora scelto nulla: ho solo "
+            "text": "cammino"
           },
           {
             "type": "text",
             "marks": [
               {
-                "type": "bold"
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
               }
             ],
-            "text": "approvato"
+            "text": " che lo rende davvero nostro, "
           },
           {
             "type": "text",
-            "text": " qualcosa che mi è stato consegnato. Per questo il processo non è una fatica da espiare, ma la prova che dietro una decisione c'è qualcuno che l'ha davvero attraversata. Ed è proprio nel tratto che saremmo tentati di saltare che una scelta smette di essere un'approvazione e comincia a essere nostra, perché è lì che riconosciamo la nostra mano in ciò che resta. "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "come una mano che impara a scrivere solo scrivendo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ". Con l'AI il rischio è saltare quel cammino: dovremmo usarla per affinare ciò che facciamo, non per farlo al posto nostro."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Ma non è facile distinguere quello che è nostra vera volontà da quello che non lo è, perché il confine si sposta ogni volta che una risposta pronta ci sembra già una nostra idea."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Forse la domanda onesta da farci è un'altra: sarei in grado di arrivarci da solo, anche più lentamente, a ciò che ho appena accettato? "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "Se la risposta è no, forse non ho ancora scelto nulla"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ": ho solo approvato qualcosa che mi è stato consegnato.Per questo il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "processo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " non è una fatica da espiare, ma la prova che dietro una decisione c'è qualcuno che l'ha davvero attraversata. Ed è proprio nel tratto che saremmo tentati di saltare che una scelta smette di essere un'approvazione e comincia a essere nostra, perché è lì che riconosciamo la nostra mano in ciò che resta. "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "L'elaborazione"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " che ci permette di arrivare a uno scopo è quella attività che ci ha permesso di evolverci, di diventare capaci di ciò che prima potevamo soltanto desiderare. "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Cosa"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "succede"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "se"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "questo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "viene"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "meno?"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " Cosa succede se, data una nostra richiesta, otteniamo già il risultato finale? "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "Perdiamo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "il"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "tratto"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "in"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "cui"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "la"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "capacità"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "si"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "forma,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "e"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "con"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "esso"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "la"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "possibilità"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "di"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "riconoscerci"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "in"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "ciò"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "che"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "abbiamo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "davanti."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Saremo mai stati in grado di scoprire il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "fuoco"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " se non fossimo passati per tentativi falliti, scintille mancate, mani scottate e pazienza ostinata? Nessuno ha ricevuto la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "fiamma"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " già accesa: l'ha dovuta cercare, e proprio cercandola ha imparato a riconoscerla. Se consideriamo questo, l'angoscia del futuro ci assale: perché temiamo un mondo in cui la fiamma arrivi già accesa nelle nostre mani, e noi non sappiamo più né come si accenda né come si custodisca. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "In realtà questo è semplicemente un aspetto, e direi anche "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "l'aspetto"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "più"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "superficiale,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " che ci appare del problema: la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "paura"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "di"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "perdere"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " un'abilità, quando ciò che "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "rischiamo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "davvero"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "di"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "perdere"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "è"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "il"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "modo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "in"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "cui,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "attraverso"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "quell'abilità,"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "imparavamo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "a"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "conoscerci."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Qua il punto di svolta. L'abilità di conoscere questa nuova tecnologia ci permette di essere noi a guidarla, invece di farci guidare: sapere cosa può darci, e soprattutto cosa non deve toglierci, è già un modo di restare padroni del cammino. Usata così, l'AI diventa come un compagno di strada che regge la lanterna, mentre i passi restano i nostri. Mantenendo noi le redini delle nostre intenzioni e soprattutto conservando i processi di elaborazione, possiamo lasciare che la macchina illumini la strada senza decidere dove andare. Il resto, la fatica di arrivarci e il piacere di riconoscersi alla fine del tragitto, resta nostro."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Come fare tutto ciò? Cominciando da un gesto piccolo: prima di chiedere qualcosa alla macchina, fermarsi a scrivere con parole nostre ciò che vogliamo davvero ottenere, anche solo in due righe. Poi, a risposta ricevuta, tornare indietro e domandarci quale tratto di strada abbiamo percorso noi. "
           }
         ]
       }
@@ -79,14 +2169,32 @@
       "notes": ""
     },
     "voice": {
-      "id": "mine",
+      "id": "mix",
       "intensity": "medium",
-      "custom": ""
+      "custom": "",
+      "blend": [
+        {
+          "id": "calvino",
+          "weight": 50
+        },
+        {
+          "id": "pavese",
+          "weight": 50
+        },
+        {
+          "id": "baricco",
+          "weight": 50
+        },
+        {
+          "id": "carrere",
+          "weight": 50
+        }
+      ]
     },
     "facts": [],
     "analysed": {},
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792861376970
+  "updated": 1792862281399
 }
