@@ -2,7 +2,7 @@
   "name": "scrivia-desktop",
   "productName": "Scrivia",
   "version": "0.1.0",
-  "description": "Scrivia AI — editor di scrittura con suggerimenti intelligenti, versione desktop.",
+  "description": "Scrivia — Argument writing: editor di scrittura argomentativa con suggerimenti AI e Studio LaTeX, versione desktop.",
   "author": "fabb12",
   "license": "UNLICENSED",
   "private": true,

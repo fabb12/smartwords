@@ -80,7 +80,7 @@ jobs:
           overwrite_files: true
           files: installers/*
           body: |
-            App desktop di Scrivia AI.
+            App desktop di Scrivia — Argument writing.
 
             - **Windows**: `Scrivia-Setup.exe`
             - **macOS**: `Scrivia.dmg` (app non firmata: la prima volta clic destro sull’app → Apri)

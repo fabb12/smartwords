@@ -1,0 +1,20 @@
+% =============================================================================
+% Retrocopertina
+% =============================================================================
+\pagestyle{empty}
+\cleardoublepage
+\begin{tikzpicture}[remember picture,overlay]
+	\fill[modernblack] (current page.south west) rectangle (current page.north east);
+	\node[anchor=north, text width=0.8\textwidth, align=center]
+	at ([yshift=-2cm] current page.north) {%
+		\color{white}
+		{\sffamily\Large\textit{``La tesi del libro, in una frase.''}}\\[0.8em]
+		{\sffamily\normalsize\textls[50]{\MakeUppercase{\authorname}}}
+	};
+	\node[anchor=center, text width=0.8\textwidth, align=justify]
+	at (current page.center) {%
+		\sffamily\small\color{white}
+		Il problema, la tesi e i tre argomenti principali in poche righe:
+		la quarta di copertina è un piccolo testo argomentativo.
+	};
+\end{tikzpicture}

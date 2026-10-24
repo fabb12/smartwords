@@ -1,0 +1,393 @@
+% =============================================================================
+% Modern Professional Book Style Package
+% Updated with Source Serif Pro and contemporary design
+% Modello di Scrivia — Argument writing (stile derivato da libro-futuro)
+% =============================================================================
+
+% Font encoding first
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+% Microtype for superior typography
+\usepackage[
+activate={true,nocompatibility},
+final,
+tracking=true,
+kerning=true,
+spacing=true,
+factor=1100,
+stretch=10,
+shrink=10
+]{microtype}
+
+% LANGUAGE SETTINGS ------------------------------------------------------
+\usepackage[english,italian]{babel}
+\addto\captionsitalian{%
+	\renewcommand{\contentsname}{Indice}
+	\renewcommand{\chaptername}{Capitolo}
+}
+
+% MODERN FONT SETUP - Source Serif Pro -----------------------------------
+\usepackage[default,semibold]{sourceserifpro}
+\usepackage{sourcesanspro}  % For headers and display text
+\usepackage{sourcecodepro}  % For any code snippets
+
+% Optimal line spacing for Source Serif
+\linespread{1.18}
+
+% TYPOGRAPHY ENHANCEMENTS ------------------------------------------------
+\usepackage{lettrine}   % Drop caps
+\usepackage{graphicx}   
+\usepackage{xcolor}
+\usepackage{tcolorbox} % Per creare riquadri personalizzabili
+\tcbuselibrary{skins, breakable} % Librerie aggiuntive per i riquadri
+
+% Modern color palette
+\definecolor{modernblack}{RGB}{25, 25, 25}      % Softer than pure black
+\definecolor{modernred}{RGB}{215, 38, 61}       % Contemporary accent
+\definecolor{moderngray}{RGB}{110, 110, 110}    % For secondary elements
+\definecolor{lightgray}{RGB}{245, 245, 245}     % For backgrounds
+\definecolor{darkgray}{RGB}{70, 70, 70}         % For strong emphasis
+
+% Professional paragraph settings
+\setlength{\parskip}{0pt}                   
+\setlength{\parindent}{1.2em}              
+\frenchspacing
+\widowpenalty=10000
+\clubpenalty=10000
+\raggedbottom  % Prevents ugly vertical stretching
+
+% PAGE LAYOUT (17x24 cm - Saggio Grande) ---------------------------------
+\usepackage[
+paperwidth=170mm,
+paperheight=240mm,
+top=20mm,
+bottom=25mm,
+outer=20mm,
+inner=25mm,
+headsep=8mm,
+footskip=12mm
+]{geometry}
+
+% Better line breaking
+\emergencystretch=3em
+\hfuzz=.5pt  % Suppress trivial overfull warnings
+
+% TABLE OF CONTENTS STYLING ----------------------------------------------
+\usepackage[titles]{tocloft}
+\renewcommand{\cftchapfont}{\sffamily\normalsize}
+\renewcommand{\cftchappagefont}{\sffamily\normalsize\color{moderngray}}
+\renewcommand{\cftchapleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftdotsep}{2.0}
+\setlength{\cftbeforechapskip}{0.5em}
+
+% CHAPTER STYLING --------------------------------------------------------
+\usepackage{titlesec}
+
+% Modern chapter style with sans-serif
+\titleformat{\chapter}[display]
+{\normalfont\sffamily\centering}
+{\huge\textls[50]{\MakeUppercase{\chaptertitlename}}\quad\thechapter}
+{25pt}
+{\Huge\bfseries}
+
+\titlespacing*{\chapter}{0pt}{40pt}{60pt}
+
+% Section and subsection styles
+\titleformat{\section}
+{\normalfont\sffamily\Large\bfseries\color{darkgray}}
+{\thesection}
+{1em}
+{}
+
+\titleformat{\subsection}
+{\normalfont\sffamily\large\bfseries\color{darkgray}}
+{\thesubsection}
+{1em}
+{}
+
+\titleformat{\subsubsection}
+{\normalfont\sffamily\normalsize\bfseries\color{moderngray}}
+{\thesubsubsection}
+{1em}
+{}
+
+% HEADERS AND FOOTERS ---------------------------------------------------
+\usepackage{fancyhdr}
+\setlength{\headheight}{25pt}
+
+% Main matter page style
+\fancypagestyle{mainmatter}{%
+	\fancyhf{}
+	% Even pages: page number and author
+	\fancyhead[LE]{\sffamily\footnotesize\color{moderngray}\thepage\quad\textls[50]{\MakeUppercase{\authorname}}}
+	% Odd pages: chapter title and page number
+	\fancyhead[RO]{\sffamily\footnotesize\color{moderngray}\textls[50]{\MakeUppercase{\leftmark}}\quad\thepage}
+	% No header rule for cleaner look
+	\renewcommand{\headrulewidth}{0pt}
+}
+
+% Plain style for chapter openings
+\fancypagestyle{plain}{%
+	\fancyhf{}
+	\fancyfoot[C]{\sffamily\small\color{moderngray}\thepage}
+	\renewcommand{\headrulewidth}{0pt}
+}
+
+% QUOTATION ENVIRONMENT --------------------------------------------------
+\usepackage{csquotes}
+\renewenvironment{quotation}
+{\list{}{\listparindent 0em%
+		\itemindent    0em
+		\leftmargin    2em
+		\rightmargin   2em
+		\parsep        0.5em
+		\topsep        0.5em}%
+	\item\relax\small\color{darkgray}}
+{\endlist}
+
+% Block quotes with modern style
+\newenvironment{modernquote}
+{\begin{quotation}\sffamily\itshape}
+	{\end{quotation}}
+
+% LISTS - Modern Spacing -------------------------------------------------
+\usepackage{enumitem}
+\setlist[itemize]{
+	topsep=0.5em,
+	itemsep=0.25em,
+	parsep=0.25em,
+	leftmargin=1.5em,
+	label={\color{modernred}\textbullet}
+}
+\setlist[enumerate]{
+	topsep=0.5em,
+	itemsep=0.25em,
+	parsep=0.25em,
+	leftmargin=1.5em
+}
+
+% CAPTIONS ---------------------------------------------------------------
+\usepackage[
+font={scriptsize,sf},
+labelfont={bf,color=darkgray},
+textfont={color=moderngray},
+justification=centering,
+margin=0.5cm
+]{caption}
+\setlength{\abovecaptionskip}{10pt}
+\setlength{\belowcaptionskip}{10pt}
+
+% FOOTNOTES --------------------------------------------------------------
+\usepackage[bottom,hang,flushmargin]{footmisc}
+\setlength{\footnotesep}{12pt}
+\renewcommand{\footnotelayout}{\footnotesize\color{moderngray}}
+
+% CUSTOM COMMANDS --------------------------------------------------------
+% First few words in sans-serif bold
+\newcommand{\firstwords}[1]{{\sffamily\bfseries #1}}
+
+% Small caps with tracking
+\newcommand{\smallcaps}[1]{\textsc{\textls[50]{#1}}}
+
+% Book title formatted
+\newcommand{\booktitleformatted}{{\sffamily\textit{\booktitle}}}
+
+% Chapter quotes
+\newcommand{\chapterquote}[2]{%
+	\vspace{-0.5em}
+	\begin{flushright}
+		\begin{minipage}{0.8\textwidth}
+			\raggedleft
+			\sffamily\small\itshape\color{moderngray}
+			``#1''\\[0.5em]
+			\sffamily\footnotesize\color{darkgray}#2
+		\end{minipage}
+	\end{flushright}
+	\vspace{1em}
+}
+
+% Modern lettrine settings
+\renewcommand{\LettrineFontHook}{\sffamily\bfseries\color{modernblack}}
+\setlength{\DefaultNindent}{0pt}
+\setlength{\DefaultSlope}{0pt}
+\renewcommand{\LettrineTextFont}{\sffamily}
+\setlength{\DefaultFindent}{0.15em}
+
+% PAGE NUMBERS WITH STYLE ------------------------------------------------
+\usepackage{lastpage}
+
+% HYPERREF (load last) ---------------------------------------------------
+\usepackage[
+colorlinks=true,
+linkcolor=modernblack,
+citecolor=modernred,
+urlcolor=modernred,
+bookmarks=true,
+bookmarksopen=true,
+bookmarksnumbered=true,
+pdfauthor={\authorname},
+pdftitle={\booktitle},
+pdfsubject={\booksubject},
+pdfkeywords={\bookkeywords},
+pdfproducer={LaTeX with Source Serif Pro},
+pdfcreator={pdfLaTeX}
+]{hyperref}
+
+% URL STYLE
+\urlstyle{same}  % URLs in same font as text
+
+% ADDITIONAL MODERN TOUCHES ----------------------------------------------
+% Better spacing around display math (if used)
+\usepackage{amsmath}
+\AtBeginDocument{%
+	\setlength\abovedisplayskip{12pt plus 3pt minus 3pt}%
+	\setlength\belowdisplayskip{12pt plus 3pt minus 3pt}%
+}
+
+% Epigraphs for chapter quotes
+\usepackage{epigraph}
+\setlength{\epigraphwidth}{0.7\textwidth}
+\renewcommand{\epigraphflush}{flushleft}
+\renewcommand{\sourceflush}{flushleft}
+
+% Optional: Add TikZ for any diagrams
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning}
+
+% Optional: Better tables
+\usepackage{booktabs}
+\renewcommand{\arraystretch}{1.2}
+% =============================================================================
+% INDEXING PACKAGE AND CONFIGURATION
+% =============================================================================
+\usepackage[xindy]{imakeidx}
+
+% Stile professionale per l'indice
+\indexsetup{
+	othercode=\small,
+	firstpagestyle=plain,
+	headers={Indice analitico}{Indice analitico}
+}
+
+% Indice analitico principale
+\makeindex[
+name=main,
+title=Indice analitico,
+program=texindy,
+options=-L italian -C utf8 -I latex,
+columns=2 
+]
+
+% Secondo indice (facoltativo): concetti chiave
+\makeindex[
+name=concetti,
+title=Indice dei concetti,
+program=texindy,
+options=-L italian -C utf8 -I latex,
+columns=2 
+]
+
+% =============================================================================
+% STILI PER RIQUADRI CONCETTUALI E CODICE
+% =============================================================================
+
+% --- Riquadro per concetti chiave ---
+\newtcolorbox{concetto}[1][]{
+	colback=lightgray,       
+	colframe=darkgray,       
+	fonttitle=\sffamily\bfseries,
+	coltitle=modernblack,
+	breakable,
+	enhanced,
+	arc=3mm,
+	boxrule=0.8pt,
+	title=#1
+}
+
+% --- Riquadro per lo pseudo-codice ---
+\newtcolorbox{codice}[1][]{
+	colback=darkgray,       
+	coltext=white,
+	fontupper=\ttfamily,      
+	breakable,
+	arc=1mm,
+	boxrule=0pt,
+	title=#1,
+	fonttitle=\sffamily\bfseries,
+	coltitle=white
+}
+
+% --- Riquadro per Dati e Grafici ---
+\newtcolorbox{boxdati}[1][]{
+	colback=white,            
+	colframe=modernred,       
+	fonttitle=\sffamily\bfseries,
+	coltitle=white,
+	breakable,
+	enhanced,
+	arc=3mm,
+	boxrule=0.8pt,
+	title=#1
+}
+
+% =============================================================================
+% STILI PER DIALOGO UMANO-AI
+% =============================================================================
+
+\definecolor{humancolor}{RGB}{25, 25, 25}      
+\definecolor{aicolor}{RGB}{70, 130, 180}       
+
+\newcommand{\humanbox}[1]{%
+	\vspace{0.8em}%
+	\begin{tcolorbox}[
+		colback=white,
+		colframe=humancolor,
+		leftrule=3pt,
+		rightrule=0pt,
+		toprule=0pt,
+		bottomrule=0pt,
+		left=10pt,
+		right=5pt,
+		top=5pt,
+		bottom=5pt
+		]
+		\noindent\textbf{\sffamily\color{humancolor}UMANO:} #1
+	\end{tcolorbox}%
+	\vspace{0.3em}%
+}
+
+\newcommand{\aibox}[1]{%
+	\vspace{0.8em}%
+	\begin{tcolorbox}[
+		colback=aicolor!5,
+		colframe=aicolor,
+		leftrule=3pt,
+		rightrule=0pt,
+		toprule=0pt,
+		bottomrule=0pt,
+		left=10pt,
+		right=5pt,
+		top=5pt,
+		bottom=5pt
+		]
+		\noindent\textbf{\sffamily\color{aicolor}AI:} #1
+	\end{tcolorbox}%
+	\vspace{0.3em}%
+}
+
+% Immagine con segnaposto: se il file non esiste ancora in images/ compare un
+% riquadro con la descrizione, e il libro compila lo stesso. Quando il file
+% viene aggiunto, l'immagine appare da sola.
+% Uso: \immagine{images/nome.png}{descrizione di cosa deve mostrare}
+% Dimensionamento delle immagini: tutta la larghezza del testo, ma mai piu'
+% alte di 0.87 dell'altezza utile, cosi' immagine e didascalia stanno sempre
+% nella stessa pagina. Un'immagine alta finisce da sola in una pagina che
+% riempie quasi per intero; una bassa si incastra nel testo senza vuoti.
+\setkeys{Gin}{keepaspectratio,height=0.87\textheight}
+\newcommand{\immagine}[2]{%
+	\IfFileExists{#1}%
+		{\includegraphics[width=\textwidth]{#1}}%
+		{\fbox{\parbox{0.8\textwidth}{\centering\small\vspace{1.5em}%
+			[IMMAGINE DA INSERIRE: #2]\\[0.4em]\texttt{\detokenize{#1}}\vspace{1.5em}}}}%
+}

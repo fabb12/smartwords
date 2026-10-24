@@ -1,4 +1,4 @@
-# Scrivia · Specifica funzionale del compagno di scrittura
+# Scrivia — Argument writing · Specifica funzionale del compagno di scrittura
 
 > Obiettivo: l’app non si limita a suggerire la parola successiva. Comprende il progetto creativo di chi scrive e lo aiuta a realizzarlo, **senza sostituirsi a lui**.
 
@@ -194,6 +194,18 @@ Il nucleo combina tre funzioni che si alimentano a vicenda. Ogni richiesta AI ri
 - **Dati.** `lib/knowledge-base.ts` (logica pura), `lib/kb-store.ts` (IndexedDB per proprietario; la scelta attiva in `localStorage`), `app/kb-extract.ts` (estrazione nel browser con pdf.js, mammoth e JSZip). Limiti: 1600 blocchi da ~900 caratteri per knowledge base, 12 knowledge base, 100 MB per file.
 - **Motore IA e token.** Pipeline «split → index → retrieve» sul modello di LangChain, eseguita sul dispositivo: suddivisione ricorsiva per paragrafi/frasi; profilo locale (impronta, segnali di mentalità, temi, espressioni) calcolato una volta su un campione stratificato; **distillazione** facoltativa della personalità con una sola chiamata (`mode: persona`, campione ≤ 9500 caratteri) riusata a ogni richiesta; per ogni richiesta solo profilo compatto + 2 (completamento automatico) o 3 passaggi scelti con BM25, campo `knowledgeBase` ≤ 4500 caratteri. Le istruzioni vietano di copiare frasi dei passaggi e di importarne personaggi o fatti; nessun giudizio clinico nel profilo.
 - **Verifica.** Test *knowledge-base*: suddivisione, pulizia PDF, duplicati e limiti, segnali di mentalità, recupero pertinente e budget, parsing del profilo, campo solo nelle modalità di scrittura, indicatore della fonte, esportazione/importazione e dati non attendibili. E2e: import di PDF e TXT, attivazione, indicatore dopo il ricaricamento e richiesta al provider simulato con `knowledgeBase` e senza `authorVoice`.
+
+### 3.8 Studio LaTeX
+
+**Comportamento.** Uno spazio a schermo intero per i progetti LaTeX (libri, saggi, tesi): struttura letta da `main.tex`, editor del sorgente con comandi di formattazione, anteprima, salvataggio come commit su GitHub, immagini in `images/`, compilazione del PDF su GitHub Actions, ricerca nel progetto e controllo della sintassi. Senza GitHub lavora su un progetto locale nel browser (niente compilazione).
+
+**Interfaccia.** Pulsante «Studio LaTeX» nella barra Documento (menu ⋯ su telefono). Barra superiore: GitHub/Locale, aggiorna, scarica .zip, «Apri in Scrivia», Salva, Compila PDF. Pannello laterale: Struttura, File, Indice, Cerca. Vista sorgente, affiancata o anteprima.
+
+**Dati.** Impostazioni in `scrivia:latex-settings`, token in `scrivia:latex-token` (cifrato nell’app desktop), bozze non salvate in `scrivia:latex-draft:<repo>@<ramo>:<percorso>`, progetto locale in `scrivia:latex-local`. Nessun dato passa dal backend di Scrivia.
+
+**Motore.** `lib/latex.ts` (conversione LaTeX → HTML, documento → LaTeX, strumenti di modifica, controllo), `lib/latex-github.ts` (API GitHub: albero, contenuti, commit multipli, workflow, release del PDF), `lib/latex-template.ts` (file di `latex-template/`).
+
+**Criteri di verifica.** `tests/latex.test.mjs`: anteprima di capitoli con note, figure ed epigrafi; struttura da `main.tex`; esportazione di titoli, stili, elenchi e tabelle; comandi di formattazione reversibili; segnalazione di parentesi e ambienti non chiusi; modello di progetto completo e senza errori.
 
 ## 4. Architettura
 
