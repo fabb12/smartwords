@@ -3,23 +3,37 @@
 
 export type DiffPart = { type: 'same' | 'add' | 'del'; text: string };
 
-// Word-level diff (LCS) used to highlight what a rewrite changes. Whitespace is kept
-// attached to tokens so joining the parts rebuilds both texts exactly.
+// Word-level diff (LCS) used to highlight what a rewrite changes. Words and
+// punctuation are separate tokens, so "silenzio." → "silenzio, e…" changes only
+// the punctuation. Nearby changes separated by a space form one replacement
+// (deleted words, then the new ones), and joining the parts rebuilds both texts.
 export function wordDiff(before: string, after: string): DiffPart[] {
-  const a = before.match(/\s+|[^\s]+/g) || [], b = after.match(/\s+|[^\s]+/g) || [];
-  if (a.length * b.length > 400_000) return [{ type: 'del', text: before }, { type: 'add', text: after }];
+  const tokens = (t: string) => t.match(/\s+|[\p{L}\p{M}\p{N}'’]+|[^\s\p{L}\p{M}\p{N}]/gu) || [];
+  const a = tokens(before), b = tokens(after);
+  if (a.length * b.length > 400_000) return [{ type: 'del', text: before }, { type: 'add', text: after }].filter(p => p.text) as DiffPart[];
   const n = a.length, m = b.length, lcs = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
   for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) lcs[i][j] = a[i] === b[j] ? lcs[i + 1][j + 1] + 1 : Math.max(lcs[i + 1][j], lcs[i][j + 1]);
-  const parts: DiffPart[] = [];
-  const push = (type: DiffPart['type'], text: string) => { const last = parts[parts.length - 1]; if (last?.type === type) last.text += text; else parts.push({ type, text }); };
+  const raw: DiffPart[] = [];
   let i = 0, j = 0;
   while (i < n && j < m) {
-    if (a[i] === b[j]) { push('same', a[i]); i++; j++; }
-    else if (lcs[i + 1][j] >= lcs[i][j + 1]) push('del', a[i++]);
-    else push('add', b[j++]);
+    if (a[i] === b[j]) { raw.push({ type: 'same', text: a[i] }); i++; j++; }
+    else if (lcs[i + 1][j] >= lcs[i][j + 1]) raw.push({ type: 'del', text: a[i++] });
+    else raw.push({ type: 'add', text: b[j++] });
   }
-  while (i < n) push('del', a[i++]);
-  while (j < m) push('add', b[j++]);
+  while (i < n) raw.push({ type: 'del', text: a[i++] });
+  while (j < m) raw.push({ type: 'add', text: b[j++] });
+  const parts: DiffPart[] = []; let del = '', add = '';
+  const flush = () => { if (del) parts.push({ type: 'del', text: del }); if (add) parts.push({ type: 'add', text: add }); del = add = ''; };
+  raw.forEach((part, k) => {
+    if (part.type === 'del') { del += part.text; return; }
+    if (part.type === 'add') { add += part.text; return; }
+    // A space between two changes belongs to the replacement, not to unchanged text.
+    if ((del || add) && /^\s+$/.test(part.text) && raw[k + 1] && raw[k + 1].type !== 'same') { del += part.text; add += part.text; return; }
+    flush();
+    const last = parts.at(-1);
+    if (last?.type === 'same') last.text += part.text; else parts.push({ type: 'same', text: part.text });
+  });
+  flush();
   return parts;
 }
 
