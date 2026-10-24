@@ -2143,6 +2143,18 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Qua il punto di svolta. L'abilità di conoscere questa nuova tecnologia ci permette di essere noi a guidarla, invece di farci guidare: sapere cosa può darci, e soprattutto cosa non deve toglierci, è già un modo di restare padroni del cammino. Usata così, l'AI diventa come un compagno di strada che regge la lanterna, mentre i passi restano i nostri. Mantenendo noi le redini delle nostre intenzioni e soprattutto conservando i processi di elaborazione, possiamo lasciare che la macchina illumini la strada senza decidere dove andare. Il resto, la fatica di arrivarci e il piacere di riconoscersi alla fine del tragitto, resta nostro."
           }
         ]
@@ -2155,9 +2167,99 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Come fare tutto ciò? Cominciando da un gesto piccolo: prima di chiedere qualcosa alla macchina, fermarsi a scrivere con parole nostre ciò che vogliamo davvero ottenere, anche solo in due righe. Poi, a risposta ricevuta, tornare indietro e domandarci quale tratto di strada abbiamo percorso noi. "
           }
         ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Da un certo punto di vista questo è anche una crescita: imparare a dire cosa vogliamo ci costringe a conoscerlo, e conoscerlo è già metà della strada. Prima ancora di ricevere una risposta, abbiamo fatto un passo che nessuna macchina poteva fare al posto nostro. L'impegno e la fatica che prima usavamo per pensare alla forma o agli aspetti tecnici in questo caso possiamo spenderli per capire che cosa vogliamo davvero, e perché lo vogliamo. È la stessa fatica, spostata più a monte, dove le intenzioni prendono ancora la loro forma. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Questa è semplicemente una nuova forma di scrittura: una forma che ci permette di concentrarci completamente sull'idea, lasciando alla macchina il compito di sbrogliare il resto. Come uno scultore che non deve più cavare il marmo dalla montagna, ma resta lui a decidere quale figura liberare. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Dove ci porterà questo approccio: ci farà crescere nel ragionamento o ci condurrà a un'inevitabile dipendenza dall'AI, senza la quale non saremo più in grado di pensare con la nostra testa? Forse la risposta non sta nello strumento, ma in come decidiamo di camminare con lui."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
       }
     ]
   },
@@ -2196,5 +2298,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792862281399
+  "updated": 1792862752000
 }
