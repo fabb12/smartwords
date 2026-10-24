@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
 import { summarizeFormatting, withProposedTitles, type FormatReplacement } from '../lib/format-only';
 import { AiFormatPreview } from './ai-format-preview';
 
@@ -10,7 +10,7 @@ const LEVEL_NAMES = ['Introduzione', 'Titolo', 'Sottotitolo', 'Titolo minore'];
 
 // The side panel shows what changes (structure, counts, emphasized concepts)
 // instead of the whole text; the formatted text stays one click away.
-export function AiBatchFormatPreview({ parts, includeTitles = true, onIncludeTitles }: { parts: FormatReplacement[]; includeTitles?: boolean; onIncludeTitles?: (value: boolean) => void }) {
+export function AiBatchFormatPreview({ parts, includeTitles = true, onIncludeTitles, imageNote }: { parts: FormatReplacement[]; includeTitles?: boolean; onIncludeTitles?: (value: boolean) => void; imageNote?: string }) {
   const [index, setIndex] = useState(0), [allOutline, setAllOutline] = useState(false), [allChips, setAllChips] = useState(false);
   const current = Math.min(index, parts.length - 1), summary = useMemo(() => summarizeFormatting(parts), [parts]);
   const rows = includeTitles ? summary.outline : summary.outline.filter(row => !row.proposed);
@@ -20,6 +20,7 @@ export function AiBatchFormatPreview({ parts, includeTitles = true, onIncludeTit
   const stats = [summary.headings && plural(summary.headings, 'titolo', 'titoli'), includeTitles && summary.proposed && plural(summary.proposed, 'titolo proposto', 'titoli proposti'), plural(summary.paragraphs, 'paragrafo', 'paragrafi'), summary.lists && plural(summary.lists, 'elenco', 'elenchi'), chips.length && plural(chips.length, 'concetto in evidenza', 'concetti in evidenza')].filter(Boolean) as string[];
   return <section className="format-batch-preview format-summary">
     <ul className="format-stats" aria-label="Riepilogo della formattazione">{stats.map(s => <li key={s}>{s}</li>)}</ul>
+    {imageNote && <p className="format-images"><ImageIcon size={14} aria-hidden="true"/><span>Immagini e formule: {imageNote}</span></p>}
     {outline.length ? <div className="format-outline">
       <p className="format-label">Struttura</p>
       <ol>{outline.map((row, i) => <li key={i} className={'level-' + row.level + (row.proposed ? ' proposed' : '')} title={LEVEL_NAMES[row.level] + (row.proposed ? ' proposto' : '')}>

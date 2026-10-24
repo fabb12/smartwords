@@ -1,9 +1,12 @@
-export type AiPreferences = { trigger: 'pause' | 'tab'; formatting: boolean };
-export const DEFAULT_AI_PREFERENCES: AiPreferences = { trigger: 'pause', formatting: true };
+import { DEFAULT_INTERVENTION, isIntervention, type Intervention } from './intervention.ts';
+
+// intervention: how much the AI may change the writer's text (1 minimal … 4 extensive).
+export type AiPreferences = { trigger: 'pause' | 'tab'; formatting: boolean; intervention: Intervention };
+export const DEFAULT_AI_PREFERENCES: AiPreferences = { trigger: 'pause', formatting: true, intervention: DEFAULT_INTERVENTION };
 export const aiPreferencesKey = (owner = 'local') => 'scrivia:ai-preferences:' + encodeURIComponent(owner);
 export function sanitizeAiPreferences(raw: unknown): AiPreferences {
   const p = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
-  return { trigger: p.trigger === 'tab' ? 'tab' : 'pause', formatting: p.formatting !== false };
+  return { trigger: p.trigger === 'tab' ? 'tab' : 'pause', formatting: p.formatting !== false, intervention: isIntervention(p.intervention) ? p.intervention : DEFAULT_INTERVENTION };
 }
 export function readAiPreferences(owner = 'local'): AiPreferences {
   try { return sanitizeAiPreferences(JSON.parse(localStorage.getItem(aiPreferencesKey(owner)) || 'null')); } catch { return { ...DEFAULT_AI_PREFERENCES }; }

@@ -10,10 +10,12 @@ export type FormatReplacement = FormatRange & { content: JSONContent[] };
 // Group adjacent prose blocks, but never consume images, tables or code as plain
 // text. Long paragraphs are divided at a word boundary. All coordinates remain
 // relative to the original document until the complete proposal is accepted.
-export function formatRanges(doc: Node, from: number, to: number, limit = 6000) {
+// exclude lists block positions kept away from the model (recognized captions).
+export function formatRanges(doc: Node, from: number, to: number, limit = 6000, exclude: ReadonlySet<number> = new Set()) {
   const ranges: (FormatRange & { top: boolean })[] = []; let skipped = 0;
   doc.nodesBetween(from, to, (node, pos, parent) => {
     if (!node.isTextblock) return;
+    if (exclude.has(pos)) return false;
     if (node.type.name === 'codeBlock') { skipped++; return false; }
     let atom = false; node.descendants(child => { if (child.isLeaf && !child.isText && child.type.name !== 'hardBreak') atom = true; });
     if (atom) { skipped++; return false; }
