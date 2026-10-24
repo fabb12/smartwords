@@ -2,19 +2,32 @@
   "format": "scrivia-document",
   "version": 1,
   "id": "4fb20591-9904-4abf-9c8f-2ebad88c9c9e",
-  "title": "pensiero",
+  "title": "pensiero problemi matematici contro ai",
   "content": {
     "type": "doc",
     "content": [
       {
-        "type": "paragraph",
+        "type": "heading",
         "attrs": {
-          "textAlign": null
+          "textAlign": null,
+          "level": 1
         },
         "content": [
           {
             "type": "text",
-            "text": "risoluzione di problemi matematici del millennio tramite ai . ha ancora senso provarci? l'ai non rischia di togliere senso all'impresa, ma forse lo trasforma: non è più la sfida solitaria di una mente contro l'infinito, ma qualcosa di più simile a un dialogo, dove la domanda resta umana anche se gli strumenti cambiano, e forse è proprio questo che conta, che qualcuno continui a chiedersi perché una certa verità debba essere vera. spesso è il percorso a generare valore, non la meta finale, e forse vale lo stesso per questi problemi irrisolti: ciò che conta non è solo che qualcuno li risolva, ma che qualcuno abbia continuato a camminarci intorno, a toccarli, a chiedersi dove portano. e ora come possiamo continuare a chiederci se vale la pena, quando forse la domanda stessa è già una risposta: continuare a camminare intorno a questi problemi, anche con strumenti nuovi, è già un atto di cura verso qualcosa che non si lascia risolvere in fretta. ma forse ha senso fare un passo avanti e creare un nuovo modo di lavorare con questi problemi: non abbandonarli all'ai, ma portarcela dentro come si porta un interlocutore esigente, qualcuno che costringe a rendere esplicito ciò che altrimenti resterebbe intuizione muta."
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Risoluzione dei problemi matematici del millennio tramite AI. Ha ancora senso provarci?"
           }
         ]
       },
@@ -26,7 +39,395 @@
         "content": [
           {
             "type": "text",
-            "text": "considera il problema di Navier-Stokes, che è forse il più inquietante di tutti perché riguarda qualcosa che vediamo ogni giorno, l'acqua che scorre, il vento che cambia direzione, e che tuttavia si sottrae ancora a qualsiasi dimostrazione completa di esistenza e regolarità delle sue soluzioni, come se la realtà avesse deciso di restare un passo avanti rispetto a qualsiasi linguaggio che tentiamo di costruirle intorno. con questo problema hanno fatto una trama interessante nel film Gifted, dove una bambina prodigio porta il peso di un'eredità matematica che non ha scelto, e la domanda che il film lascia aperta non è se riuscirà a risolvere qualcosa, ma se valga la pena di consegnarle quel fardello o lasciarla semplicemente vivere. Ora pensiamo a quello che ha fatto l'ai nell'ottobre 2026, e in particolare OpenAI, un momento in cui certi confini che davamo per scontati hanno cominciato a spostarsi in modo abbastanza silenzioso da non fare notizia nell'immediato, ma abbastanza profondo da cambiare le domande che ci facevamo."
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "l'ai non rischia di togliere senso all'impresa, ma forse lo trasforma: non è più la sfida solitaria di una mente contro l'infinito, ma qualcosa di più simile a un "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "dialogo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", dove la domanda resta umana anche se gli strumenti cambiano, e forse è proprio questo che conta, che qualcuno continui a chiedersi perché una certa verità debba essere vera."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "spesso è il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "percorso"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " a generare valore, non la meta finale, e forse vale lo stesso per questi problemi irrisolti: ciò che conta non è solo che qualcuno li risolva, ma che qualcuno abbia continuato a camminarci intorno, a toccarli, a chiedersi dove portano."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "e ora come possiamo continuare a chiederci se vale la pena, quando forse la domanda stessa è già una risposta: "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#e0e8b9"
+                }
+              }
+            ],
+            "text": "continuare a camminare intorno a questi problemi, anche con strumenti nuovi, è già un atto di cura verso qualcosa che non si lascia risolvere in fretta."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "ma forse ha senso fare un passo avanti e creare un nuovo modo di lavorare con questi problemi: non abbandonarli all'ai, ma portarcela dentro come si porta un "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "interlocutore esigente"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", qualcuno che costringe a rendere esplicito ciò che altrimenti resterebbe intuizione muta."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "considera il problema di "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Navier-Stokes"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", che è forse il più inquietante di tutti perché riguarda qualcosa che vediamo ogni giorno, l'acqua che scorre, il vento che cambia direzione, e che tuttavia si sottrae ancora a qualsiasi dimostrazione completa di esistenza e regolarità delle sue soluzioni, come se la realtà avesse deciso di restare un passo avanti rispetto a qualsiasi linguaggio che tentiamo di costruirle intorno."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "con questo problema hanno fatto una trama interessante nel film "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Gifted"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", dove una bambina prodigio porta il peso di un'eredità matematica che non ha scelto, e la domanda che il film lascia aperta non è se riuscirà a risolvere qualcosa, ma se valga la pena di consegnarle quel fardello o lasciarla semplicemente vivere."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Ora pensiamo a quello che ha fatto l'ai nell'ottobre 2026, e in particolare "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "OpenAI"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", un momento in cui certi confini che davamo per scontati hanno cominciato a spostarsi in modo abbastanza silenzioso da non fare notizia nell'immediato, ma abbastanza profondo da cambiare le domande che ci facevamo."
           }
         ]
       }
@@ -63,5 +464,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792359253110
+  "updated": 1792495191595
 }

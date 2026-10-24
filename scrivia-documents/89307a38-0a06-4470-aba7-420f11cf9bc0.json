@@ -1,0 +1,92 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "89307a38-0a06-4470-aba7-420f11cf9bc0",
+  "title": "Importanza del processo",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "textAlign": null,
+          "level": 1
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "L'importanza del processo, e come migliorarlo, non sostituirlo nel futuro con l'AI"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Ciò che conta non è soltanto il risultato che otteniamo, ma "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "il cammino"
+          },
+          {
+            "type": "text",
+            "text": " che lo rende davvero nostro, come una mano che impara a scrivere solo scrivendo. Con l'AI il rischio è saltare quel cammino: dovremmo usarla per affinare ciò che facciamo, non per farlo al posto nostro. Ma non è facile distinguere quello che è nostra vera volontà da quello che non lo è, perché il confine si sposta ogni volta che una risposta pronta ci sembra già una nostra idea. Forse la domanda onesta da farci è un'altra: sarei in grado di arrivarci da solo, anche più lentamente, a ciò che ho appena accettato? Se la risposta è no, forse non ho ancora scelto nulla: ho solo "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "approvato"
+          },
+          {
+            "type": "text",
+            "text": " qualcosa che mi è stato consegnato. Per questo il processo non è una fatica da espiare, ma la prova che dietro una decisione c'è qualcuno che l'ha davvero attraversata. Ed è proprio nel tratto che saremmo tentati di saltare che una scelta smette di essere un'approvazione e comincia a essere nostra, perché è lì che riconosciamo la nostra mano in ciò che resta. "
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mine",
+      "intensity": "medium",
+      "custom": ""
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1792861376970
+}

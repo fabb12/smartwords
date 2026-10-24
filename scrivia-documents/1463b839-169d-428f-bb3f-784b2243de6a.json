@@ -7,14 +7,27 @@
     "type": "doc",
     "content": [
       {
-        "type": "paragraph",
+        "type": "heading",
         "attrs": {
-          "textAlign": null
+          "textAlign": null,
+          "level": 1
         },
         "content": [
           {
             "type": "text",
-            "text": "la musica è un mistero. La sua vera forza sta nel fatto di provocare un'emozione ancora prima che ci rendiamo conto di averla ascoltata. Il corpo risponde per primo, con un brivido sulla pelle o un nodo in gola, e solo dopo, a fatica, la mente si mette a cercare le parole per spiegare ciò che è già accaduto. questo è la vera forza . "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "LA MUSICA È UN MISTERO."
           }
         ]
       },
@@ -26,6 +39,136 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "La sua vera forza sta nel fatto di provocare un'"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "emozione"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " ancora prima che ci rendiamo conto di averla ascoltata."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "corpo"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " risponde per primo, con un brivido sulla pelle o un nodo in gola, e solo dopo, a fatica, la mente si mette a cercare le parole per spiegare ciò che è già accaduto. questo è la vera forza ."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Qualcosa di inspiegabile. Eppure non c'è nulla di cui vergognarsi, perché il corpo sa ascoltare molto prima di noi. Noi arriviamo dopo, con le nostre parole, come chi entra in una sala quando la danza è già cominciata."
           }
         ]
@@ -38,6 +181,18 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Mi affascina questo aspetto."
           }
         ]
@@ -50,7 +205,54 @@
         "content": [
           {
             "type": "text",
-            "text": "mi affascina l'impossibilità di controllare queste emozioni impreviste. in un mondo ossessionato dal controllo, ossessionato dal prevedere, misurare e ottimizzare ogni cosa, trovo quasi consolante che esista qualcosa capace di coglierci di sorpresa. "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "mi affascina l'"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "impossibilità di controllare"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " queste emozioni impreviste. in un mondo ossessionato dal controllo, ossessionato dal prevedere, misurare e ottimizzare ogni cosa, trovo quasi consolante che esista qualcosa capace di coglierci di sorpresa, ancora."
           }
         ]
       },
@@ -62,6 +264,18 @@
         "content": [
           {
             "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
             "text": "Una melodia ci attraversa senza chiedere permesso, e per un istante non siamo noi a decidere. Siamo ascoltatori e insieme strumento, come una corda che vibra perché qualcosa l'ha sfiorata, non perché l'abbia scelto. E in quell'istante, strano a dirsi, ci sentiamo più liberi. Questo nasce da qualcosa di intrinsecamente soggettivo oppure da qualcosa di misteriosamente inspiegabile che ereditiamo dalla nostra natura umana, come un'antica lingua che il corpo ricorda e la mente ha dimenticato? Forse la risposta non sta in una delle due ipotesi, ma nello spazio sottile che le separa, dove ogni brivido resta un indizio e nessuno è ancora una prova."
           }
         ]
@@ -74,7 +288,347 @@
         "content": [
           {
             "type": "text",
-            "text": "Secondo me il potere della musica sta tutto nell'aspettativa e nel modo in cui viene tradita o appagata. Il cervello anticipa la nota che sta per arrivare, e il brivido nasce proprio dallo scarto, piccolo o enorme, tra ciò che aspettavamo e ciò che accade. Se la nota arriva esattamente dove l'avevamo immaginata, proviamo una quieta soddisfazione, come quando una porta si chiude con il suono giusto; se invece ci sfugge, o ci spiazza, qualcosa dentro di noi sussulta, e solo allora ci accorgiamo di aver aspettato e questa genera una genuina sorpresa che può essere positiva o negativa, ma in entrambi i casi è proprio quello scarto a trasformare un suono in un'emozione. Una musica del tutto prevedibile ci culla e poi ci annoia, una del tutto imprevedibile ci respinge, e il fascino abita nel mezzo, in quella striscia sottile in cui il cervello indovina quasi tutto e per un attimo, soltanto per un attimo, viene colto in fallo. Noi siamo delle vere e proprie macchine generatrici di emozioni. Ma a differenza di ogni altra macchina non sappiamo dire come funzioniamo, e forse è proprio questo a renderci capaci di commuoverci davanti a una semplice successione di note."
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Secondo me il potere della musica sta tutto nell'"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "aspettativa"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " e nel modo in cui viene tradita o appagata. Il cervello anticipa la nota che sta per arrivare, e "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "highlight",
+                "attrs": {
+                  "color": "#ffc8004d"
+                }
+              }
+            ],
+            "text": "il brivido nasce proprio dallo scarto, piccolo o enorme, tra ciò che aspettavamo e ciò che accade"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ". Se la nota arriva esattamente dove l'avevamo immaginata, proviamo una quieta soddisfazione, come quando una porta si chiude con il suono giusto; se invece ci sfugge, o ci spiazza, qualcosa dentro di noi sussulta, e solo allora ci accorgiamo di aver aspettato e questa genera una genuina sorpresa che può essere positiva o negativa, ma in entrambi i casi è proprio quello scarto a trasformare un suono in un'emozione."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Una musica del tutto prevedibile ci culla e poi ci annoia, una del tutto imprevedibile ci respinge, e il fascino abita nel mezzo, in quella striscia sottile in cui il cervello indovina quasi tutto e per un attimo, soltanto per un attimo, viene colto in fallo. Noi siamo delle vere e proprie "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "macchine generatrici di emozioni"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ". Ma a differenza di ogni altra macchina non sappiamo dire come funzioniamo, e forse è proprio questo a renderci capaci di commuoverci davanti a una semplice successione di note."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Schopenhauer"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": " vedeva nella musica l'espressione diretta della volontà, un linguaggio che aggira le immagini e parla al corpo senza passare dal concetto. Non so se avesse ragione, ma capisco perché un'idea simile sia nata proprio davanti a una melodia."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Cosa pensavano i più grandi compositori del potere della musica? "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Beethoven"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", a quanto si racconta, la considerava una rivelazione più alta di ogni saggezza e di ogni filosofia, mentre "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "Bach"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ", con una sobrietà quasi disarmante, la voleva soltanto al servizio della gloria di Dio e del ristoro dell'animo."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Mi piacerebbe fare un "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              },
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "esperimento mentale"
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": ". Ipotizziamo di incontrare degli alieni un giorno nel futuro prossimo. Quale sarebbe il linguaggio universale? Sicuramente la matematica sarebbe la candidata principale per i concetti, ma la musica sicuramente sarebbe per le emozioni, forse l'unico ponte possibile tra due modi di sentire che non hanno nulla in comune, se non la capacità di aspettarsi qualcosa e di restare sorpresi."
           }
         ]
       },
@@ -92,7 +646,19 @@
         "content": [
           {
             "type": "text",
-            "text": "Schopenhauer vedeva nella musica l'espressione diretta della volontà, un linguaggio che aggira le immagini e parla al corpo senza passare dal concetto. Non so se avesse ragione, ma capisco perché un'idea simile sia nata proprio davanti a una melodia.  "
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "18px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "queta parte è estatta da un libro :"
           }
         ]
       },
@@ -100,7 +666,2137 @@
         "type": "paragraph",
         "attrs": {
           "textAlign": null
-        }
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "L'eco nella caverna: perché existe la musica"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "«La musica è la prova che la coscienza non è solo elaborazione di informazioni. È qualcosa di più. Qualcosa per cui non abbiamo ancora un nome.»— L'autore"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Abbiamo attraversato i meccanismi del cervello umano, esaminato i suoi cortocircuiti cognitivi, catalogato i bias che ci condizionano. Abbiamo visto come la nostra mente sia un'architettura antica che opera con software moderno. Ma ora dobbiamo confrontarci con il mistero più inspiegabile che il nostro cervello produce: la musica."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Perché esiste la musica?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La domanda merita attenzione quanto il problema della coscienza. Eppure la diamo per scontata, come se fosse ovvio che la nostra specie dovesse sviluppare la capacità di organizzare vibrazioni d'aria in sequenze che ci commuovono. Non lo è affatto."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Steven Pinker, in un momento di illuminata franchezza, l'ha definita piacere parassitario uditivo [1], una gratificazione che sfrutta circuiti cerebrali evoluti per altri scopi. Ma questa definizione, per quanto elegante, non rende giustizia al fenomeno. Un semplice piacere parassitario non sincronizza i battiti cardiaci di migliaia di persone in un concerto. Non resiste all'Alzheimer quando tutto il resto della memoria collassa. La musica è qualcosa di diverso da un semplice piacere parassitario."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "L'invenzione che nessuno ha inventato"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Cominciamo dal paradosso fondamentale: la musica non è stata inventata. Non c'è un Prometeo del suono che un giorno ha deciso di combinare ritmo e melodia per intrattenere la tribù. La musica è emersa, come emerge un mulinello nell'acqua quando le correnti si incontrano nel modo giusto. È il sottoprodotto accidentale di capacità cognitive che si sono evolute per tutt'altri motivi."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Consideriamo il ritmo. Il nostro cervello riconosce pattern temporali perché in natura significano sopravvivenza: il passo del predatore tra i cespugli, il battito nel grembo materno, la cadenza del camminare. Il nucleo caudato e il cervelletto [2], strutture antichissime, precedenti persino alla neocorteccia, erano già sintonizzati sui pattern ritmici molto prima che qualcuno decidesse di tamburellare su un tronco cavo."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Poi c'è il tono, la capacità di distinguere le frequenze sonore. Anche questa non è nata per la musica, ma per decodificare le emozioni nella voce altrui. Un grugnito basso significa minaccia. Un tono acuto e tremolante significa paura. La prosodia emotiva [3], la melodia nascosta nel parlato, era già incorporata nel nostro sistema di comunicazione primordiale, quando ancora non avevamo parole ma solo suoni modulati. La figura mostra i due fiumi che si incontrano."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[Didascalia figura: La fusione accidentale da cui nasce la musica: il riconoscimento ritmico, evoluto per individuare pattern temporali di sopravvivenza, e la discriminazione tonale, evoluta per decodificare le emozioni nella voce, si incontrano come due fiumi che confluiscono per caso.]"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "In qualche momento della nostra storia evolutiva, questi due sistemi, riconoscimento ritmico e discriminazione tonale, si sono incontrati. Non sappiamo esattamente quando. Forse già con Homo erectus, attorno al fuoco, quando il battere di pietre contro pietre ha cominciato a seguire un pattern regolare. Forse con Homo heidelbergensis, quando il controllo sempre più fine delle corde vocali ha permesso variazioni di tono intenzionali. Di certo sappiamo che Homo sapiens, emerso circa 300.000 anni fa, aveva già questa capacità pienamente sviluppata."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Quella fusione accidentale ha creato un dominio espressivo senza precedenti nel regno animale. Gli uccelli canori producono sequenze melodiche, è vero. Ma nessuna specie, eccetto noi, ha sviluppato la complessità ritmica, melodica, armonica e timbrica della musica umana. Nessuna specie costruisce artefatti il cui unico scopo è produrre suoni organizzati. Oppure ce l'hanno?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La colla invisibile della tribù"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Perché se riflettiamo più attentamente, la musica ha un valore adattivo, solo che è molto più sottile di «aiuta a cacciare» o «protegge dai predatori». La musica è tecnologia sociale. È la colla invisibile che tiene insieme i gruppi umani."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Consideriamo un coro. Cosa succede neurologicamente quando decine di voci si fondono in un'unica linea melodica? I cervelli dei cantanti si stanno sincronizzando [4]. Le loro onde cerebrali cominciano a pulsare all'unisono. I loro battiti cardiaci si allineano. I loro respiri convergono. Non è una metafora: è neurofisiologia documentata. Questa sincronizzazione ha un effetto psicologico profondo. Aumenta la fiducia reciproca. Amplifica l'empatia. Crea un senso di appartenenza che va oltre le parole. Dopo aver cantato insieme, le persone sono più disposte a cooperare, più generose, più propense a sacrificarsi per il gruppo [5]."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica è un collante tribale. E nella savana africana del Pleistocene, dove la tribù era tutto, l'unica difesa contro predatori, carestie, tribù rivali, un gruppo che cantava insieme era un gruppo che sopravviveva insieme. La selezione naturale, con la sua indifferente efficienza, ha favorito i gruppi musicali. Non perché la musica in sé fosse utile, ma perché rafforzava il legame sociale che era indispensabile."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Questa idea, che il canto tenga insieme un gruppo ancora prima che esistano parole compiute, non è soltanto una scoperta della biologia contemporanea. Nel 1781 Jean Jacques Rousseau, nel suo Saggio sull'origine delle lingue, propose una tesi che al suo tempo sembrò eccentrica e che oggi riappare quasi identica nei laboratori di neuroscienze: il linguaggio umano, sosteneva, non nacque come prosa razionale, ma come canto [6]. Le prime parole, per Rousseau, non servivano a trasmettere informazioni pratiche, del tipo dov'è il cibo o attenzione al pericolo, ma a esprimere passioni, ed erano perciò più vicine a una melodia emotiva che a un enunciato logico. Solo in seguito, con la vita in società sempre più organizzate, il linguaggio si sarebbe progressivamente raffreddato in un sistema di segni astratti, perdendo per strada quella carica musicale originaria. Se Rousseau aveva ragione, la colla invisibile della tribù descritta sopra non è un uso secondario della musica, aggiunto in un secondo momento al linguaggio: è letteralmente la sua culla. Cantare insieme non sarebbe un modo particolare di comunicare, ma la forma più antica e più vera di comunicazione da cui tutte le altre, comprese le nostre parole più fredde e tecniche, sarebbero in seguito derivate."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Ma c'è un altro aspetto: la musica come esibizione sessuale. Qui entra in gioco il concetto di segnale costoso [7]. In biologia evolutiva, un segnale è affidabile solo se è difficile da falsificare. Padroneggiare uno strumento richiede anni di pratica. Comporre una melodia originale richiede intelligenza, creatività, controllo motorio fine. Un individuo musicalmente abile comunica efficienza cognitiva, salute fisica, disponibilità di risorse da investire in attività non utilitaristiche. Geoffrey Miller ha sostenuto in modo convincente che molte delle nostre capacità cognitive, linguaggio elaborato, senso dell'umorismo, creatività artistica, si siano evolute principalmente come esibizioni sessuali [8], e la musica sarebbe la forma più pura e antica di questo fenomeno. È una forma di selezione sessuale, simile a quella che ha prodotto la coda del pavone. Anche le nostre espressioni più elevate affondano le radici nei meccanismi darwiniani di sopravvivenza e riproduzione. La musica non fa eccezione."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La prima droga"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Ma se la musica fosse solo coesione sociale ed esibizione sessuale, sarebbe già abbastanza. Invece c'è qualcosa di più profondo. La musica è la prima tecnologia di alterazione della coscienza che la nostra specie ha sviluppato. Prima degli allucinogeni, prima dell'alcol, forse prima persino del fuoco. C'era il canto. E il canto altera letteralmente la chimica del cervello."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Cominciamo dal brivido musicale, quel momento di pura estasi quando una certa frase melodica, una progressione armonica particolare, ci attraversa come una scarica elettrica. Non è una metafora poetica: è un fenomeno misurabile, e coinvolge gli stessi circuiti neurochimici della morfina [9]. Quando la musica raggiunge quel momento di climax emotivo, il nostro cervello rilascia endorfine [10], oppioidi endogeni, chimicamente simili alla morfina. Non stiamo usando una metafora quando diciamo che la musica ci droga: ci stiamo letteralmente drogando con frequenze sonore organizzate."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Molto prima che la neurochimica potesse dimostrarlo con uno scanner, un filosofo tedesco aveva già intuito che la musica agisse su di noi in modo radicalmente diverso da ogni altra arte. Arthur Schopenhauer, ne Il mondo come volontà e rappresentazione, sostenne che tutte le altre arti, la pittura, la scultura, persino la poesia, ci parlano attraverso rappresentazioni: ci mostrano un'immagine del mondo, un oggetto, un'idea [11]. La musica, invece, per Schopenhauer non rappresenta nulla: non è un'immagine della realtà, ma la voce diretta di ciò che lui chiamava la Volontà, quella forza cieca e incessante che secondo lui pulsa dietro ogni fenomeno del mondo, dal desiderio più elementare fino al più astratto pensiero. Per questo, scriveva, la musica ci commuove con una forza che nessun'altra arte possiede: mentre un quadro ci parla del mondo, la musica è il mondo, colto per un istante nella sua pulsazione più intima, prima ancora di trasformarsi in immagine o concetto. È la stessa intuizione, spogliata del linguaggio metafisico ottocentesco, che ritroviamo nella scoperta che la musica condivide i circuiti della morfina: se davvero ci parla senza la mediazione di alcuna immagine, ha senso che ci raggiunga tanto in profondità da alterare la chimica stessa del cervello, come nessuna rappresentazione potrebbe mai fare."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Il ruolo della dopamina è cruciale in questo meccanismo. Come abbiamo già visto, la dopamina non è la molecola del piacere, ma dell'anticipazione: viene rilasciata non quando otteniamo la ricompensa, ma quando la prevediamo. Ed è qui che la musica rivela la sua natura di droga cognitiva perfetta. Gli studi di neuroimaging mostrano che il picco di dopamina non arriva con la nota risolutiva, ma nei momenti immediatamente precedenti, quando il cervello sa che sta arrivando qualcosa di bello ma non l'ha ancora sentito. In quei pochi secondi di squisita attesa, il nucleus accumbens, il centro di ricompensa del cervello, mostra un aumento di attività paragonabile a quello osservato durante l'anticipazione di ricompense alimentari o sessuali."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica, in altre parole, è un gioco cognitivo purissimo. Il cervello cerca costantemente di prevedere cosa verrà dopo, basandosi sui pattern musicali che ha imparato, e quando la musica soddisfa quelle previsioni, ma non troppo ovviamente, quando introduce una variazione elegante, una deviazione sorprendente ma coerente, allora il cervello si ricompensa da solo con una scarica di dopamina. È per questo che la musica troppo semplice ci annoia, perché non c'è nulla da prevedere, e la musica troppo complessa ci frustra, perché non riusciamo a individuare i pattern. La grande musica, quella che amiamo e riascoltiamo compulsivamente, è quella che trova il punto perfetto tra prevedibilità e sorpresa."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Leonard Meyer, musicologo e psicologo cognitivo, lo aveva capito già negli anni Cinquanta: la musica è fondamentalmente gestione dell'aspettativa [12]. Crea tensione, poi la risolve. Stabilisce pattern, poi li viola. Promette, poi mantiene o tradisce. E in questo gioco continuo tra aspettativa e realizzazione, tra tensione e risoluzione, si annida il suo potere di catturarci."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Ma qui emerge un paradosso. Se la musica funziona attraverso l'anticipazione, attraverso la previsione di pattern, allora dovrebbe smettere di funzionare dopo il primo ascolto. Una volta che conosciamo una canzone, sappiamo esattamente cosa verrà dopo: non c'è più sorpresa, non più anticipazione. Eppure riascoltiamo le nostre canzoni preferite centinaia di volte. Perché?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La risposta è che il cervello musicale opera su più livelli simultaneamente. Possiamo conoscere razionalmente ogni nota di una composizione e comunque sentire la tensione e la risoluzione, come se una parte del cervello, quella più antica, più emotiva, mantenesse intatta la capacità di essere sorpresa, anche quando la parte razionale sa perfettamente cosa sta per succedere. La musica ha questo potere unico di cortocircuitare la cognizione consapevole e parlare direttamente alle strutture emotive profonde. In un certo senso, ogni ascolto è il primo ascolto. Ed è questo il segno distintivo di una droga davvero potente: non ti stanchi mai, non sviluppi tolleranza, più la consumi, più la vuoi."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Il cervello accordato"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Se la musica fosse davvero solo un sottoprodotto accidentale, dovremmo trovare nel cervello un'area dedicata al suo processamento, un modulo musicale, analogamente a come abbiamo un'area di Broca per il linguaggio. Invece troviamo qualcosa di molto più strano. La musica non ha una sede specifica nel cervello. Quando ascoltiamo musica, si attiva una rete di aree cerebrali più vasta di quella richiesta dalla maggior parte degli altri compiti cognitivi [13]. La corteccia uditiva primaria per processare le frequenze, il cervelletto e i gangli della base per il ritmo, la corteccia prefrontale per la sintassi musicale, l'ippocampo per la memoria, l'amigdala per le emozioni."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "È come se la musica, invece di essere un'applicazione installata in una zona specifica del cervello, fosse un sistema operativo che pervade l'intera architettura neurale. Una delle conseguenze più evidenti è la resilienza anomala della memoria musicale. Oliver Sacks, in Musicophilia [14], documenta pazienti con Alzheimer avanzato che non riconoscono più i propri figli ma possono ancora cantare le canzoni della loro giovinezza, parola per parola. La memoria musicale resiste quando altre forme di memoria collassano, probabilmente proprio per la sua natura distribuita: non è memorizzata in un punto, ma diffusa attraverso la rete, e la rete, anche danneggiata, cerca di ricostruirla. La figura illustra la distinzione di Schopenhauer."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[Didascalia figura: La distinzione di Schopenhauer: mentre le altre arti rappresentano il mondo attraverso un'immagine, la musica è, secondo il filosofo, la voce diretta della Volontà che pulsa dietro ogni fenomeno.]"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Poi c'è il mistero dell'orecchio assoluto [15]. Solo circa una persona su diecimila possiede questa capacità: riconoscere e nominare una nota musicale senza alcun riferimento esterno. Ascolta un La e sa, immediatamente e infallibilmente, che è un La a 440 hertz. Non è questione di orecchio allenato: musicisti professionisti possono avere un orecchio relativo eccellente senza possedere quello assoluto. L'aspetto interessante è che tutti i neonati sembrano possederla [16], ma la maggior parte la perde nei primi anni di vita, come se la nostra cultura ci disimparasse questa capacità. Impariamo a pensare in termini relativi, questa nota è più alta di quella, e nel processo perdiamo la capacità di percepirle in modo assoluto. Solo chi viene esposto intensivamente alla musica nei primissimi anni di vita, tipicamente i figli di musicisti, conserva questa abilità nell'età adulta."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "È un fenomeno analogo a quello della percezione fonetica: i neonati giapponesi, come tutti i neonati, distinguono perfettamente il suono della R da quello della L, ma perdono questa capacità crescendo in un ambiente linguistico dove quella distinzione è irrilevante. Il cervello, in entrambi i casi, elimina sistematicamente le distinzioni che l'ambiente non richiede di mantenere: non è un difetto, ma un'economia cognitiva, la stessa logica di potatura neurale che abbiamo incontrato parlando di memoria e di categorizzazione. L'orecchio assoluto non è un dono misterioso concesso a pochi eletti: è semplicemente ciò che resta, in poche persone, di una capacità che tutti possediamo alla nascita e che quasi tutti, in seguito, lasciamo cadere perché il mondo intorno a noi non ci chiede più di usarla."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "E poi c'è il legame profondo tra musica e matematica. I pitagorici lo avevano intuito duemilacinquecento anni fa: i rapporti armonici sono rapporti numerici. Un'ottava corrisponde a un rapporto di frequenze due a uno, una quinta perfetta a tre a due. Ma non è solo questione di rapporti tra note. La struttura stessa della composizione musicale, le fughe di Bach, obbedisce a principi matematici profondi. Una fuga è essenzialmente un teorema musicale: prendi un tema, applicagli trasformazioni secondo regole precise, e vedi cosa emerge. Il risultato non è solo corretto matematicamente, è bello. C'è un substrato cognitivo comune, probabilmente legato alla capacità di costruire rappresentazioni gerarchiche, che permette sia la musica che la matematica, e in ultima analisi la coscienza stessa. Forse arte e scienza non sono magisteri separati: sono due manifestazioni diverse della stessa capacità cognitiva fondamentale, trovare ordine nel caos, pattern nel rumore, bellezza nella struttura."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Il vaccino emotivo"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Ma veniamo ora a un paradosso interessante: perché amiamo la musica triste? Dal punto di vista evolutivo, dovremmo evitare ciò che ci causa sofferenza. Eppure cerchiamo attivamente musica che ci fa piangere, che evoca malinconia, nostalgia, perdita."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Una possibile spiegazione viene dalla teoria della palestra emotiva [17]. La musica triste ci permette di praticare la sofferenza in un ambiente sicuro. È un vaccino emotivo: ci inoculiamo dosi controllate di tristezza per costruire anticorpi contro quella reale. Quando ascoltiamo una ballata straziante sappiamo, a livello conscio, che non stiamo davvero subendo una perdita. Ma a livello emotivo, quello delle strutture limbiche profonde che non capiscono la differenza tra reale e simulato, la sofferenza è autentica. E quindi impariamo che la tristezza, per quanto dolorosa, è sopportabile, che ha una struttura, un inizio e una fine, che possiamo attraversarla e uscirne dall'altra parte."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica triste, però, funziona anche come una forma di validazione sociale, ed è forse questa la sua funzione più sottovalutata. Quando ascoltiamo una canzone che esprime un'emozione che credevamo incomunicabile, scopriamo che qualcun altro l'ha provata, e l'ha provata abbastanza intensamente da trasformarla in arte. Non siamo più soli nell'esperienza. È consolazione per condivisione: il ruolo della musica, oltre alla coesione sociale e alla selezione sessuale già descritte, è anche quello di costruire un ponte emotivo tra individui altrimenti isolati nella propria sofferenza."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Gli studi neurobiologici supportano questa interpretazione. Quando ascoltiamo musica triste, il cervello rilascia prolattina [18], lo stesso ormone rilasciato durante l'allattamento, associato a consolazione e legame sociale. Ci stiamo letteralmente consolando da soli, attraverso la mediazione della musica. E c'è un'altra dimensione: la musica triste è bella. C'è qualcosa di esteticamente perfetto in una melodia malinconica ben costruita, quello che i giapponesi chiamano mono no aware, la consapevolezza acuta e toccante della transitorietà delle cose. La musica triste ci insegna che la sofferenza può essere trasformata in bellezza. Non elimina la sofferenza, ma le dà forma, struttura, significato."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Il silenzio, la macchina e l'ultima domanda"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Miles Davis, genio del jazz e maestro dell'economia espressiva, disse una volta che la musica non sta nelle note, ma nel silenzio tra le note [19]. È una frase che suona poetica, quasi mistica, ma contiene una verità cognitiva profonda. Il silenzio nella musica non è assenza: è presenza negativa, uno spazio che il cervello riempie con anticipazione, con memoria, con aspettativa."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Quando John Cage compose il suo controverso 4'33'', quattro minuti e trentatré secondi di silenzio eseguiti da un pianista seduto immobile davanti alla tastiera, stava conducendo un esperimento radicale: cosa succede quando eliminiamo le note ma manteniamo intatta la cornice della performance musicale? La risposta è che il silenzio diventa musica. Il pubblico comincia ad ascoltare i suoni ambientali, i colpi di tosse, lo scricchiolio delle sedie, il traffico fuori dalla sala, come se fossero note di una composizione. La cornice rituale del concerto trasforma il rumore casuale in arte, non perché i suoni siano diversi da quelli di sempre, ma perché la nostra percezione è cambiata: stiamo ascoltando in modalità musicale, e quindi tutto diventa musica. È la dimostrazione più estrema possibile del principio di Meyer descritto poco sopra: se la musica è gestione dell'aspettativa, basta creare l'aspettativa, la cornice di un concerto, un pianista seduto al suo posto, per costringere il cervello a cercare pattern anche dove nessuno ne ha scritti, trasformando il rumore ambientale nell'unica risoluzione possibile di una tensione che il compositore non ha mai smesso di promettere. La musica, allora, non è solo una proprietà del suono, ma anche dell'attenzione che le rivolgiamo: existe nell'interazione tra le vibrazioni d'aria e il cervello che le interpreta."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Ma quali suoni il nostro cervello è davvero calibrato per ascoltare? Per 300.000 anni il paesaggio sonoro umano era radicalmente diverso: vento tra le foglie, acqua corrente, canto degli uccelli secondo pattern prevedibili. Il sistema nervoso si è ottimizzato su questi suoni come condizione di normalità [20]. Il rumore moderno, traffico, notifiche, macchinari, è neurologicamente ostile: frequenze irregolari, volume imprevedibile, pattern che il cervello non può abituarsi a processare completamente. La verità è che non ti rilassi con i suoni naturali. Ti stressi senza di loro. E forse è proprio in questo scarto, tra il paesaggio sonoro per cui siamo calibrati e quello in cui viviamo, che si nasconde una delle ragioni del nostro bisogno di musica: un tentativo di ricostruire, artificialmente, una struttura sonora che il cervello possa riconoscere come familiare."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Questa natura relazionale della percezione sonora solleva una domanda interessante nell'era dell'intelligenza artificiale musicale. Possiamo descrivere perfettamente i meccanismi. Sappiamo quali aree cerebrali si attivano. Conosciamo i neurotrasmettitori coinvolti. Un'intelligenza artificiale sufficientemente sofisticata potrebbe fare tutto questo, e molto di più, con una precisione che nessun musicologo umano potrebbe eguagliare. Ma quell'intelligenza artificiale sentirebbe qualcosa ascoltando una sinfonia di Mahler? Avrebbe i brividi lungo la schiena quando la progressione armonica raggiunge quel punto di perfetta risoluzione?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Suno AI, lanciata nel 2023, può generare in pochi secondi una canzone completa, voce, strumenti, struttura, emozioni, partendo da una semplice descrizione testuale [21]. Il paradosso è evidente: un algoritmo che non ha mai provato gioia può comporre una melodia gioiosa. Come è possibile? Suno ha ingerito milioni di canzoni umane. Ha estratto pattern, strutture, progressioni armoniche. È mimesi computazionale pura: la macchina che impara a imitare i gesti emotivi senza provare l'emozione."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Il fondatore stesso dell'azienda, Mikey Shulman, ha dichiarato in un'intervista di ritenere che la maggior parte delle persone non goda particolarmente del tempo che passa a fare musica [22]. È un'affermazione che merita di essere presa sul serio proprio perché rivela lo scopo implicito di questi strumenti: non si tratta soltanto di automatizzare la fatica tecnica, l'accordatura, la registrazione, la produzione, ma di sostituire il processo creativo stesso, come se comporre fosse un compito sgradevole da delegare, anziché l'atto attraverso cui un'esperienza interiore trova finalmente una forma condivisibile. La domanda che ne deriva non è tecnica ma filosofica: cosa stiamo davvero delegando alle macchine quando deleghiamo loro la musica?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Per me questa domanda ha smesso da poco di essere astratta. Dopo quasi quindici anni da utente fedele di Spotify, l'algoritmo mi ha proposto un artista che non conoscevo: Ulrich Yande. La musica era notevole, la voce impressionante. Ma qualcosa non tornava. La sua produttività mi è sembrata anomala: tre album pubblicati in un solo anno, il 2025. Ho provato a saperne di più, e le foto del suo profilo Instagram mi sono parse quelle di un'altra persona, con ogni probabilità rielaborate dall'IA. Non posso dimostrarlo, e non pretendo di farlo: posso dire soltanto che non ho trovato traccia di una persona reale dietro quel profilo, e che il sospetto, una volta nato, non se n'è più andato. Ho la sensazione, del tutto personale e senza alcuna misura alle spalle, che nelle playlist algoritmiche questo genere di musica stia diventando sempre più frequente; dell'inganno sintetico e del rumore di fondo dei contenuti generati abbiamo già parlato nei capitoli precedenti. Qui mi interessa altro: la reazione che quel sospetto ha provocato in me. Per la prima volta sto seriamente considerando di disdire il mio abbonamento, spinto da un bisogno quasi primordiale di ascoltare musica creata da esseri umani. Ed è, a pensarci, proprio il bisogno di cui parla questo capitolo: non mi bastava che quella voce fosse bella, volevo sapere che dietro ci fosse qualcuno."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Per capire meglio cosa manchi esattamente alla mimesi della macchina, aiuta tornare a un secondo pensatore tedesco, allievo insofferente proprio di Schopenhauer. Nel 1872 Friedrich Nietzsche, ne La nascita della tragedia, distinse due forze opposte e complementari nell'arte greca [23]. L'apollineo è il principio della forma, dell'ordine, del sogno lucido, dell'individuo ben distinto dagli altri: è la scultura, l'architettura, l'immagine chiara. Il dionisiaco, invece, è il principio dell'ebbrezza, della fusione, della perdita temporanea dei confini dell'io in qualcosa di più grande, ed è, per Nietzsche, il territorio proprio della musica. Quando cantiamo insieme in un coro, quando un intero pubblico si muove all'unisono a un concerto, non stiamo semplicemente ascoltando una forma ben costruita: stiamo attraversando, per qualche istante, quella dissoluzione dionisiaca del confine tra sé e gli altri che Nietzsche considerava l'esperienza estetica più radicale possibile. Ed è qui che il limite della musica generata da una macchina diventa filosoficamente nitido: un algoritmo può produrre perfettamente la forma apollinea, la struttura, l'armonia corretta, la progressione attesa, ma non ha nulla dentro di sé da dissolvere. Genera l'apollineo che imita il dionisiaco: superficie senza abisso, la forma dell'ebbrezza senza l'ebbrezza stessa, perché non esiste alcun confine dell'io, in una macchina, che possa mai essere davvero perduto. La figura schematizza la distinzione tra apollineo e dionisiaco."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[Didascalia figura: Schema a due colonne che contrappone l'apollineo (scultura, ordine, forma chiara, individuo distinto) al dionisiaco (ebbrezza, fusione, perdita dei confini dell'io), con l'algoritmo musicale collocato sul lato apollineo e un abisso vuoto al posto del dionisiaco. La distinzione nietzschiana applicata alla musica generata dall'intelligenza artificiale: l'algoritmo può riprodurre perfettamente la forma apollinea, ordine e struttura, ma non possiede un io da dissolvere nell'ebbrezza dionisiaca.]"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Studi recenti sembrano confermare questo scarto anche a livello fisiologico. Il nostro cervello reagisce in modo sottilmente diverso alla musica generata dall'intelligenza artificiale rispetto a quella composta da umani, anche quando non sappiamo quale stiamo ascoltando [24]. Le pupille si dilatano di più con la musica generata dall'intelligenza artificiale, segno di maggiore sforzo cognitivo, mentre la risposta galvanica della pelle indica livelli di attivazione più bassi. Eppure, e qui sta il vero mistero, l'impatto emotivo soggettivo è quasi identico: le persone riportano le stesse emozioni ascoltando musica generata da una macchina o da un essere umano. È come se l'emozione musicale potesse essere replicata con precisione algoritmica, ma il corpo, nella sua saggezza animale, mantenesse comunque una traccia della differenza."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "C'è forse un modo più preciso per nominare quella traccia sottile che il corpo percepisce e la mente cosciente no. Negli anni Quaranta la filosofa americana Susanne Langer, in Filosofia in una nuova chiave, propose una distinzione decisiva tra due modi in cui un segno può riferirsi a un significato [25]. Un segno discorsivo, come una parola, descrive un'emozione dall'esterno, la nomina, la classifica in una categoria già pronta: la parola tristezza non è triste, ne è soltanto l'etichetta. La musica, per Langer, funziona in modo del tutto diverso: è un simbolo presentativo, che non descrive l'esperienza emotiva ma ne presenta direttamente la forma logica, la stessa struttura dinamica di tensione e distensione che caratterizza il sentire umano. Ecco perché, secondo Langer, la musica riesce a comunicare sfumature emotive per cui nessuna parola esiste: non le sta descrivendo dall'esterno, ne sta incarnando la forma stessa. E questo spiega, forse meglio di ogni altra teoria, perché la musica generata da una macchina possa suonarci sottilmente vuota anche quando tecnicamente perfetta: può copiare con esattezza la forma del simbolo, la sequenza di tensioni e risoluzioni che Langer descriveva, senza però che dietro quella forma vi sia mai stata una reale esperienza emotiva da presentare. Non manca la superficie. Manca ciò di cui la superficie, in un compositore umano, è sempre stata l'impronta diretta. La figura mette a confronto i due tipi di segno."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[Didascalia figura: Confronto a due riquadri: a sinistra il segno discorsivo (la parola «tristezza» che descrive l'emozione dall'esterno, come un'etichetta), a destra il simbolo presentativo (una linea musicale di tensione e distensione che presenta direttamente la forma dell'emozione). La differenza teorizzata da Susanne Langer tra segno discorsivo e simbolo presentativo: la parola descrive un'emozione dall'esterno, mentre la musica ne presenta direttamente la forma dinamica.]"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "C'è un'ultima linea di ricerca che rende la questione ancora più urgente. Secondo la cosiddetta Neural Resonance Theory, sviluppata da Large, Palmer e colleghi, il cervello non si limita a elaborare la musica come farebbe con un qualunque altro segnale sensoriale: risuona fisicamente con essa [26]. Le oscillazioni neurali si sincronizzano con il ritmo esterno, i pattern cerebrali arrivano a incarnare letteralmente la struttura musicale che stiamo ascoltando: non ci limitiamo ad ascoltare la musica, in un certo senso la diventiamo. Se questo è vero, allora la domanda sull'intelligenza artificiale si fa più inquietante di come sembrasse in origine. Se un algoritmo può generare musica capace di sincronizzare le nostre oscillazioni neurali esattamente come farebbe un compositore umano, stiamo forse permettendo a un sistema privo di esperienza soggettiva di riprogrammare, non solo di intrattenere, i nostri stessi stati di coscienza? Di colonizzare non soltanto il paesaggio sonoro in cui viviamo, ma il paesaggio neurale che siamo?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La risposta non è ancora scritta. Ma una cosa è certa: stiamo rinegoziando il contratto più antico della nostra specie, quello tra la mente che crea e il mistero da cui la creazione emerge."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "L'algoritmo continua a generare musica. Senza gioia, senza dolore, senza sapere cosa significhi cantare. Eppure produce suoni che ci commuovono. È qui che la musica diventa una sonda filosofica potente quanto il problema della stanza cinese di Searle o lo zombie filosofico di Chalmers [27]. Perché se un sistema può processare perfettamente tutte le informazioni musicali ma non sentire nulla, allora manca qualcosa di fondamentale, qualcosa che non è riducibile al processamento di informazioni. Qualcosa che Thomas Nagel chiamava com'è essere [28], la qualità soggettiva dell'esperienza."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica, in altre parole, è la prova vivente, o meglio udibile, che la coscienza è più della somma delle sue parti computazionali. Forse la domanda giusta non è perché esiste la musica, ma cosa ci dice la musica sull'universo. Perché se pattern sonori organizzati possono produrre emozioni profonde, se il silenzio tra le note può essere denso di significato quanto le note stesse, allora forse l'universo è strutturato in modo da permettere, o addirittura favorire, l'emergere di fenomeni come la coscienza e l'esperienza soggettiva."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica non risolve il problema difficile della coscienza. Ma ce lo ricorda, ogni volta che ascoltiamo. Ci ricorda che essere consapevoli non è solo elaborare informazioni. È essere qualcosa. È avere un punto di vista sul mondo. È trasformare input sensoriali in esperienza vissuta. E finché una macchina, per quanto sofisticata, non potrà dirci cosa significhi davvero ascoltare il Requiem di Mozart, non descriverlo ma viverlo, sapremo che c'è ancora un abisso tra il processamento e la coscienza."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "La musica non è nelle note. Ma se non è nelle note, e non è nemmeno necessariamente nell'umano che le organizza, allora dove risiede? Nel cervello che ascolta? Nell'interazione tra suono e percezione? O in quella zona ancora inesplorata dove computazione ed esperienza soggettiva si incontrano? Un abisso del silenzio tra le note. Un abisso che solo la musica, forse, può farci percepire nella sua profondità."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Resta però una questione molto più terrena. Quel bisogno di sapere chi c'è dietro una voce, lo stesso che mi ha fatto pensare di disdire l'abbonamento, può essere soddisfatto solo a due condizioni: che qualcuno ce lo dica, e che noi abbiamo voglia di ascoltarlo. È sulla seconda, la più scomoda, che conviene fermarsi adesso."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "Note a piè di pagina"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[1] Pinker, S. (1997). How the Mind Works. W. W. Norton and Company, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[2] Grahn, J. A., e Brett, M. (2007). Rhythm and beat perception in motor areas of the brain. Journal of Cognitive Neuroscience, 19(5)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[3] Patel, A. D. (2008). Music, Language, and the Brain. Oxford University Press, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[4] Müller, V., e Lindenberger, U. (2011). Cardiac and respiratory patterns synchronize between persons during choir singing. PLoS ONE, 6(9)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[5] Pearce, E., Launay, J., e Dunbar, R. I. M. (2015). The ice breaker effect: singing mediates fast social bonding. Royal Society Open Science, 2(10)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[6] Rousseau, J. J. (1781). Essai sur l'origine des langues. Pubblicazione postuma, Ginevra."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[7] Zahavi, A., e Zahavi, A. (1997). The Handicap Principle. Oxford University Press, Oxford."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[8] Miller, G. (2000). The Mating Mind. Doubleday, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[9] Salimpoor, V. N., e altri (2011). Anatomically distinct dopamine release during anticipation and experience of peak emotion to music. Nature Neuroscience, 14(2)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[10] Chanda, M. L., e Levitin, D. J. (2013). The neurochemistry of music. Trends in Cognitive Sciences, 17(4)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[11] Schopenhauer, A. (1818). Die Welt als Wille und Vorstellung. Brockhaus, Lipsia."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[12] Meyer, L. B. (1956). Emotion and Meaning in Music. University of Chicago Press, Chicago."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[13] Levitin, D. J., e Tirovolas, A. K. (2009). Current advances in the cognitive neuroscience of music. Annals of the New York Academy of Sciences, 1156."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[14] Sacks, O. (2007). Musicophilia: Tales of Music and the Brain. Alfred A. Knopf, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[15] Zatorre, R. J. (2003). Absolute pitch: A model for understanding the influence of genes and development on neural and cognitive function. Nature Neuroscience, 6(7)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[16] Saffran, J. R., e Griepentrog, G. J. (2001). Absolute pitch in infant auditory learning: Evidence for developmental reorganization. Developmental Psychology, 37(1)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[17] Huron, D. (2006). Sweet Anticipation: Music and the Psychology of Expectation. MIT Press, Cambridge."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[18] Huron, D. (2011). Why is sad music pleasurable? A possible role for prolactin. Musicae Scientiae, 15(2)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[19] Davis, M., citato in Carr, I. (1982). Miles Davis: A Biography. William Morrow, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[20] Bratman, G. N., e altri (2015). Nature experience reduces rumination and subgenual prefrontal cortex activation. Proceedings of the National Academy of Sciences, 112(28)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[21] Suno, Inc. (2024). Documentazione della piattaforma. Cambridge, Massachusetts."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[22] Shulman, M. (2025). Intervista in podcast, citata in The Musician's Guide to Suno AI, AudioCipher."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[23] Nietzsche, F. (1872). Die Geburt der Tragödie. E. W. Fritzsch, Lipsia."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[24] Fišer, N., Martín-Pascual, M. A., & Andreu-Sánchez, C. (2025). «Emotional impact of AI-generated vs. human-composed music in audiovisual media: A biometric and self-report study». PLOS One, 20(6), e0326498."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[25] Langer, S. K. (1942). Philosophy in a New Key. Harvard University Press, Cambridge."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[26] Neuroscience News (2025). «Your Brain and Body Literally Sync to Music». Divulgazione dello studio di Large, Palmer e colleghi, Nature Reviews Neuroscience (2025)."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[27] Chalmers, D. J. (1996). The Conscious Mind. Oxford University Press, New York."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": "transparent",
+                  "color": "rgb(255, 255, 255)",
+                  "fontFamily": "Verdana",
+                  "fontSize": "16px",
+                  "lineHeight": ""
+                }
+              }
+            ],
+            "text": "[28] Nagel, T. (1974). What is it like to be a bat? The Philosophical Review, 83(4)."
+          }
+        ]
       },
       {
         "type": "paragraph",
@@ -141,5 +2837,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1792482125306
+  "updated": 1792739911175
 }
