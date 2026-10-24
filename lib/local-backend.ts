@@ -4,6 +4,7 @@ import { ASSIST_MODES, assistPrompts, isProvider, providerError, providerRequest
 import { EMPTY_PROJECT, sanitizeProject } from './project';
 import { assistStream } from './assist-stream';
 import { desktop } from './desktop';
+import { openaiSpeechRequest, speechError } from './read-aloud';
 
 type StoredDoc = { id: string; title: string; content: string; updated: number; version: number };
 type StoredRevision = { id: string; title: string; content: string; created: number };
@@ -112,4 +113,19 @@ export async function localAssist(b: Body, signal: AbortSignal): Promise<Respons
   if (!upstream.ok || !upstream.body) { clearTimeout(timer); await upstream.body?.cancel(); return failure(providerError(upstream.status), upstream.status === 429 ? 429 : 502); }
   const stream = assistStream(upstream.body, p.provider, { provider: p.provider, model: p.model, system, prompt }, () => { controller.abort(); clearTimeout(timer); });
   return new Response(stream, { headers: { 'Content-Type': 'application/x-ndjson' } });
+}
+
+// Neural read-aloud with a stored OpenAI profile, called directly from the browser.
+export async function localSpeech(b: Body, signal: AbortSignal): Promise<Response> {
+  if (!validText(b.profile, 100) || !validText(b.text, 4000) || !validText(b.voice, 40) || !validText(b.model, 80)) return failure('Richiesta non valida.');
+  const p = read<StoredProfile[]>('profiles', []).find(x => x.id === b.profile);
+  if (!p || p.provider !== 'openai') return failure('Per le voci neurali scegli un profilo OpenAI.');
+  const key = unseal(p.key);
+  if (!key) return failure('Chiave API non leggibile su questo computer: inseriscila di nuovo nel profilo.');
+  const config = openaiSpeechRequest(key, b.model, b.voice, { text: b.text });
+  let upstream: Response;
+  try { upstream = await fetch(config.url, { method: 'POST', headers: config.headers, body: JSON.stringify(config.body), signal }); }
+  catch (error) { if (signal.aborted) throw error; return failure('Il servizio vocale non risponde. Riprova.', 502); }
+  if (!upstream.ok) { await upstream.body?.cancel(); return failure(speechError(upstream.status), upstream.status === 429 ? 429 : 502); }
+  return upstream;
 }

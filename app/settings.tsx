@@ -8,6 +8,7 @@ import { ModelPicker } from './model-picker';
 import { TokenStats } from './token-stats';
 import { GitHubConnection } from './github-documents';
 import type { AiPreferences } from '../lib/ai-preferences';
+import { INTERVENTION_LEVELS } from '../lib/intervention';
 
 export type SettingsTab = 'ai' | 'github' | 'rules' | 'general';
 export type Profile = {id:string;name:string;provider:Provider;model:string;baseUrl?:string;hint:string;daily_limit:number;used:number};
@@ -100,6 +101,8 @@ function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable
       <label>Pausa prima del suggerimento: <strong>{delay} ms</strong><input aria-label="Pausa suggerimenti" type="range" min="400" max="1600" step="100" value={delay} onChange={e=>setDelay(+e.target.value)}/></label>
       <p className="form-note">Una pausa più lunga riduce le richieste al provider.</p>
     </>}
+    <label>Livello di intervento dell’AI<select aria-label="Livello di intervento dell’AI" value={aiPreferences.intervention} onChange={e=>setAiPreferences({...aiPreferences,intervention:Number(e.target.value) as AiPreferences['intervention']})}>{INTERVENTION_LEVELS.map(l=><option key={l.level} value={l.level}>{l.level} · {l.name} — {l.short}</option>)}</select></label>
+    <p className="form-note">{INTERVENTION_LEVELS[aiPreferences.intervention-1].tip} Vale per completamenti, «Migliora frase» e riscritture; la sola formattazione non cambia mai le parole.</p>
     <label className="rule-toggle"><input type="checkbox" checked={aiPreferences.formatting} onChange={e=>setAiPreferences({...aiPreferences,formatting:e.target.checked})}/><span>Sistema anche la formattazione<small>Nei completamenti e in «Migliora frase», l’AI sceglie titoli, paragrafi, elenchi, grassetti e corsivi in base al significato e all’importanza del passaggio. Li vedi nell’anteprima prima di accettare.</small></span></label>
   </>;
 }

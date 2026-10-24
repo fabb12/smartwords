@@ -101,9 +101,9 @@ test('Tab requests once, waits for streaming, accepts ready proposals and preser
 test('activation and formatting preferences persist per user and reject malformed stored values', t => {
   const values = new Map(); globalThis.localStorage = { getItem: k => values.get(k) ?? null, setItem: (k, v) => values.set(k, v) };
   t.after(() => delete globalThis.localStorage);
-  assert.deepEqual(readAiPreferences('alice'), { trigger: 'pause', formatting: true });
-  assert.equal(storeAiPreferences({ trigger: 'tab', formatting: false }, 'alice'), true);
-  assert.deepEqual(readAiPreferences('alice'), { trigger: 'tab', formatting: false });
+  assert.deepEqual(readAiPreferences('alice'), { trigger: 'pause', formatting: true, intervention: 2 });
+  assert.equal(storeAiPreferences({ trigger: 'tab', formatting: false, intervention: 1 }, 'alice'), true);
+  assert.deepEqual(readAiPreferences('alice'), { trigger: 'tab', formatting: false, intervention: 1 });
   assert.equal(readAiPreferences('bob').trigger, 'pause');
   values.set('scrivia:ai-preferences:alice', '{bad'); assert.equal(readAiPreferences('alice').trigger, 'pause');
 });
