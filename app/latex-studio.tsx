@@ -3,16 +3,26 @@
 // live preview, commit them to GitHub, upload images and compile the PDF on
 // GitHub Actions. Without GitHub it works on a local project kept in this browser.
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Bold, BookOpen, CircleCheck, Code, Columns2, Download, ExternalLink, Eye, FileArchive, FileCode, FilePlus2, FileText, Folder, GitBranch, Heading1, Heading2, Heading3, ImagePlus, Italic, LayoutTemplate, List, ListOrdered, ListTree, Loader2, Percent, Play, Quote, RefreshCw, Save, Search, Superscript, Tag, TriangleAlert, Underline, WandSparkles, X } from 'lucide-react';
+import { ArrowDown, ArrowUp, Bold, BookOpen, BookPlus, CircleCheck, Code, Columns2, Download, ExternalLink, Eye, FileArchive, FileCode, FilePlus2, FileText, Folder, GitBranch, Heading1, Heading2, Heading3, ImagePlus, Italic, LayoutTemplate, List, ListOrdered, ListTree, Loader2, Percent, Play, Quote, RefreshCw, Save, Search, Superscript, Tag, TriangleAlert, Underline, WandSparkles, X } from 'lucide-react';
 import { checkLatex, countWords, docToLatex, documentOutline, figureSnippet, firstHeading, insertBlock, latexPreviewHtml, latexToEditorHtml, projectStructure, sanitizeImageName, searchLatex, setHeading, texPath, toggleComment, wrapCommand, wrapEnvironment, type DocNode, type Edit, type LatexIssue } from '../lib/latex';
 import { actionsUrl, commitFiles, connectLatex, currentSha, disconnectLatex, dispatchPdf, downloadPdf, fileUrl, findRun, GitHubError, LatexConflict, latestPdf, latexConnected, latexSettings, listFiles, readBlob, readText, waitForRun, WORKFLOW_PATH, writeBytes, writeText, type LatexFile, type LatexSettings, type PdfAsset, type PdfMode, type WorkflowRun } from '../lib/latex-github';
 import { templateFiles, templateZip } from '../lib/latex-template';
+import { addToBook, chapterPath, readBookLinks, storeBookLinks } from '../lib/book';
 
 type Source = 'github' | 'local';
 type OpenFile = { path: string; text: string; saved: string; sha?: string };
 type View = 'split' | 'source' | 'preview';
 type Side = 'struttura' | 'file' | 'indice' | 'cerca';
 type Dialog = null | 'connect' | 'new' | 'image' | 'pdf' | 'template' | 'issues' | 'import';
+// Scrivia documents that can be added to the book, with their groups.
+export type BookLibrary = {
+  docs: { id: string; title: string }[];
+  groups: { id: string; name: string; ids: string[] }[];
+  active: string;
+  load: (id: string) => Promise<{ title: string; content: DocNode }>;
+};
+export type BookRequest = { ids: string[]; part?: string };
+type BookResult = { added: { title: string; path: string; updated: boolean }[]; part?: string };
 
 const LOCAL = 'scrivia:latex-local', DRAFT = 'scrivia:latex-draft:', VIEW = 'scrivia:latex-view';
 const TEXT_FILE = /\.(tex|bib|sty|cls|ist|bst|txt|md|yml|yaml)$|(^|\/)latexmkrc$/i;
@@ -69,10 +79,13 @@ function Modal({ title, icon, children, onClose, wide }: { title: string; icon?:
   </div>;
 }
 
-export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
+export function LatexStudio({ onClose, onOpenInEditor, currentDocument, library, bookRequest, onBookRequestHandled }: {
   onClose: () => void;
   onOpenInEditor: (title: string, html: string) => Promise<void> | void;
   currentDocument: () => { title: string; content: DocNode } | null;
+  library?: BookLibrary;
+  bookRequest?: BookRequest | null;
+  onBookRequestHandled?: () => void;
 }) {
   const [source, setSource] = useState<Source>(() => latexConnected() ? 'github' : 'local');
   const [settings, setSettings] = useState<LatexSettings>(latexSettings);
@@ -96,6 +109,15 @@ export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
   const previewRef = useRef<HTMLDivElement>(null);
   const cache = useRef(new Map<string, { text: string; sha?: string }>());
   const images = useRef(new Map<string, string>());
+  // Documents chosen for the book: kept while the book template is created first.
+  const [pendingBook, setPendingBook] = useState<BookRequest | null>(null);
+  useEffect(() => {
+    if (!bookRequest) return;
+    const t = setTimeout(() => { setPendingBook(bookRequest); setDialog('import'); onBookRequestHandled?.(); });
+    return () => clearTimeout(t);
+  }, [bookRequest, onBookRequestHandled]);
+  // Without a library (older callers) the open document is the only one offered.
+  const bookLibrary: BookLibrary = useMemo(() => library || { docs: [{ id: 'current', title: currentDocument()?.title || 'Documento' }], groups: [], active: 'current', load: async () => { const d = currentDocument(); if (!d) throw new Error('Apri un documento nell’editor.'); return d; } }, [library, currentDocument]);
 
   const prefix = source === 'github' ? `${settings.repository}@${settings.branch}:` : 'local:';
   const dirty = !!file && file.text !== file.saved;
@@ -259,6 +281,38 @@ export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
     flash('Creato ' + path + (main !== mainText ? ' e aggiunto a ' + settings.main : ''));
   }
 
+  // Every document becomes (or updates) a chapter file and is listed in main.tex, in one save.
+  async function addDocsToBook(ids: string[], top: 'chapter' | 'section', part: string): Promise<BookResult> {
+    if (!mainText) throw new Error('Crea prima il libro dal modello.');
+    const links = readBookLinks(prefix), taken = new Set(shown?.map(f => f.path) || []);
+    const chapters: { id: string; path: string; title: string; latex: string; updated: boolean }[] = [];
+    for (const id of ids) {
+      const doc = await bookLibrary.load(id);
+      const remembered = links[id];
+      const path = chapterPath(doc.title, taken, remembered);
+      const updated = taken.has(path);
+      taken.add(path);
+      chapters.push({ id, path, title: doc.title, latex: docToLatex(doc.content, { title: doc.title, top }), updated });
+    }
+    const main = addToBook(mainText, chapters, part);
+    const changes = [...chapters.map(c => ({ path: c.path, content: c.latex })), ...(main !== mainText ? [{ path: settings.main, content: main }] : [])];
+    if (source === 'local') {
+      const next = { ...local, ...Object.fromEntries(changes.map(c => [c.path, c.content])) };
+      if (!writeJson(LOCAL, next)) throw new Error('Spazio del browser esaurito: scarica il progetto in .zip.');
+      setLocal(next);
+    } else {
+      await commitFiles(changes, chapters.length === 1 ? `Aggiunge al libro «${chapters[0].title}» con Scrivia` : `Aggiunge al libro ${chapters.length} capitoli con Scrivia`);
+      cache.current.clear();
+      setFiles(await listFiles());
+    }
+    storeBookLinks(prefix, { ...links, ...Object.fromEntries(chapters.map(c => [c.id, c.path])) });
+    setMainText(main);
+    const changed = new Map(changes.map(c => [c.path, c.content]));
+    setFile(cur => cur && changed.has(cur.path) && cur.text === cur.saved ? { path: cur.path, text: changed.get(cur.path)!, saved: changed.get(cur.path)! } : cur);
+    setSide('struttura');
+    return { added: chapters.map(c => ({ title: c.title, path: c.path, updated: c.updated })), part: part.trim() || undefined };
+  }
+
   // ---------------------------------------------------------------- keyboard
   function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     const mod = e.ctrlKey || e.metaKey;
@@ -361,7 +415,7 @@ export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
     </div>
     <div className="latex-side-foot">
       <button className="quiet" onClick={() => setDialog('new')} disabled={!shown}><FilePlus2 size={15} />Nuovo file</button>
-      <button className="quiet" onClick={() => setDialog('import')} disabled={!shown}><WandSparkles size={15} />Dal documento Scrivia</button>
+      <button className="quiet" onClick={() => { setPendingBook(null); setDialog('import'); }} disabled={!shown}><BookPlus size={15} />Aggiungi documenti al libro</button>
       <button className="quiet" onClick={() => setDialog('template')}><LayoutTemplate size={15} />Modello di progetto</button>
     </div>
   </aside>;
@@ -447,8 +501,13 @@ export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
       onDisconnect={() => { disconnectLatex(); setDialog(null); setFile(null); setSource('local'); void run('Carico il progetto…', () => refresh('local')); }} />}
     {dialog === 'new' && <NewFileDialog hasMain={!!mainText} main={settings.main} onClose={() => setDialog(null)}
       onCreate={async (path, t, add) => { await createFile(path, `\\chapter{${t.replace(/([{}$&#_%])/g, '\\$1')}}\n\n`, add ? t : null); setDialog(null); }} />}
-    {dialog === 'import' && <ImportDialog doc={currentDocument()} hasMain={!!mainText} onClose={() => setDialog(null)}
-      onCreate={async (path, latex, t, add) => { await createFile(path, latex, add ? t : null); setDialog(null); }} />}
+    {dialog === 'import' && <BookDialog library={bookLibrary} request={pendingBook} hasMain={!!mainText} loading={!shown} source={source} links={readBookLinks(prefix)} main={settings.main}
+      onClose={() => { setDialog(null); setPendingBook(null); }}
+      onNeedTemplate={selection => { setPendingBook(selection); setDialog('template'); }}
+      onAdd={addDocsToBook}
+      onCompile={() => setDialog('pdf')}
+      onZip={() => { setDialog(null); void projectZip(); }}
+      onOpenMain={() => { setDialog(null); void openFile(settings.main); }} />}
     {dialog === 'image' && file && <ImageDialog source={source} images={imageFiles} onClose={() => setDialog(null)}
       onInsert={async (choice) => {
         let name = choice.existing;
@@ -468,14 +527,14 @@ export function LatexStudio({ onClose, onOpenInEditor, currentDocument }: {
       }} />}
     {dialog === 'pdf' && <PdfDialog workflowInstalled={workflowInstalled} dirty={dirty} onClose={() => setDialog(null)}
       onInstall={async () => { await commitFiles([{ path: WORKFLOW_PATH, content: templateFiles().find(f => f.path === WORKFLOW_PATH)!.content }], 'Aggiunge la compilazione PDF con Scrivia'); setFiles(await listFiles()); }} />}
-    {dialog === 'template' && <TemplateDialog source={source} existing={shown?.map(f => f.path) || []} onClose={() => setDialog(null)}
+    {dialog === 'template' && <TemplateDialog source={source} existing={shown?.map(f => f.path) || []} onClose={() => setDialog(pendingBook ? 'import' : null)}
       onCreate={async (o, overwrite) => {
         const all = templateFiles(o);
         const chosen = overwrite ? all : all.filter(f => !shown?.some(x => x.path === f.path));
         if (!chosen.length) throw new Error('Tutti i file del modello esistono già nel progetto.');
         if (source === 'local') { const next = { ...local, ...Object.fromEntries(chosen.map(f => [f.path, f.content])) }; writeJson(LOCAL, next); setLocal(next); setMainText(next[settings.main] || ''); }
         else { await commitFiles(chosen, 'Crea il progetto LaTeX dal modello Scrivia'); cache.current.clear(); const list = await listFiles(); setFiles(list); setMainText((await readText(settings.main)).text); }
-        setDialog(null); setSide('struttura'); flash(`Creati ${chosen.length} file dal modello`);
+        setDialog(pendingBook ? 'import' : null); setSide('struttura'); flash(`Creati ${chosen.length} file dal modello`);
       }}
       onZip={async o => download(await templateZip(o), 'modello-latex-scrivia.zip')} />}
     {dialog === 'issues' && <Modal title="Controllo della sintassi" icon={<CircleCheck size={24} />} onClose={() => setDialog(null)}>
@@ -538,21 +597,53 @@ function NewFileDialog({ hasMain, main, onClose, onCreate }: { hasMain: boolean;
   </Modal>;
 }
 
-function ImportDialog({ doc, hasMain, onClose, onCreate }: { doc: { title: string; content: DocNode } | null; hasMain: boolean; onClose: () => void; onCreate: (path: string, latex: string, title: string, add: boolean) => Promise<void> }) {
-  const [top, setTop] = useState<'chapter' | 'section'>('chapter'), [path, setPath] = useState('content/' + slug(doc?.title || 'capitolo') + '.tex'), [add, setAdd] = useState(hasMain);
-  const latex = useMemo(() => doc ? docToLatex(doc.content, { title: doc.title, top }) : '', [doc, top]);
-  const { busy, error, message, act } = useAction();
-  if (!doc) return <Modal title="Dal documento Scrivia" onClose={onClose}><p className="modal-subtitle">Apri un documento nell’editor prima di convertirlo.</p></Modal>;
-  return <Modal title="Dal documento Scrivia" icon={<WandSparkles size={24} />} onClose={onClose} wide>
-    <p className="modal-subtitle">Converte «{doc.title}» in LaTeX: titoli, grassetto, corsivo, elenchi, citazioni e tabelle. Le immagini vanno caricate in images/.</p>
-    <div className="form-grid">
-      <label>I titoli H1 diventano<select value={top} onChange={e => setTop(e.target.value as 'chapter' | 'section')}><option value="chapter">\chapter (libro)</option><option value="section">\section (articolo)</option></select></label>
-      <label>Percorso<input value={path} onChange={e => setPath(e.target.value)} /></label>
+function BookDialog({ library, request, hasMain, loading, source, links, main, onClose, onNeedTemplate, onAdd, onCompile, onZip, onOpenMain }: {
+  library: BookLibrary; request: BookRequest | null; hasMain: boolean; loading: boolean; source: Source; links: Record<string, string>; main: string;
+  onClose: () => void; onNeedTemplate: (selection: BookRequest) => void;
+  onAdd: (ids: string[], top: 'chapter' | 'section', part: string) => Promise<BookResult>;
+  onCompile: () => void; onZip: () => void; onOpenMain: () => void;
+}) {
+  const known = new Set(library.docs.map(d => d.id));
+  const [ids, setIds] = useState<string[]>(() => (request?.ids || [library.active]).filter(id => known.has(id)));
+  const [part, setPart] = useState(request?.part || ''), [top, setTop] = useState<'chapter' | 'section'>('chapter');
+  const [result, setResult] = useState<BookResult | null>(null);
+  const { busy, error, act } = useAction();
+  const titleOf = (id: string) => library.docs.find(d => d.id === id)?.title || 'Documento';
+  const others = library.docs.filter(d => !ids.includes(d.id));
+  const move = (i: number, by: number) => setIds(list => { const next = [...list]; const [it] = next.splice(i, 1); next.splice(i + by, 0, it); return next; });
+
+  if (result) return <Modal title="Aggiunto al libro" icon={<CircleCheck size={24} />} onClose={onClose}>
+    <p className="modal-subtitle">{result.added.length === 1 ? 'Il capitolo è pronto' : `${result.added.length} capitoli sono pronti`}{result.part ? <> nella parte «{result.part}»</> : null}, con lo stile tipografico del libro. {source === 'github' ? 'Ora puoi compilare il PDF.' : 'Scarica il progetto per compilarlo con latexmk o Overleaf, oppure collega GitHub per compilarlo da qui.'}</p>
+    <div className="book-result">{result.added.map(a => <div key={a.path}><BookOpen size={15} /><span><strong>{a.title}</strong><small>{a.path} · {a.updated ? 'aggiornato' : 'nuovo capitolo'}</small></span></div>)}</div>
+    <div className="form-footer">
+      <button className="quiet" onClick={onOpenMain}><FileText size={15} />Apri {main}</button>
+      {source === 'github' ? <button className="primary" onClick={onCompile}><Play size={15} />Compila il PDF</button> : <button className="primary" onClick={onZip}><FileArchive size={15} />Scarica il progetto .zip</button>}
     </div>
-    {hasMain && <label className="github-remember"><input type="checkbox" checked={add} onChange={e => setAdd(e.target.checked)} />Aggiungi al file principale</label>}
-    <pre className="latex-code-preview">{latex.slice(0, 4000)}{latex.length > 4000 ? '\n…' : ''}</pre>
-    <div className="form-footer"><button className="quiet" onClick={() => download(new Blob([latex], { type: 'text/x-tex' }), slug(doc.title) + '.tex')}><Download size={15} />Scarica .tex</button><button className="primary" disabled={busy} onClick={() => void act(() => onCreate(path, latex, doc.title, add))}>{busy ? 'Creo…' : 'Aggiungi al progetto'}</button></div>
-    <Feedback error={error} message={message} />
+  </Modal>;
+
+  return <Modal title="Aggiungi al libro" icon={<BookPlus size={24} />} onClose={onClose} wide>
+    <p className="modal-subtitle">Ogni documento diventa un capitolo del libro, con la formattazione del modello: titoli, grassetto, corsivo, elenchi, citazioni e tabelle. Se un documento è già nel libro, il suo capitolo viene aggiornato.</p>
+    {loading ? <p className="form-note"><Loader2 size={13} className="spin" /> Carico il progetto…</p>
+      : !hasMain && <div className="book-missing"><LayoutTemplate size={18} /><div><strong>Questo progetto non ha ancora un libro</strong><small>Crea {main} dal modello (copertina, indice, stile 17×24): poi i documenti scelti vengono aggiunti.</small></div><button className="primary" onClick={() => onNeedTemplate({ ids, part })}>Crea il libro</button></div>}
+    <div className="latex-part-label">Capitoli, nell’ordine del libro</div>
+    <div className="book-list">
+      {ids.map((id, i) => <div key={id} className="book-item">
+        <span className="book-num">{i + 1}</span>
+        <span className="book-title"><strong>{titleOf(id)}</strong><small>{links[id] ? 'aggiorna ' + links[id] : 'nuovo capitolo'}</small></span>
+        <button className="tool" aria-label="Sposta su" disabled={i === 0} onClick={() => move(i, -1)}><ArrowUp size={14} /></button>
+        <button className="tool" aria-label="Sposta giù" disabled={i === ids.length - 1} onClick={() => move(i, 1)}><ArrowDown size={14} /></button>
+        <button className="tool" aria-label={'Togli «' + titleOf(id) + '»'} onClick={() => setIds(list => list.filter(x => x !== id))}><X size={14} /></button>
+      </div>)}
+      {!ids.length && <p className="form-note">Scegli almeno un documento.</p>}
+    </div>
+    <div className="form-grid">
+      {others.length > 0 && <label>Aggiungi un documento<select value="" onChange={e => { const v = e.target.value; if (v) setIds(list => [...list, v]); }}><option value="">Scegli…</option>{others.map(d => <option key={d.id} value={d.id}>{d.title}</option>)}</select></label>}
+      {library.groups.some(g => g.ids.length) && <label>Oppure un intero gruppo<select value="" onChange={e => { const g = library.groups.find(x => x.id === e.target.value); if (g) { setIds(list => [...list, ...g.ids.filter(x => !list.includes(x))]); if (!part) setPart(g.name); } }}><option value="">Scegli…</option>{library.groups.filter(g => g.ids.length).map(g => <option key={g.id} value={g.id}>{g.name} ({g.ids.length})</option>)}</select></label>}
+      <label>Parte del libro (facoltativa)<input value={part} maxLength={80} placeholder="es. Parte prima — Le premesse" onChange={e => setPart(e.target.value)} /></label>
+      <label>I titoli principali (H1) diventano<select value={top} onChange={e => setTop(e.target.value as 'chapter' | 'section')}><option value="chapter">Capitoli (\chapter)</option><option value="section">Sezioni (\section)</option></select></label>
+    </div>
+    <div className="form-footer"><button className="quiet" onClick={onClose}>Annulla</button><button className="primary" disabled={busy || loading || !hasMain || !ids.length} onClick={() => void act(async () => setResult(await onAdd(ids, top, part)))}>{busy ? 'Aggiungo…' : ids.length === 1 ? 'Aggiungi al libro' : `Aggiungi ${ids.length} capitoli`}</button></div>
+    <Feedback error={error} message="" />
   </Modal>;
 }
 

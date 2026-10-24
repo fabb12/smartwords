@@ -751,3 +751,60 @@
   .latex-paper{padding:26px 20px;font-size:15px}.latex-preview{padding:10px}
   .latex-source-text{padding:14px;font-size:14px}
 }
+/* Document list: groups, delete and "add to the book" */
+.doc-library{display:flex;flex-direction:column;min-height:0;flex:1}
+.lib-head{display:flex;align-items:center;justify-content:space-between;padding-right:4px}
+.lib-icon{display:inline-grid;place-items:center;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#8b9488;padding:0}
+.lib-icon:hover:not(:disabled){background:var(--soft);color:var(--green)}
+.lib-icon.danger:hover:not(:disabled){background:#fbeaea;color:#b23b3b}
+.doc-row{position:relative}
+.doc-row:hover .doc-item,.doc-row:focus-within .doc-item,.doc-row.menu-open .doc-item{padding-right:66px}
+.doc-row .doc-item strong{max-width:none}.doc-row .doc-item>span:not(.selected-dot){flex:1}
+.doc-actions{display:flex;gap:2px;align-items:center}
+.doc-row>.doc-actions{position:absolute;right:6px;top:50%;transform:translateY(-50%);opacity:0;transition:opacity .12s}
+.doc-row:hover>.doc-actions,.doc-row:focus-within>.doc-actions,.doc-row.menu-open>.doc-actions,.group-head:hover .doc-actions,.group-head:focus-within .doc-actions,.group-head.menu-open .doc-actions{opacity:1}
+.group-head .doc-actions{position:absolute;right:4px;top:50%;transform:translateY(-50%);opacity:0;pointer-events:none;transition:opacity .12s}
+.group-head:hover .doc-actions,.group-head:focus-within .doc-actions,.group-head.menu-open .doc-actions{pointer-events:auto}
+.group-head:hover>small,.group-head:focus-within>small,.group-head.menu-open>small{visibility:hidden}
+.group-head:hover .group-title,.group-head:focus-within .group-title{margin-right:52px}
+@media (hover:none){.doc-row>.doc-actions,.group-head .doc-actions{opacity:.8;pointer-events:auto}.doc-row .doc-item{padding-right:66px}.group-head>small{display:none}.group-head .group-title{margin-right:52px}}
+.doc-group{border-radius:8px;margin-bottom:6px;border:1px dashed transparent}
+.doc-group.drop{border-color:var(--green);background:var(--soft)}
+.group-head{position:relative;display:flex;align-items:center;gap:6px;padding:2px 4px 2px 2px;min-height:30px}
+.group-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0;border:0;background:transparent;padding:4px 6px;border-radius:6px;font-size:12px;font-weight:600;color:#5d685f;text-align:left}
+.group-title span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+button.group-title:hover{background:var(--soft)}
+.group-head>small{font-size:11px;color:#9aa298;min-width:14px;text-align:right}
+.loose-head .group-title{font-weight:500;color:#909a8e}
+.doc-group:not(.loose) .doc-row{margin-left:10px}
+.group-empty{font-size:11px;color:#9aa298;margin:2px 10px 8px 26px}
+.group-name-form{display:flex;align-items:center;gap:6px;padding:4px 6px;margin:0 0 6px;border:1px solid var(--line);border-radius:6px;background:#fff;color:#8b9488}
+.group-name-form input{flex:1;min-width:0;border:0;outline:0;background:transparent;font-size:12px;color:inherit}
+.lib-menu{position:absolute;right:6px;top:calc(100% - 4px);z-index:40;min-width:200px;max-height:320px;overflow:auto;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 35px #22332522;padding:5px}
+.lib-menu button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:0;background:transparent;padding:8px 9px;border-radius:5px;font-size:12px;color:#3b453e}
+.lib-menu button:hover:not(:disabled){background:var(--soft)}
+.lib-menu button.danger{color:#b23b3b}
+.lib-menu .lib-check{margin-left:auto;color:var(--green)}
+.lib-menu-label{font-size:9px;letter-spacing:1.2px;font-weight:700;color:#909a8e;padding:8px 9px 3px;text-transform:uppercase}
+.lib-menu-sep{height:1px;background:var(--line);margin:4px 2px}
+:root[data-theme=dark] .lib-menu,:root[data-theme=dark] .group-name-form{background:#1d2320;border-color:#323a35}
+:root[data-theme=dark] .lib-menu button{color:#cfd6cd}
+:root[data-theme=dark] .lib-menu button:hover:not(:disabled),:root[data-theme=dark] .lib-icon:hover:not(:disabled),:root[data-theme=dark] button.group-title:hover,:root[data-theme=dark] .doc-group.drop{background:#26302a}
+:root[data-theme=dark] .group-title{color:#b7c0b5}
+:root[data-theme=dark] .lib-menu button.danger,:root[data-theme=dark] .lib-icon.danger:hover:not(:disabled){color:#f08a8a;background:#3a2424}
+/* "Add to the book" dialog in the LaTeX studio */
+.book-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.book-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.book-num{display:inline-grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--soft);color:var(--green);font-size:11px;font-weight:700;flex:none}
+.book-title{display:flex;flex-direction:column;flex:1;min-width:0}
+.book-title strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.book-title small,.book-result small{font-size:11px;color:#909a8e}
+.book-missing{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid #e8d9a8;background:#fbf6e6;border-radius:8px;margin-bottom:14px}
+.book-missing div{flex:1;display:flex;flex-direction:column;gap:2px}
+.book-missing small{font-size:12px;color:#7b6f4c}
+.book-result{display:flex;flex-direction:column;gap:8px;margin:6px 0 16px}
+.book-result>div{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+.book-result span{display:flex;flex-direction:column}
+:root[data-theme=dark] .book-item,:root[data-theme=dark] .book-result>div{border-color:#323a35}
+:root[data-theme=dark] .book-missing{background:#2c2818;border-color:#4a4226}
+:root[data-theme=dark] .book-missing small{color:#c9bd95}

@@ -26,3 +26,17 @@ export async function POST(request: Request) {
     return answer({ id: input.id, version: input.version+1, updated: now });
   } catch (e) { return fail(e); }
 }
+// Deletes a document with its saved versions and creative project.
+export async function DELETE(request: Request) {
+  try {
+    const { db, owner } = context(request); const input = await jsonBody(request, 10_000);
+    if (!validText(input.id, 100)) throw new HttpError(400, 'Documento mancante.');
+    const results = await db.batch([
+      db.prepare('DELETE FROM documents WHERE id=? AND owner=?').bind(input.id, owner),
+      db.prepare('DELETE FROM revisions WHERE document=? AND owner=?').bind(input.id, owner),
+      db.prepare('DELETE FROM projects WHERE document=? AND owner=?').bind(input.id, owner),
+    ]);
+    if (!results[0].meta.changes) throw new HttpError(404, 'Documento non trovato.');
+    return answer({ ok: true });
+  } catch (e) { return fail(e); }
+}

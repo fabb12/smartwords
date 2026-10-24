@@ -46,6 +46,12 @@ export async function localApi(path: string, body?: Body, method = 'POST'): Prom
       if (id) { const doc = docs.find(d => d.id === id); if (!doc) throw new Error('Documento non trovato.'); return doc; }
       return docs.map(({ id, title, updated, version }) => ({ id, title, updated, version })).sort((a, b) => b.updated - a.updated);
     }
+    if (method === 'DELETE') {
+      if (!docs.some(d => d.id === body.id)) throw new Error('Documento non trovato.');
+      write('documents', docs.filter(d => d.id !== body.id));
+      try { localStorage.removeItem(PREFIX + 'revisions:' + body.id); localStorage.removeItem(PREFIX + 'project:' + body.id); } catch { /* storage blocked: the document is already gone */ }
+      return { ok: true };
+    }
     if (!validText(body.title, 150) || body.content?.type !== 'doc') throw new Error('Documento non valido.');
     const content = JSON.stringify(body.content); const now = Date.now();
     if (!body.id) { const doc = { id: crypto.randomUUID(), title: body.title, content, updated: now, version: 1 }; write('documents', [doc, ...docs]); return { id: doc.id, version: 1, updated: now }; }
