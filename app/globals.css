@@ -827,3 +827,4 @@ button.group-title:hover{background:var(--soft)}
 .intervention-picker small{font-size:11px;color:var(--muted)}
 :root[data-theme=dark] .intervention-levels button{border-color:#2f392f}:root[data-theme=dark] .intervention-levels button.active{background:#263027;color:#bcd0ae;border-color:#5c7a56}
 .manuscript .ghost-add{padding:0 1px}.manuscript .ghost-del+.ghost-add{margin-left:1px}
+.ai-progress{display:flex;align-items:baseline;gap:8px;margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}.ai-progress button{margin-left:auto;flex-shrink:0;padding:2px 4px;border:0;background:none;color:inherit;font-size:11px;text-decoration:underline}
