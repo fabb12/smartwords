@@ -1,7 +1,7 @@
 {
-  "name": "Scrivia AI — Spazio alle tue idee",
+  "name": "Scrivia — Argument writing",
   "short_name": "Scrivia",
-  "description": "Il tuo editor di scrittura con suggerimenti intelligenti in tempo reale.",
+  "description": "Scrivia — Argument writing: dalla tesi agli argomenti, con suggerimenti AI e progetti LaTeX.",
   "lang": "it",
   "id": "./",
   "start_url": "./",

@@ -1,0 +1,41 @@
+% =============================================================================
+% Copertina: titolo, sottotitolo e autore su un riquadro semitrasparente.
+% Se esiste images/Cover.png viene usata come sfondo a tutta pagina.
+% =============================================================================
+\begin{titlepage}
+	\thispagestyle{empty}
+	\IfFileExists{images/Cover.png}{%
+		\AddToShipoutPictureBG*{%
+			\AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{Cover.png}}%
+		}%
+	}{}
+	\begin{tikzpicture}[remember picture,overlay]
+		\node[
+		anchor=north,
+		align=center,
+		yshift=-2.0cm,
+		text=white,
+		fill=modernblack,
+		fill opacity=.85,
+		text opacity=1,
+		rounded corners=10pt,
+		inner xsep=18pt,
+		inner ysep=14pt,
+		text width=.82\paperwidth
+		] at (current page.north) {%
+			{\fontsize{30}{36}\selectfont\sffamily\bfseries\textls[100]{\MakeUppercase{\booktitle}}\par}
+			\vspace{0.8em}
+			{\normalsize\sffamily\itshape \subtitleA\\[0.6em]\subtitleB\par}
+			\vspace{0.9em}
+			{\large\sffamily\textls[80]{\MakeUppercase{\authorname}}}
+		};
+		\node[
+		anchor=south,
+		fill=modernblack,
+		text=white,
+		rounded corners=6pt,
+		inner xsep=10pt,
+		inner ysep=6pt
+		] at ([yshift=6mm]current page.south) {\large\sffamily\textls[50]{\MakeUppercase{\publisher}}};
+	\end{tikzpicture}
+\end{titlepage}

@@ -1,0 +1,146 @@
+% =============================================================================
+% Scrivia — Argument writing
+% Modello di progetto LaTeX (libro o saggio argomentativo)
+% =============================================================================
+%
+% Struttura dei file:
+%   main.tex            questo file: metadati, stile e ordine dei capitoli
+%   misc/options.tex    stile tipografico (font, pagina, titoli, riquadri, indici)
+%   frontmatter/        copertina, prefazione, retrocopertina
+%   content/            i capitoli: un file .tex per capitolo
+%   images/             le immagini (\includegraphics cerca qui)
+%
+% L'ordine dei capitoli è quello delle righe \input{...} qui sotto: lo Studio
+% LaTeX di Scrivia lo legge per costruire la struttura del progetto. Il commento
+% dopo \input diventa il titolo mostrato nell'elenco.
+% =============================================================================
+
+% --- Modalità bozza / finale -------------------------------------------------
+% \isdrafttrue  = BOZZA (filigrana, immagini come segnaposto)
+% \isdraftfalse = FINALE
+% Il workflow "Genera PDF" cambia questa riga da solo in base alla scelta.
+\newif\ifisdraft
+\isdraftfalse   % <<< CAMBIA QUI: true = BOZZA, false = FINALE
+
+\ifisdraft
+  \PassOptionsToPackage{draft}{graphicx}
+\fi
+
+\documentclass[11pt,twoside]{book}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage[outline]{contour}
+\contourlength{1.1pt}
+\usepackage{comment}
+
+% --- Metadati -----------------------------------------------------------------
+\newcommand{\authorname}{Nome Cognome}
+\newcommand{\booktitle}{Titolo del saggio}
+\newcommand{\subtitleA}{Una tesi chiara,}
+\newcommand{\subtitleB}{sostenuta da argomenti e prove}
+\newcommand{\booksubject}{Saggio argomentativo}
+\newcommand{\bookkeywords}{argomentazione, tesi, prove}
+
+\newcommand{\publisher}{Editore}
+\newcommand{\editionyear}{\the\year}
+\newcommand{\isbn}{978-00-00-00000-0}
+
+% --- Versione della bozza -------------------------------------------------------
+\newcommand{\draftversion}{0.1}
+\newcommand{\draftdate}{\today}
+
+% Stile e opzioni del modello
+\input{misc/options}
+\usepackage{graphicx}
+\usepackage{eso-pic}
+\usepackage{fancyhdr}
+\graphicspath{{images/}}
+
+\usepackage{ragged2e}
+\justifying
+
+% --- Intestazioni: diverse per BOZZA e FINALE --------------------------------
+\ifisdraft
+  \usepackage{draftwatermark}
+  \SetWatermarkText{BOZZA v\draftversion}
+  \SetWatermarkScale{0.5}
+  \SetWatermarkColor[gray]{0.95}
+  \SetWatermarkAngle{45}
+  \fancypagestyle{mainmatter}{%
+    \fancyhf{}
+    \fancyhead[LE]{\sffamily\footnotesize\color{moderngray}\thepage\quad\textls[50]{\MakeUppercase{\chaptertitlename\ \thechapter}}}
+    \fancyhead[RO]{\sffamily\footnotesize\color{moderngray}\textls[50]{\MakeUppercase{\leftmark}}\quad\thepage\quad\sffamily\tiny\color{modernred}[BOZZA~v\draftversion, \draftdate]}
+    \renewcommand{\headrulewidth}{0pt}
+  }
+\else
+  \fancypagestyle{mainmatter}{%
+    \fancyhf{}
+    \fancyhead[LE]{\sffamily\footnotesize\color{moderngray}\thepage\quad\textls[50]{\MakeUppercase{\chaptertitlename\ \thechapter}}}
+    \fancyhead[RO]{\sffamily\footnotesize\color{moderngray}\textls[50]{\MakeUppercase{\leftmark}}\quad\thepage}
+    \renewcommand{\headrulewidth}{0pt}
+  }
+\fi
+\usepackage{bookmark}
+
+\begin{document}
+
+% ===== FRONT MATTER =====
+\frontmatter
+\pagestyle{empty}
+
+\input{frontmatter/titlepage}       % Copertina
+\cleardoublepage
+\input{frontmatter/copyrightpage}   % Copyright
+\cleardoublepage
+
+\pagestyle{plain}
+\tableofcontents
+\cleardoublepage
+
+\input{frontmatter/preface}   % Prefazione
+
+% ===== MAIN CONTENT =====
+\mainmatter
+\pagestyle{mainmatter}
+
+% ========================================
+% PARTE I: LA TESI
+% ========================================
+\part{La tesi}
+\input{content/introduzione}   % Introduzione: il problema e la tesi
+
+% ========================================
+% PARTE II: GLI ARGOMENTI
+% ========================================
+\part{Gli argomenti}
+\input{content/argomenti}      % Gli argomenti a sostegno
+\input{content/obiezioni}      % Obiezioni e confutazione
+
+% ========================================
+% PARTE III: LA CONCLUSIONE
+% ========================================
+\part{La conclusione}
+\input{content/conclusione}    % Conclusione
+
+% ===== BACK MATTER =====
+\backmatter
+\pagestyle{empty}
+
+\cleardoublepage
+\phantomsection
+\addcontentsline{toc}{chapter}{Indice analitico}
+\printindex[main]
+
+% Secondo indice (facoltativo): togli il % se usi \index[concetti]{...}
+% \cleardoublepage
+% \phantomsection
+% \addcontentsline{toc}{chapter}{Indice dei concetti}
+% \printindex[concetti]
+
+\cleardoublepage
+\input{frontmatter/backpage}        % Retrocopertina
+
+\end{document}

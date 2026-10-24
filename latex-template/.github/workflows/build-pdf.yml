@@ -1,0 +1,98 @@
+name: Genera PDF
+
+# Compila il progetto LaTeX (main.tex) e pubblica il PDF in due modi:
+#  1. su una release fissa ("pdf-finale" o "pdf-bozza"), che offre un LINK
+#     DIRETTO e stabile al file .pdf — un click e il download parte, senza
+#     zip e senza passare dal tab Actions;
+#  2. come artifact del run (copia di riserva, scade dopo 30 giorni).
+# Si può avviare a mano dal tab "Actions" di GitHub oppure dal pulsante
+# "Compila PDF" dello Studio LaTeX di Scrivia, che usa questo stesso trigger.
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Versione da generare"
+        type: choice
+        default: finale
+        options:
+          - finale
+          - bozza
+
+# Evita build sovrapposte: se ne parte una nuova, annulla la precedente in coda.
+concurrency:
+  group: build-pdf
+  cancel-in-progress: true
+
+# contents: write serve per aggiornare la release con il PDF
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout del repository
+        uses: actions/checkout@v4
+
+      - name: Imposta la modalità (${{ inputs.mode }})
+        run: |
+          if [ "${{ inputs.mode }}" = "bozza" ]; then
+            sed -i 's/\\isdraftfalse/\\isdrafttrue/' main.tex
+            echo "Modalità BOZZA (watermark, immagini come segnaposto)."
+          else
+            sed -i 's/\\isdrafttrue/\\isdraftfalse/' main.tex
+            echo "Modalità FINALE."
+          fi
+          grep -nE '\\isdraft(true|false)' main.tex | grep -v newif || true
+
+      - name: Compila con latexmk (pdflatex + xindy/texindy)
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: main.tex
+          latexmk_shell_escape: true
+          # TeX Live "full" include latexmk, pdflatex e xindy/texindy,
+          # necessari per i due indici analitici (main + cognitive).
+
+      - name: Verifica che il PDF sia stato prodotto
+        run: |
+          if [ ! -f main.pdf ]; then
+            echo "::error::main.pdf non è stato generato. Vedi il log qui sotto."
+            tail -n 120 main.log || true
+            exit 1
+          fi
+          ls -lh main.pdf
+
+      - name: Prepara il file con un nome stabile
+        run: |
+          cp main.pdf "documento-${{ inputs.mode }}.pdf"
+          echo "DATA=$(TZ=Europe/Rome date +'%d/%m/%Y %H:%M')" >> "$GITHUB_ENV"
+
+      - name: Pubblica il PDF sulla release con link diretto
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pdf-${{ inputs.mode }}
+          name: PDF ${{ inputs.mode }} (aggiornato automaticamente)
+          body: |
+            Ultimo PDF in versione **${{ inputs.mode }}**, generato il ${{ env.DATA }} dal workflow *Genera PDF*.
+            Scarica il file qui sotto: il link resta sempre lo stesso, il contenuto viene sostituito a ogni nuova compilazione.
+          files: documento-${{ inputs.mode }}.pdf
+          make_latest: "false"
+          prerelease: ${{ inputs.mode == 'bozza' }}
+
+      - name: Pubblica il PDF anche come artifact (copia di riserva)
+        uses: actions/upload-artifact@v4
+        with:
+          name: documento-pdf-${{ inputs.mode }}
+          path: main.pdf
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Pubblica il log (utile se la compilazione fallisce)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: main.log
+          retention-days: 7
+          if-no-files-found: ignore

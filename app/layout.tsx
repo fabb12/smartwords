@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Scrivia AI — Spazio alle tue idee",
-  description: "Il tuo editor di scrittura con suggerimenti intelligenti in tempo reale.",
+  title: "Scrivia — Argument writing",
+  description: "Scrivia — Argument writing: dalla tesi agli argomenti, con suggerimenti AI e progetti LaTeX.",
   manifest: "/manifest.webmanifest",
   applicationName: "Scrivia",
   appleWebApp: { capable: true, title: "Scrivia", statusBarStyle: "default" },

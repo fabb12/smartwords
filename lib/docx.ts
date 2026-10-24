@@ -32,4 +32,4 @@ function blocks(nodes:JSONContent[]=[]):Array<Paragraph|Table>{return nodes.flat
   if(n.type==='blockquote')return blocks(n.content);
   return [new Paragraph({children:runs(n.content),heading:n.type==='heading'?(n.attrs?.level===1?HeadingLevel.HEADING_1:n.attrs?.level===3?HeadingLevel.HEADING_3:HeadingLevel.HEADING_2):undefined,alignment:n.attrs?.textAlign==='center'?AlignmentType.CENTER:n.attrs?.textAlign==='right'?AlignmentType.RIGHT:AlignmentType.LEFT,spacing:{after:180,line:300}})];
 });}
-export async function exportDocx(content:JSONContent){return Packer.toBlob(new Document({creator:'Scrivia AI',sections:[{properties:{},children:blocks(content.content)}]}));}
+export async function exportDocx(content:JSONContent){return Packer.toBlob(new Document({creator:'Scrivia — Argument writing',sections:[{properties:{},children:blocks(content.content)}]}));}

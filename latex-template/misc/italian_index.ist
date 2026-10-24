@@ -1,0 +1,18 @@
+% Professional Italian index style
+headings_flag 1
+heading_prefix "{\\large\\sourcesanspro\\bfseries "
+heading_suffix "}\\nopagebreak\n"
+
+delim_0 " \\dotfill "
+delim_1 " \\dotfill "  
+delim_2 " \\dotfill "
+
+item_0 "\n\\item "
+item_1 "\n\\subitem "
+item_2 "\n\\subsubitem "
+
+group_skip "\\vspace{0.5ex plus 0.2ex minus 0.1ex}\n"
+
+% Italian headers
+symhead_positive "Simboli"
+numhead_positive "Numeri"

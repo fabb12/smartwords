@@ -1,6 +1,9 @@
-# Smartwords · Scrivia AI
+# Scrivia
+### Argument writing
 
-Editor web in italiano con suggerimenti AI mentre scrivi. Interfaccia a tre pannelli: documenti, pagina di scrittura e assistente. Progetto personale per fabb12.
+**Scrivia** è un editor web in italiano per la *scrittura argomentativa*: aiuta a passare da una tesi chiara ad argomenti sostenuti da prove, ad affrontare le obiezioni e a chiudere con una conclusione che regge. Suggerimenti AI mentre scrivi, interfaccia a tre pannelli (documenti, pagina di scrittura, assistente) e uno **Studio LaTeX** per impaginare libri e saggi. Progetto personale per fabb12 (repository `smartwords`).
+
+> *Argument writing*: ogni testo parte da un problema, prende posizione (tesi), la sostiene con argomenti e prove, risponde alle obiezioni più forti e conclude. Il modello di progetto LaTeX e lo Studio seguono questa struttura.
 
 ## Scaricare il progetto
 
@@ -129,6 +132,23 @@ L’app comprende il progetto creativo e aiuta a realizzarlo senza sostituirsi a
 - Vista a pagine: dal menu accanto a «Trova e sostituisci» scegli la vista continua oppure il testo diviso in pagine A4, con 1, 2, 3, 4 o 6 pagine visibili insieme. Con più pagine i fogli formano una griglia: al massimo due colonne, poi nuove righe (pagine 1-2 nella prima riga, 3-4 nella seconda…); la pagina si rimpicciolisce per far stare le righe scelte nella finestra e le altre si raggiungono scorrendo in verticale. La griglia richiede un browser con `column-wrap` (Chrome/Edge 145+ e l’app desktop); altrove le pagine restano affiancate in orizzontale. La scelta resta memorizzata nel browser.
 - Ogni comando mostra un suggerimento (tooltip) che spiega a cosa serve, al passaggio del mouse o con la tastiera.
 - I nuovi documenti partono da un foglio vuoto, senza testo preimpostato.
+
+### Studio LaTeX
+
+Lo Studio LaTeX (pulsante **Studio LaTeX** nella barra Documento, o «Studio LaTeX» nel menu ⋯ su telefono) porta in Scrivia gli strumenti di impaginazione del progetto [libro-futuro](https://github.com/fabb12/libro-futuro): modifica dei sorgenti, anteprima, salvataggio su GitHub e compilazione del PDF. Il testo del libro resta nel suo repository; in Scrivia ci sono solo gli strumenti e un modello di progetto.
+
+- **Progetto su GitHub o locale.** Collega un repository (proprietario/nome, ramo, file principale `main.tex`, token) oppure lavora su un progetto locale salvato nel browser.
+- **Struttura del progetto** letta da `main.tex`: parti (`\part{…}` o commenti `% PARTE I: …`) e capitoli (`\input{…} % Titolo`), più l’elenco di tutti i file e l’indice del file aperto (`\chapter`, `\section`, …).
+- **Editor del sorgente** con barra di formattazione: grassetto, corsivo, enfasi, monospazio, capitolo/sezione/sottosezione, nota a piè di pagina, citazione, elenchi, voce d’indice analitico, immagine, commento (`Ctrl+B`, `Ctrl+I`, `Ctrl+/`, `Ctrl+S`). Annulla/ripeti del browser funzionano anche dopo i comandi.
+- **Anteprima** affiancata, solo sorgente o solo anteprima: titoli, epigrafi, note numerate (cliccabili), citazioni, elenchi, tabelle, figure con le immagini del repository, riquadri (`concetto`, `boxdati`, `codice`), dialoghi `\humanbox`/`\aibox`, formule mostrate come codice.
+- **Salvataggio**: ogni salvataggio è un commit. Se il file è cambiato su GitHub nel frattempo lo Studio avvisa e chiede se sovrascrivere. Le modifiche non salvate restano come bozza sul dispositivo e vengono riprese alla riapertura.
+- **Immagini**: carica un file in `images/` (HEIC, WebP e GIF vengono convertiti in PNG) oppure scegli un’immagine esistente; il blocco `figure` con larghezza e didascalia viene inserito al cursore.
+- **Compila PDF** su GitHub Actions (`latexmk` + pdflatex + `texindy` per gli indici), in versione *finale* o *bozza* (filigrana, immagini segnaposto). Lo Studio segue la compilazione, scarica il PDF a fine lavoro e mostra gli ultimi PDF generati; se manca, installa il workflow `.github/workflows/build-pdf.yml` con un clic.
+- **Ricerca** nel file o in tutto il progetto, **controllo della sintassi** (parentesi graffe, `\begin`/`\end`, `&` e `_` senza `\`), conteggio parole, download dell’intero progetto in `.zip` (per latexmk sul computer o Overleaf).
+- **Ponte con l’editor**: «Apri in Scrivia» trasforma un capitolo LaTeX in un documento Scrivia (per usare AI, voce e revisione); «Dal documento Scrivia» converte il documento aperto in un nuovo file `.tex` del progetto e lo aggiunge a `main.tex`. Nell’editor, *Esporta → LaTeX (.tex)* crea un sorgente compilabile e *Importa* accetta anche i file `.tex`.
+- **Modello di progetto** (cartella [`latex-template/`](latex-template/)): stile tipografico di libro-futuro (Source Serif, formato 17×24, titoli, note, riquadri, indici analitici in italiano), copertina, pagina del copyright, prefazione, retrocopertina, modalità bozza/finale e workflow PDF, con capitoli-traccia per un saggio argomentativo (introduzione e tesi, argomenti, obiezioni e confutazione, conclusione). Si crea nel repository con un solo commit, nel browser o come `.zip`.
+
+Permessi del token (fine-grained, solo sul repository del progetto): **Contents: Read and write** per salvare, **Actions: Read and write** per compilare, **Workflows: Read and write** solo per installare il workflow. Il token resta sul dispositivo (cifrato nel portachiavi nell’app desktop) e va soltanto a GitHub.
 
 ### Scorciatoie da tastiera
 
