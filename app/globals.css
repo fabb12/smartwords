@@ -828,3 +828,39 @@ button.group-title:hover{background:var(--soft)}
 :root[data-theme=dark] .intervention-levels button{border-color:#2f392f}:root[data-theme=dark] .intervention-levels button.active{background:#263027;color:#bcd0ae;border-color:#5c7a56}
 .manuscript .ghost-add{padding:0 1px}.manuscript .ghost-del+.ghost-add{margin-left:1px}
 .ai-progress{display:flex;align-items:baseline;gap:8px;margin:6px 0 0;font-size:12px;line-height:1.45;color:var(--muted)}.ai-progress button{margin-left:auto;flex-shrink:0;padding:2px 4px;border:0;background:none;color:inherit;font-size:11px;text-decoration:underline}
+/* Tablet (touch screen wider than a phone): the sheet takes the whole width, documents and assistant
+   slide over it, touch-sized controls. The «Installa» button also shows outside phone mode. */
+.t-install,.t-ai,.t-backdrop{display:none}
+.t-install{align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:var(--green);color:#fff;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.app:not(.simple) .t-install{display:inline-flex}
+.app:not(.simple) .sheet-backdrop{display:flex;align-items:flex-end;justify-content:center;position:fixed;inset:0;z-index:85;background:#16261d66}
+.app:not(.simple) .sheet{max-width:560px}
+.tablet .topbar{height:58px;padding:0 12px;gap:10px}
+.tablet .header-actions{gap:8px}
+.tablet .header-actions .tool{width:42px;height:42px;border-radius:10px}
+.tablet .t-ai{display:inline-flex}
+.tablet .t-ai.active{background:var(--soft);color:var(--green);border-color:var(--green)}
+.tablet .t-install{height:42px;padding:0 18px;border-radius:21px;font-size:15px}
+.tablet .sidebar-toggle{display:inline-flex!important;width:42px;height:42px}
+.tablet .document-heading input{font-size:18px}
+.tablet .editor-toolbars-layout .tool{width:auto;min-width:40px;height:40px;border-radius:8px}
+.tablet .editor-toolbars-layout .tool svg{width:19px;height:19px}
+.tablet .editor-toolbars-layout select{min-height:36px}
+.tablet .tool-group .toolbar-grip{height:40px}
+.tablet .editor-toolbars-layout .editor-dock{padding:6px 10px}
+.tablet .canvas{padding:12px 12px 18px}
+.tablet .statusbar{padding-bottom:env(safe-area-inset-bottom)}
+.tablet .t-backdrop{display:block;position:fixed;inset:0;background:#16261d55;z-index:65}
+.tablet .library{display:flex;position:fixed;top:0;left:0;bottom:0;width:min(340px,82vw);flex-basis:auto;z-index:70;padding:calc(24px + env(safe-area-inset-top)) 16px env(safe-area-inset-bottom);box-shadow:8px 0 40px #0003}
+.tablet.sidebar-hidden .library,.tablet.focus-mode .library{display:none}
+.tablet .library>*{zoom:1.12}
+.tablet .assistant{position:fixed;top:0;right:0;bottom:0;width:min(390px,88vw);flex-basis:auto;z-index:70;padding:calc(16px + env(safe-area-inset-top)) 18px calc(18px + env(safe-area-inset-bottom));box-shadow:-8px 0 40px #0003}
+.tablet.focus-mode .assistant{display:none}
+.tablet .assistant>*{zoom:1.12}
+.tablet .m-close{display:grid;place-items:center;width:42px;height:42px;margin-left:6px;color:#7d877c}
+.tablet.assistant-hidden .m-proposal{max-height:38%;padding:12px 20px calc(12px + env(safe-area-inset-bottom))}
+.tablet.assistant-hidden .m-proposal-text{font-size:17px}
+.tablet.assistant-hidden .m-proposal-actions button{height:46px;font-size:15px;border-radius:10px}
+/* Wide tablets in landscape: the assistant sits beside the sheet instead of covering it. */
+@media(min-width:1100px){.tablet .assistant{position:relative;top:auto;right:auto;bottom:auto;width:340px;flex:0 0 340px;z-index:auto;padding:20px 18px;box-shadow:none}.tablet .t-ai-backdrop{display:none}.tablet .assistant .m-close{display:none}}
+@media print{.t-install,.t-ai,.t-backdrop{display:none!important}}

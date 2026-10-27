@@ -5,6 +5,8 @@ export type WorkspaceFrame = { tools: { document: boolean; text: boolean; paragr
 export type WorkspacePreset = { id: string; name: string; description?: string; frame: WorkspaceFrame; layout: ToolbarLayout };
 const all = { document: true, text: true, paragraph: true, insert: true };
 export const DEFAULT_WORKSPACE_FRAME: WorkspaceFrame = { tools: all, library: true, assistant: true, navigation: false, info: true, focus: false, pages: 1, zoom: 'page' };
+// Tablets start with the sheet at the full width of the screen; documents and assistant open on demand.
+export const TABLET_WORKSPACE_FRAME: WorkspaceFrame = { ...DEFAULT_WORKSPACE_FRAME, library: false, assistant: false, zoom: 'width' };
 export const BUILTIN_WORKSPACES: WorkspacePreset[] = [
   { id: 'writing', name: 'Scrittura', description: 'Capitoli a sinistra e spazio al testo, con i comandi essenziali.', frame: { ...DEFAULT_WORKSPACE_FRAME, tools: { document: false, text: false, paragraph: false, insert: false }, library: false, assistant: false, navigation: true }, layout: defaultToolbarLayout() },
   { id: 'review', name: 'Revisione', description: 'Struttura e assistente affiancati per rileggere e correggere.', frame: { ...DEFAULT_WORKSPACE_FRAME, tools: { ...all, insert: false }, library: false, navigation: true }, layout: defaultToolbarLayout() },
@@ -19,7 +21,8 @@ export function sanitizeWorkspaceFrame(raw: unknown): WorkspaceFrame {
   return { tools: Object.fromEntries(Object.entries(all).map(([key, on]) => [key, typeof value.tools?.[key as keyof typeof all] === 'boolean' ? value.tools[key as keyof typeof all] : on])) as WorkspaceFrame['tools'], library: flag('library'), assistant: flag('assistant'), navigation: flag('navigation'), info: flag('info'), focus: flag('focus'), pages: [0,1,2,3,4,6].includes(value.pages!) ? value.pages! : 1, zoom: sanitizeZoom(value.zoom) };
 }
 export const workspacePresetsKey = (owner: string) => `scrivia:workspace-presets:v1:${encodeURIComponent(owner)}`;
-export const workspaceFrameKey = (owner: string, fullscreen: boolean) => `scrivia:workspace-frame:v1:${encodeURIComponent(owner)}:${fullscreen ? 'fullscreen' : 'normal'}`;
+// Tablets keep their own layout, so the one saved on a computer (or before tablet mode) does not shrink the sheet.
+export const workspaceFrameKey = (owner: string, fullscreen: boolean, tablet = false) => `scrivia:workspace-frame:v1:${encodeURIComponent(owner)}:${fullscreen ? 'fullscreen' : 'normal'}${tablet ? ':tablet' : ''}`;
 export function readWorkspacePresets(owner: string): WorkspacePreset[] {
   try {
     const raw = JSON.parse(localStorage.getItem(workspacePresetsKey(owner)) || '[]');
