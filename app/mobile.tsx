@@ -20,6 +20,19 @@ export function useSimpleMode(): [narrow: boolean, simple: boolean, setSimple: (
   return [narrow, narrow && pref, setSimple];
 }
 
+// Touch screen wider than a phone (iPad, Android tablets): full view with the sheet as large
+// as the screen allows, panels that slide over it and bigger touch targets.
+const TABLET = '(min-width: 721px) and (pointer: coarse)';
+export function useTablet(): boolean {
+  const [tablet, setTablet] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia(TABLET), apply = () => setTablet(media.matches);
+    apply(); media.addEventListener('change', apply);
+    return () => media.removeEventListener('change', apply);
+  }, []);
+  return tablet;
+}
+
 // The page height follows the visible area, so the bottom toolbar stays above the
 // on-screen keyboard (iOS does not shrink the page when the keyboard opens).
 export function useVisibleHeight(on: boolean) {

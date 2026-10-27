@@ -26,7 +26,18 @@ Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 
 Scrivia è una Progressive Web App: da Chrome, Edge o Android compare il pulsante **Installa** in alto (o «Installa app» nel menu del browser); su iPhone/iPad si usa **Condividi → Aggiungi alla schermata Home**. L’app si apre a tutto schermo, con la sua icona.
 
-Su telefono il pulsante **Installa** è sempre in alto: dove il browser lo permette (Chrome, Edge, Samsung Internet su Android) apre direttamente l’installazione, altrimenti (Safari su iPhone/iPad, Firefox) mostra i passaggi illustrati. Il pulsante sparisce quando l’app è già aperta dall’icona.
+Su telefono e tablet il pulsante **Installa** è sempre in alto (su computer compare quando il browser offre l’installazione): dove il browser lo permette (Chrome, Edge, Samsung Internet su Android) apre direttamente l’installazione, altrimenti (Safari su iPhone/iPad, Firefox) mostra i passaggi illustrati. Il pulsante sparisce quando l’app è già aperta dall’icona.
+
+### Tablet
+
+Su tablet (schermo touch più largo di un telefono: iPad, tablet Android) l’app usa la vista completa ottimizzata per il tocco:
+
+- il **foglio occupa tutta la larghezza** dello schermo (zoom «Larghezza pagina»): circa 100% in verticale, di più in orizzontale;
+- l’elenco documenti (icona in alto a sinistra) e l’assistente AI (icona ✦ in alto) si aprono come pannelli sopra il foglio e si chiudono toccando fuori; sui tablet larghi in orizzontale l’assistente si affianca al foglio;
+- con l’assistente chiuso, le proposte dell’AI compaiono sotto il foglio con i pulsanti **Accetta** e **Scarta**;
+- pulsanti e barre più grandi, e in alto il pulsante **Installa** finché l’app non è installata.
+
+La disposizione del tablet è memorizzata a parte: quella salvata sul computer non rimpicciolisce il foglio. Zoom e pannelli si possono comunque cambiare e restano ricordati.
 
 ### Modalità semplice per telefono
 
