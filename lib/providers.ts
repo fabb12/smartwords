@@ -120,7 +120,7 @@ const INSTRUCTIONS: Record<string, string> = {
 export function assistPrompts(b: Record<string, unknown>) {
   if (b.mode === 'format' && b.formatPlan === true) {
     const text = field(b.text, 10000);
-    return { system: FORMAT_PLAN_INSTRUCTION, prompt: JSON.stringify({ text, tokens: formatTokens(text).map((token, i) => [i, token]), context: field(b.formatContext, 800) }), maxTokens: Math.max(1024, Math.ceil(text.length / 2) + 1024) };
+    return { system: FORMAT_PLAN_INSTRUCTION, prompt: JSON.stringify({ text, tokens: formatTokens(text).map((token, i) => [i, token]), context: field(b.formatContext, 1000) }), maxTokens: Math.min(8192, Math.max(2048, text.length + 1536)) };
   }
   const mode = typeof b.mode === 'string' && INSTRUCTIONS[b.mode] ? b.mode : 'rewrite';
   const tone = typeof b.tone === 'string' && ['Naturale','Professionale','Creativo'].includes(b.tone) ? b.tone : 'Naturale';

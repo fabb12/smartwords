@@ -190,12 +190,58 @@ test('indexed AI formatting preserves punctuation, misspellings and literal Mark
   assert.ok(tr.doc.lastChild.content.content.some(n=>n.marks.some(m=>m.type.name==='bold')));
 });
 
-test('invalid or truncated indexed formatting cannot delete, reorder or repeat source tokens', async () => {
+const planText = nodes => nodes.filter(n => !n.proposed).map(function walk(n) { return n.type === 'text' ? n.text : (n.content || []).map(walk).join(' '); }).join(' ').split(/\s+/).filter(Boolean);
+
+test('imperfect indexed plans are repaired without deleting, reordering or repeating source tokens', async () => {
   const { parseFormatPlan } = await import('../lib/format-plan.ts');
-  for(const blocks of [[],[{end:1,role:'title'}],[{end:3,role:'title'}],[{end:2,role:'paragraph'},{end:1,role:'title'}],[{end:2,role:'unknown'}],[{end:2,role:'paragraph',bold:[[-1,2]]}]]) {
-    assert.throws(()=>parseFormatPlan('Due parole',JSON.stringify({blocks})),/struttura.*incompleta/);
+  const text = 'Titolo breve\nPrima frase del testo. Seconda frase del testo.\nTerza riga finale.';
+  const tokens = text.split(/\s+/);
+  const plans = [
+    [{end:1,role:'title'}],                                   // stops early
+    [{end:99,role:'title'}],                                  // overshoots
+    [{end:5,role:'paragraph'},{end:2,role:'title'}],          // out of order
+    [{end:2,role:'title'},{end:2,role:'paragraph'},{end:13,role:'paragraph'}], // empty block
+    [{end:'2',role:'H1'},{end:13,role:'body text'}],          // strings and unknown roles
+    [{end:2,role:'title'},{end:13,role:'paragraph',bold:[[-1,4],[20,30],[5,5]],italic:[3,6],highlight:[{start:7,end:9}]}], // bad spans
+    [{start:0,role:'title'},{start:2,role:'paragraph'}],      // start instead of end
+  ];
+  for (const blocks of plans) assert.deepEqual(planText(parseFormatPlan(text, JSON.stringify({blocks}))), tokens, JSON.stringify(blocks));
+  for (const blocks of [[], [{role:'title'}], [{end:0,role:'title'}]]) assert.throws(() => parseFormatPlan(text, JSON.stringify({blocks})), /struttura.*incompleta/);
+  assert.throws(() => parseFormatPlan(text, 'Non posso aiutarti.'), /incompleta/);
+});
+
+test('plans wrapped in prose, fences, reasoning or cut short are still read', async () => {
+  const { parseFormatPlan } = await import('../lib/format-plan.ts');
+  const text = 'Titolo breve\nPrima frase del testo.\nSeconda frase.';
+  const plan = '{"blocks":[{"end":2,"role":"title"},{"end":6,"role":"paragraph","bold":[[3,4]],},{"end":8,"role":"paragraph"}]}';
+  for (const answer of [plan, 'Ecco il piano:\n```json\n' + plan + '\n```\nFatto.', '<think>conto i token</think>' + plan, '[{"end":2,"role":"title"},{"end":8,"role":"paragraph"}]', '{"plan":{"blocks":[{"end":2,"role":"title"},{"end":8}]}}']) {
+    const content = parseFormatPlan(text, answer);
+    assert.equal(content[0].type, 'heading', answer);
+    assert.deepEqual(planText(content), text.split(/\s+/));
   }
-  assert.throws(()=>parseFormatPlan('Due parole','{"blocks":['),/incompleta/);
+  // Truncated by the output limit: complete blocks are used, the rest keeps its original lines.
+  const cut = parseFormatPlan(text, '{"blocks":[{"end":2,"role":"title"},{"end":6,"role":"paragraph","bold":[[3,');
+  assert.deepEqual(cut.map(n => n.type), ['heading', 'paragraph', 'paragraph']);
+  assert.deepEqual(planText(cut), text.split(/\s+/));
+});
+
+test('heading boundaries off by one token are aligned with the source line', async () => {
+  const { parseFormatPlan } = await import('../lib/format-plan.ts');
+  const text = 'Il grande viaggio\nEra una mattina di sole.';
+  for (const end of [2, 4]) {
+    const content = parseFormatPlan(text, JSON.stringify({blocks:[{end,role:'title'},{end:8,role:'paragraph'}]}));
+    assert.equal(planText([content[0]]).join(' '), 'Il grande viaggio');
+    assert.equal(planText([content[1]]).join(' '), 'Era una mattina di sole.');
+  }
+});
+
+test('a Markdown answer to a plan request is accepted only when the words are unchanged', async () => {
+  const { formatPlanReplacement } = await import('../lib/format-only.ts');
+  const doc = schema.node('doc', null, [p('Il viaggio\nEra una mattina di sole e il treno partiva presto.')]);
+  const range = formatRanges(doc, 0, doc.content.size).ranges[0];
+  const part = formatPlanReplacement(doc, range, '# Il viaggio\n\nEra una mattina di sole e il treno partiva **presto**.');
+  assert.equal(part.content[0].type, 'heading');
+  assert.throws(() => formatPlanReplacement(doc, range, '# Il viaggio\n\nEra una bella mattina.'), /incompleta|cambiato parole/);
 });
 
 test('format plans request semantic structure for short text instead of rewriting source prose', () => {
