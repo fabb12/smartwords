@@ -25,6 +25,7 @@ import { applyImageLayout, describeImageLayout, planImageLayout, type ImageLayou
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
 import { applyInlineEdits } from '../lib/inline-diff';
 import { assistPrompts, splitWarning } from '../lib/providers';
+import { FORMAT_PLAN_ERROR, FORMAT_PLAN_RETRY } from '../lib/format-plan';
 import { finalizeUsage, parseUsageEvent, recordTokenUsage, type UsageEvent } from '../lib/token-usage';
 import { ALL_PROVIDERS as PROVIDERS, deviceAssist, deviceModels, deviceProfileApi, isDeviceProfile, isDeviceProvider } from '../lib/device-models';
 import { EMPTY_PROFILE_FORM, SettingsModal, type Profile, type ProfileForm, type SettingsTab, type Theme } from './settings';
@@ -356,7 +357,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       if(layout.ops.length){e.view.dispatch(closeHistory(e.state.tr));e.chain().focus().command(({tr})=>{applyImageLayout(tr,layout.ops);return true;}).run();e.view.dispatch(closeHistory(e.state.tr));setNotice('Immagini e formule sistemate: '+describeImageLayout(layout));return;}
       setAiError('Non ci sono paragrafi di testo da formattare in questo ambito.');return;}
     const controller=new AbortController();pending.current=controller;setBusy(true);
-    const parts:FormatReplacement[]=[],outline:string[]=[];
+    const parts:FormatReplacement[]=[],outline:string[]=[],unchanged:number[]=[];
     try {
       for(let i=0;i<ranges.length;i++) {
         if(controller.signal.aborted||rev!==revision.current)return;
@@ -364,18 +365,27 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
         const range=ranges[i],existing=sourceHeadings(original,range),opening=i===0&&(scope!=='document'||range.from<=1);
         // Each part travels alone: tell the model where it sits and which headings came before, so levels stay coherent.
         const formatContext=[`Part ${i+1} of ${ranges.length}.`,opening?'This part opens the text: a first standalone line naming it is the # title.':'The main title is earlier: use ## for sections and ### for sub-sections unless a new top-level part starts.','Preserve wording, links and embedded elements. Infer headings, one idea per paragraph and key concepts from meaning. Repair inappropriate font sizes and colors; use color only when useful.',existing.length?'Source headings: '+existing.slice(0,6).join(' | ')+'.':'',outline.length?'Outline so far: '+outline.slice(-8).join(' | ')+'.':''].filter(Boolean).join(' ').slice(0,800);
-        const payload={profile:opts.profile,mode:'format',text:range.text,formatting:true,formatPlan:true,formatContext};
-        const key=AiGovernor.key([payload]);let answer=governor.cached(key);
-        if(answer===undefined){const wait=governor.wait(false);if(wait>0)throw new Error(`Il provider richiede una pausa: riprova tra ${Math.ceil(wait/1000)} secondi.`);governor.started();
-          const result=await streamAssist(payload,controller.signal);if(result===null)return;answer=result;}
-        if(controller.signal.aborted||rev!==revision.current)return;
-        const response=splitWarning(answer);if(!response.text.trim())throw new Error(response.warning||'Il modello non ha restituito una formattazione. Riprova.');
-        const part=formatPlanReplacement(original,range,response.text);parts.push(part);governor.remember(key,answer);
+        // An unusable answer is asked once more with a stricter reminder; if it fails again the part stays as it is.
+        let part:FormatReplacement|null=null,failure:Error|null=null;
+        for(let attempt=0;attempt<2&&!part;attempt++){
+          const payload={profile:opts.profile,mode:'format',text:range.text,formatting:true,formatPlan:true,formatContext:attempt?(FORMAT_PLAN_RETRY+' '+formatContext).slice(0,1000):formatContext};
+          const key=AiGovernor.key([payload]);let answer=governor.cached(key);
+          if(answer===undefined){const wait=governor.wait(false);if(wait>0){if(attempt)break;throw new Error(`Il provider richiede una pausa: riprova tra ${Math.ceil(wait/1000)} secondi.`);}governor.started();
+            const result=await streamAssist(payload,controller.signal);if(result===null)return;answer=result;}
+          if(controller.signal.aborted||rev!==revision.current)return;
+          const response=splitWarning(answer);
+          if(!response.text.trim()){failure=new Error(response.warning||'Il modello non ha restituito una formattazione. Riprova.');continue;}
+          try{part=formatPlanReplacement(original,range,response.text);governor.remember(key,answer);}catch(err){failure=err as Error;}
+        }
+        if(!part){unchanged.push(i+1);if(ranges.length===1)throw failure||new Error(FORMAT_PLAN_ERROR);continue;}
+        parts.push(part);
         for(const node of part.content)if(node.type==='heading')outline.push('#'.repeat(Number(node.attrs?.level)||2)+' '+(node.content||[]).map(c=>c.text||'').join('').slice(0,60));
       }
       if(controller.signal.aborted||rev!==revision.current)return;
+      if(!parts.length)throw new Error(FORMAT_PLAN_ERROR);
       showSuggestion({from:bounds.from,to:bounds.to,text:parts[0].text,content:parts[0].content,replacements:parts,layout:layout.ops,layoutNote:describeImageLayout(layout),revision:rev,mode:'format',done:true});
-      if(skipped)setAiWarning('Immagini, blocchi di codice e paragrafi con elementi incorporati sono stati conservati senza modifiche.');
+      const notes=[unchanged.length?`${unchanged.length===1?'La parte':'Le parti'} ${unchanged.join(', ')} di ${ranges.length} ${unchanged.length===1?'è rimasta invariata':'sono rimaste invariate'}: il modello non ha restituito una formattazione valida. Puoi riprovare su quel punto.`:'',skipped?'Immagini, blocchi di codice e paragrafi con elementi incorporati sono stati conservati senza modifiche.':''].filter(Boolean);
+      if(notes.length)setAiWarning(notes.join(' '));
     } catch(err) {if(!controller.signal.aborted){showSuggestion(null);setAiError((err as Error).message);}}
     finally {if(pending.current===controller){pending.current=null;setBusy(false);setFormatProgress('');}}
   }

@@ -46,7 +46,14 @@ export function formatReplacement(doc: Node, range: FormatRange, answer: string)
 }
 
 export function formatPlanReplacement(doc: Node, range: FormatRange, answer: string): FormatReplacement {
-  return restoreFormatting(doc, range, { content: parseFormatPlan(range.text, answer), text: range.text }, false);
+  let content: JSONContent[];
+  try { content = parseFormatPlan(range.text, answer); }
+  catch (err) {
+    // Some models ignore the plan and answer in Markdown: accept it only when every word is unchanged.
+    if (/^\s*[{[]|```json/i.test(answer)) throw err;
+    try { return formatReplacement(doc, range, answer); } catch { throw err; }
+  }
+  return restoreFormatting(doc, range, { content, text: range.text }, false);
 }
 
 function restoreFormatting(doc: Node, range: FormatRange, parsed: {content: JSONContent[]; text: string}, promote = true): FormatReplacement {
