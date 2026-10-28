@@ -1,0 +1,119 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "b38b0c1d-a555-4061-97f3-c4a06be7fb4c",
+  "title": "Storia politica dell' Italia",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Tanto tempo fa, sì, proprio così: la storia del nostro paese. Tanto tempo fa, nel 1945... anzi no, nel 1789... anzi, proprio allora quando tutto è cominciato. Inizieremo dall'antichità, da quando l'uomo è diventato sedentario, sì, però quando l'homo sapiens è diventato sedentario e ha fondato i primi insediamenti stabili, perché è lì che nascono veramente le fondamenta di ogni società. Ma forse dovremmo chiederci prima: da dove inizia davvero la nostra storia? Ogni punto di partenza è arbitrario, ogni data una convenzione che nasconde altre storie, altri inizi possibili, altre voci che non abbiamo ancora imparato ad ascoltare. Eppure dobbiamo pur iniziare da qualche parte, consapevoli che il filo che tiriamo sarà sempre parziale, sempre incompleto."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "E così cominceremo qui, con questa consapevolezza: che ogni racconto è una scelta, e ogni scelta esclude qualcosa d'altro. Dire dove inizia questa storia significa rinunciare a dire dove avrebbe potuto iniziare, significa negare legittimità a tutte le altre origini possibili. Ma è proprio questo il peso che portiamo: la necessità di scegliere, consapevoli che ogni inizio contiene già in sé una prospettiva, uno sguardo, una voce privilegiata tra le molte."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Allora dunque: inizieremo qui, in questo momento, con questa consapevolezza della scelta stessa, piuttosto che con l'illusione di una verità neutra. Perché è nel riconoscimento dei nostri limiti che troviamo la libertà di raccontare. E in questa libertà risiede anche la responsabilità: di scegliere consapevolmente quale voce amplifichiamo, quale storia portiamo avanti, sapendo che il silenzio su altre storie è esso stesso una forma di racconto. È il prezzo che paghiamo per ogni narrazione: la consapevolezza che dire qualcosa significa tacere qualcos'altro, che ogni scelta di raccontare contiene necessariamente un'esclusione. Non è una maledizione, però, questa consapevolezza, ma piuttosto l'unica onestà possibile di fronte alla complessità del mondo. Comunque in Italia, dove ogni racconto nazionale è stato riscritto almeno tre volte e ogni volta ha cancellato quello precedente, questo debito verso le storie non dette diventa ancora più gravoso, ancora più urgente da riconoscere."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Dunque 14.000 anni fa, l'Italia era alla fine del paleolitico e stava per iniziare il neolitico: era quasi finita l'ultima era glaciale, e con essa si chiudeva un mondo di cacciatori e raccoglitori nomadi, di una relazione con il territorio ancora primitiva, ancora legata ai ritmi della natura selvaggia. Un passaggio che non fu repentino, ma graduale, un'oscillazione lenta tra due modi di stare al mondo, due modi di pensare lo spazio e il tempo. E in questa oscillazione nacquero le prime domande che l'uomo si pose sulla permanenza, sulla proprietà, sulla possibilità stessa di possedere un luogo anziché semplicemente attraversarlo: domande che avrebbero trasformato il nostro rapporto con la terra, e che ancora oggi, sepolte sotto millenni di diritto e di guerra, continuano a muovere le nostre scelte. Perché è in quel momento, quando qualcuno tracciò per la prima volta una linea sul terreno e disse \"questo è mio\", che iniziò veramente il racconto che ancora stiamo vivendo."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "E tutto quello che seguì, ogni confine, ogni guerra, ogni legge scritta sulla carta o incisa nella pietra, scaturì da quella domanda originaria: da quel primo atto di demarcazione che trasformò il territorio da spazio comune in proprietà individuale, da risorsa da condividere in ricchezza da difendere. E con essa nacquero i sistemi di controllo, di esclusione, di violenza legittimata dal diritto, che ancora oggi continuano a strutturare il nostro modo di stare nel mondo. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Perché è in quella frattura primordiale, in quel gesto di tracciare un confine, che il possesso divenne esclusione, e l'esclusione divenne il fondamento di tutto ciò che sarebbe venuto dopo: stati, leggi, gerarchie, guerre intestine per il controllo di quella terra che qualcuno aveva osato recintare. E da allora, in ogni epoca e in ogni luogo, quella linea originaria si è moltiplicata, ripetuta, rafforzata, tracciata e rintracciata su mappe che non hanno mai smesso di cambiare, eppure conservano sempre il segno di quel primo gesto: la violenza fondatrice della proprietà, il momento in cui l'esclusione divenne legittima."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mine",
+      "intensity": "medium",
+      "custom": ""
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1793218624485
+}
