@@ -115,6 +115,121 @@
             "text": ", quella che porta con sé una sorta di dignità, perché riconosce il limite della nostra vita finita e delle infinite possibilità che abbiamo dovuto abbandonare semplicemente vivendo. Questo ci permette di crescere, paradossalmente: accettare ciò che non sarà diventa il modo di abitare ciò che siamo."
           }
         ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nelle altre lingue questi due concetti come vengono rappresentati? In tedesco "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Reue"
+          },
+          {
+            "type": "text",
+            "text": " e "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Sehnsucht"
+          },
+          {
+            "type": "text",
+            "text": " catturano qualcosa che l'italiano riduce a una sfumatura; la sfumatura è proprio il luogo dove la lingua tradisce i suoi limiti e rivela cosa una cultura sceglie di vedere o di nascondere. In tedesco la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Reue"
+          },
+          {
+            "type": "text",
+            "text": " è il rimorso consapevole e quasi corporeo, il peso della colpa che si porta addosso; la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Sehnsucht"
+          },
+          {
+            "type": "text",
+            "text": " invece è un desiderio più profondo, una nostalgia che contiene anche la bellezza di ciò che manca, non solo il dolore. È un sentimento che non ha un vero equivalente italiano perché mescola il rimpianto con una sorta di struggimento eroico, una tensione verso l'irraggiungibile che la nostra lingua separa invece in tanti piccoli pezzi. Invece in francese il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "regret"
+          },
+          {
+            "type": "text",
+            "text": " e il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "remords"
+          },
+          {
+            "type": "text",
+            "text": " mantengono una distinzione simile alla nostra, ma con un'inclinazione più verso la nostalgia."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Infine, l'inglese "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "regret"
+          },
+          {
+            "type": "text",
+            "text": " appiattisce entrambi sotto una sola parola, come se la lingua anglo-sassone preferisse non insistere sulla frattura tra l'agito e il mancato. Ogni lingua, insomma, disegna una mappa diversa del dolore."
+          }
+        ]
       }
     ]
   },
@@ -153,5 +268,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1793802076511
+  "updated": 1793802199978
 }
