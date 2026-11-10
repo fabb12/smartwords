@@ -10,7 +10,11 @@ const day = (n: number | null) => n ? new Date(n).toLocaleDateString('it-IT', { 
 export function AdminPanel({ admin, selfId }: { admin: AdminApi; selfId: string }) {
   const [users, setUsers] = useState<AdminUser[] | null>(null), [search, setSearch] = useState(''), [busy, setBusy] = useState(''), [error, setError] = useState(''), [message, setMessage] = useState('');
   const load = useCallback(async () => { try { setUsers(await admin.users()); setError(''); } catch (e) { setError((e as Error).message); } }, [admin]);
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    let live = true;
+    admin.users().then(list => { if (live) setUsers(list); }).catch(e => { if (live) setError((e as Error).message); });
+    return () => { live = false; };
+  }, [admin]);
 
   async function act(id: string, label: string, work: () => Promise<void>) {
     setBusy(id); setError(''); setMessage('');
