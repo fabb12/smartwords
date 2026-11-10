@@ -332,12 +332,6 @@
               },
               {
                 "type": "bold"
-              },
-              {
-                "type": "highlight",
-                "attrs": {
-                  "color": "#ffc8004d"
-                }
               }
             ],
             "text": "saggezza"
@@ -373,12 +367,6 @@
               },
               {
                 "type": "bold"
-              },
-              {
-                "type": "highlight",
-                "attrs": {
-                  "color": "#ffc8004d"
-                }
               }
             ],
             "text": "pratica,"
@@ -969,5 +957,5 @@
     "dismissed": [],
     "confirmed": []
   },
-  "updated": 1794300487463
+  "updated": 1794303080475
 }
