@@ -63,7 +63,7 @@ function SignInForm() {
   }
   return <form onSubmit={submit}>
     <h1>{TITLES[mode]}</h1>
-    <p className="auth-sub">{mode === 'reset' ? 'Inserisci l’email del tuo account.' : 'I tuoi documenti, le impostazioni, i profili AI e le chiavi API restano nel tuo account e ti seguono su ogni dispositivo. Non serve alcun token GitHub.'}</p>
+    <p className="auth-sub">{mode === 'reset' ? 'Inserisci l’email del tuo account.' : 'I tuoi documenti, le impostazioni, i profili AI e le chiavi API restano nel tuo account e ti seguono su ogni dispositivo.'}</p>
     <label>Email<input type="email" autoComplete="email" required autoFocus value={email} onChange={e => setEmail(e.target.value)} /></label>
     {mode !== 'reset' && <label>Password<input type="password" autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} required minLength={mode === 'signup' ? 8 : undefined} value={password} onChange={e => setPassword(e.target.value)} /></label>}
     {error && <p className="warning" role="alert">{error}</p>}{info && <p className="security-note" role="status"><ShieldCheck size={18} /><span>{info}</span></p>}

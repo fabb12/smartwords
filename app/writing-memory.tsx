@@ -2,10 +2,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Brain, Download, RefreshCw, X } from 'lucide-react';
 import { fingerprintTraits, wordsOf } from '../lib/narrative';
+import { activeCloud } from '../lib/cloud-state';
 import { EMPTY_WRITING_MEMORY, excludeWritingSource, exportWritingMemory, importWritingMemory, writingMemorySummary, type WritingMemory } from '../lib/writing-memory';
 
 export function WritingMemoryModal({memory,currentId,persistenceError,onChange,onLearn,onClose}:{memory:WritingMemory;currentId:string;persistenceError:string;onChange:(m:WritingMemory)=>void;onLearn:(signal:AbortSignal)=>Promise<string>;onClose:()=>void}) {
-  const summary=useMemo(()=>writingMemorySummary(memory),[memory]);
+  const cloud=activeCloud(),summary=useMemo(()=>writingMemorySummary(memory),[memory]);
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[message,setMessage]=useState(''),[confirmErase,setConfirmErase]=useState(false);
   const pending=useRef<AbortController|null>(null);
   useEffect(()=>()=>pending.current?.abort(),[]);
@@ -28,7 +29,7 @@ export function WritingMemoryModal({memory,currentId,persistenceError,onChange,o
     <button className="primary" disabled={busy||!memory.enabled} onClick={()=>void learn()}><RefreshCw size={15}/>{busy?'Leggo i tuoi documenti…':'Impara dai documenti salvati'}</button>
     <p className="form-note">Legge fino a 40 documenti recenti, rispettando le esclusioni. Conserva campioni limitati, senza contare due volte lo stesso testo. Includi solo testi che vuoi usare come tua voce.</p>
     {!!memory.sources.length&&<details><summary>Testi usati ({memory.sources.length})</summary>{memory.sources.map(s=><div className="writing-memory-source" key={s.id}><div><strong>{s.title}</strong><small>{wordsOf(s.sample).length} parole nel campione</small><details><summary>Vedi campione</summary><p>{s.sample}</p></details></div><button disabled={busy} aria-label={'Escludi '+s.title} onClick={()=>onChange(excludeWritingSource(memory,s.id))}>Escludi</button></div>)}</details>}
-    <p className="form-note">Quando chiedi all’AI di scrivere, il provider selezionato riceve il profilo e, se attivi, fino a tre brevi esempi. La scena corrente e la voce narrativa scelta hanno la precedenza. Il profilo non viene aggiunto automaticamente ai documenti su GitHub: per portarlo su un altro dispositivo puoi esportarlo e importarlo qui. L’esportazione include preferenze e campioni dei testi selezionati.</p>
+    <p className="form-note">Quando chiedi all’AI di scrivere, il provider selezionato riceve il profilo e, se attivi, fino a tre brevi esempi. La scena corrente e la voce narrativa scelta hanno la precedenza. {cloud?'Con l’account cloud il profilo è salvato nel tuo account e ti segue su ogni dispositivo; puoi comunque esportarlo e importarlo.':'Il profilo non viene aggiunto ai documenti: per portarlo su un altro dispositivo puoi esportarlo e importarlo qui.'} L’esportazione include preferenze e campioni dei testi selezionati.</p>
     <div className="writing-memory-actions"><button className="quiet" disabled={busy} onClick={exportProfile}><Download size={15}/>Esporta profilo</button><label className="quiet writing-memory-import">Importa profilo<input aria-label="Importa profilo di scrittura" type="file" accept=".json" disabled={busy} onChange={e=>{const file=e.target.files?.[0];if(file)void importProfile(file);e.target.value='';}}/></label><button className="quiet" disabled={busy} onClick={()=>setConfirmErase(true)}>Azzera memoria</button></div>
     {confirmErase&&<div className="warning"><p>Vuoi cancellare campioni e preferenze? L’apprendimento verrà disattivato; i documenti restano nell’app.</p><button onClick={()=>{onChange({...EMPTY_WRITING_MEMORY,enabled:false});setConfirmErase(false);setMessage('Memoria azzerata e apprendimento disattivato.');}}>Cancella memoria</button><button onClick={()=>setConfirmErase(false)}>Annulla</button></div>}
     {(error||persistenceError)&&<p className="warning" role="alert">{error||persistenceError}</p>}{message&&<p className="form-note" role="status">{message}</p>}<div className="form-footer"><button className="primary" onClick={close}>Fatto</button></div>

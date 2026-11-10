@@ -68,11 +68,11 @@ function ProviderSettings({local,owner,profiles,vaultReady,error,form,setForm,fo
 function AccountSettings({email,admin,documents,busy,message,local,onImport,onSync,onSignOut}:AccountProps) {
   return <>
     <h3>Il tuo account</h3>
-    <div className="security-note"><ShieldCheck size={18}/><span>Accesso come <strong>{email}</strong>{admin?' (amministratore)':''}: in questo account ci sono <strong>{documents}</strong> documenti. Documenti, versioni, impostazioni, regole di scrittura, profili AI e statistiche sono salvati nel tuo account e li ritrovi su ogni dispositivo. Le chiavi API sono cifrate nel database (Supabase Vault) e visibili solo a te. Non serve alcun token GitHub per salvare i documenti.</span></div>
+    <div className="security-note"><ShieldCheck size={18}/><span>Accesso come <strong>{email}</strong>{admin?' (amministratore)':''}: in questo account ci sono <strong>{documents}</strong> documenti. Documenti, versioni, impostazioni, regole di scrittura, profili AI e statistiche sono salvati nel tuo account e li ritrovi su ogni dispositivo. Le chiavi API sono cifrate nel database (Supabase Vault) e visibili solo a te.</span></div>
     {(local.documents>0||local.profiles>0)&&<div className="warning" role="status"><strong>Dati di questo browser non ancora nel cloud.</strong> Ci sono {local.documents} documenti e {local.profiles} profili AI salvati solo qui. L’importazione li copia nel tuo account (con impostazioni e chiavi) senza cancellare nulla da questo browser.<div className="settings-actions start"><button type="button" className="primary" disabled={busy} onClick={onImport}>{busy?'Operazione in corso…':'Importa nel mio account'}</button></div></div>}
     {message&&<p className="form-note" role="status">{message}</p>}
     <div className="settings-actions start"><button type="button" className="quiet" disabled={busy} onClick={onSync} data-tip="Invia le modifiche, scarica quelle fatte da altri dispositivi e ricarica Scrivia">Sincronizza ora</button><button type="button" className="quiet" disabled={busy} onClick={onSignOut} data-tip="Salva, esce dall’account e rimuove le impostazioni da questo dispositivo">Esci dall’account</button></div>
-    <p className="form-note">Dopo l’uscita le impostazioni dell’account vengono rimosse da questo dispositivo: su un computer condiviso nessuno le vedrà. Il token dello Studio LaTeX resta invece un’impostazione del dispositivo.</p>
+    <p className="form-note">Dopo l’uscita le impostazioni dell’account vengono rimosse da questo dispositivo: su un computer condiviso nessuno le vedrà. I token di accesso a servizi esterni, come quello dello Studio LaTeX, restano invece un’impostazione del dispositivo.</p>
   </>;
 }
 

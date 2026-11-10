@@ -24,14 +24,14 @@ Prova in locale: `npm ci && npm run build:pages && npm run preview:pages`.
 
 ## Account e cloud (Supabase)
 
-Con un progetto [Supabase](https://supabase.com) (il piano gratuito basta) la versione GitHub Pages e l’app desktop chiedono l’accesso con email e password, e **tutto ciò che è tuo resta nel tuo account**, su ogni dispositivo, senza inserire alcun token GitHub:
+Con un progetto [Supabase](https://supabase.com) (il piano gratuito basta) la versione GitHub Pages e l’app desktop chiedono l’accesso con email e password, e **tutto ciò che è tuo resta nel tuo account**, su ogni dispositivo:
 
 - **Documenti**, cronologia delle versioni (ultime 30, al massimo una al minuto), progetto creativo di ogni documento;
 - **Profili AI e chiavi API**: le chiavi sono cifrate da Supabase Vault e non sono mai nelle tabelle in chiaro; il browser le chiede al database solo quando fa una richiesta al provider e le tiene in memoria, mai su disco. Vale anche per la chiave ElevenLabs della lettura ad alta voce;
 - **Impostazioni e preferenze**: tema, vista pagina e zoom, livello di intervento e modalità dell’AI, regole di scrittura, «La mia voce», disposizione di barre e pannelli e preset dell’area di lavoro, gruppi dei documenti, consumi di token, contatori giornalieri dei profili, impostazioni della lettura ad alta voce;
 - **Informazioni e statistiche**: per ogni documento data di creazione, ultima modifica, **tempo di scrittura**, parole, caratteri, tempo di lettura, ritmo medio, salvataggi e aperture; per l’account totali, tempo di oggi, giorni di fila e grafico degli ultimi 14 giorni. Si aprono da «Info e statistiche» nella barra in basso (o dal menu ⋯ sul telefono). Il tempo di scrittura conta soltanto mentre la pagina è visibile e hai usato tastiera, mouse o schermo negli ultimi 60 secondi.
 
-Non vengono sincronizzati, di proposito: i token GitHub (anche quello dello Studio LaTeX), i profili di Ollama e LM Studio (puntano al computer su cui sono) e le knowledge base di stile (sono grandi e restano nel browser).
+Non vengono sincronizzati, di proposito: i token di accesso a servizi esterni (anche quello dello Studio LaTeX), i profili di Ollama e LM Studio (puntano al computer su cui sono) e le knowledge base di stile (sono grandi e restano nel browser).
 
 ### Configurazione
 
@@ -49,7 +49,7 @@ Al primo accesso da un browser che ha già documenti e profili: **Impostazioni �
 
 **Esci dall’account** salva, esce e rimuove da quel dispositivo le impostazioni dell’account (su un computer condiviso nessuno le vedrà). **Sincronizza ora** invia le modifiche, scarica quelle fatte da altri dispositivi e ricarica Scrivia. Le impostazioni cambiano su un dispositivo e arrivano agli altri alla riapertura o con «Sincronizza ora»; se due dispositivi cambiano la stessa impostazione prevale l’ultima salvata.
 
-Con l’account i comandi «Salva su GitHub» e «Carica da GitHub» non compaiono più: i documenti sono già salvati a ogni modifica (il pulsante «Salva ora nel cloud» forza un salvataggio). Resta il token GitHub dello Studio LaTeX, perché lì il repository è il progetto stesso.
+Con l’account i documenti sono salvati a ogni modifica (il pulsante «Salva ora nel cloud» forza un salvataggio) e non servono comandi di salvataggio esterni.
 
 ### Amministratori
 
