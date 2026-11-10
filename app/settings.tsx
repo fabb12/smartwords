@@ -28,7 +28,7 @@ const TABS: {id:SettingsTab;label:string;hint:string;icon:typeof KeyRound}[] = [
 ];
 
 type ProviderProps = {local:boolean;owner:string;profiles:Profile[];vaultReady:boolean;error:string;form:ProfileForm;setForm:Dispatch<SetStateAction<ProfileForm>>;formBusy:boolean;onSave:()=>void;onRemove:(p:Profile)=>void};
-type AccountProps = {email:string;busy:boolean;message:string;local:{documents:number;profiles:number};onImport:()=>void;onSync:()=>void;onSignOut:()=>void};
+type AccountProps = {email:string;admin:boolean;documents:number;busy:boolean;message:string;local:{documents:number;profiles:number};onImport:()=>void;onSync:()=>void;onSignOut:()=>void};
 type GitHubProps = {busy:boolean;loaded:boolean;onSaveNow:()=>void;onOpenDocuments:()=>void};
 type RulesProps = {rules:WritingRules;onChange:(rules:WritingRules)=>void};
 type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void};
@@ -65,10 +65,10 @@ function ProviderSettings({local,owner,profiles,vaultReady,error,form,setForm,fo
   </>;
 }
 
-function AccountSettings({email,busy,message,local,onImport,onSync,onSignOut}:AccountProps) {
+function AccountSettings({email,admin,documents,busy,message,local,onImport,onSync,onSignOut}:AccountProps) {
   return <>
     <h3>Il tuo account</h3>
-    <div className="security-note"><ShieldCheck size={18}/><span>Accesso come <strong>{email}</strong>. Documenti, versioni, impostazioni, regole di scrittura, profili AI e statistiche sono salvati nel tuo account e li ritrovi su ogni dispositivo. Le chiavi API sono cifrate nel database (Supabase Vault) e visibili solo a te. Non serve alcun token GitHub per salvare i documenti.</span></div>
+    <div className="security-note"><ShieldCheck size={18}/><span>Accesso come <strong>{email}</strong>{admin?' (amministratore)':''}: in questo account ci sono <strong>{documents}</strong> documenti. Documenti, versioni, impostazioni, regole di scrittura, profili AI e statistiche sono salvati nel tuo account e li ritrovi su ogni dispositivo. Le chiavi API sono cifrate nel database (Supabase Vault) e visibili solo a te. Non serve alcun token GitHub per salvare i documenti.</span></div>
     {(local.documents>0||local.profiles>0)&&<div className="warning" role="status"><strong>Dati di questo browser non ancora nel cloud.</strong> Ci sono {local.documents} documenti e {local.profiles} profili AI salvati solo qui. L’importazione li copia nel tuo account (con impostazioni e chiavi) senza cancellare nulla da questo browser.<div className="settings-actions start"><button type="button" className="primary" disabled={busy} onClick={onImport}>{busy?'Operazione in corso…':'Importa nel mio account'}</button></div></div>}
     {message&&<p className="form-note" role="status">{message}</p>}
     <div className="settings-actions start"><button type="button" className="quiet" disabled={busy} onClick={onSync} data-tip="Invia le modifiche, scarica quelle fatte da altri dispositivi e ricarica Scrivia">Sincronizza ora</button><button type="button" className="quiet" disabled={busy} onClick={onSignOut} data-tip="Salva, esce dall’account e rimuove le impostazioni da questo dispositivo">Esci dall’account</button></div>

@@ -926,3 +926,14 @@ button.group-title:hover{background:var(--soft)}
 .admin-actions button.danger{color:#a33e37;border-color:#efc9c3}
 :root[data-theme=dark] .admin-actions button{background:#202622;border-color:#2c332e}:root[data-theme=dark] .admin-badges em{background:#26302a;color:#a9c4a5}
 @media(max-width:720px){.admin-row{flex-direction:column}.admin-actions{max-width:100%;justify-content:flex-start}}
+
+/* Account collegato: email e uscita sempre visibili in basso a sinistra */
+.user.signed-in>div{min-width:0;flex:1}.user.signed-in>div{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user.signed-in small{overflow:hidden;text-overflow:ellipsis}
+.user-exit{display:inline-flex;align-items:center;gap:5px;flex:0 0 auto;font-size:10px;padding:6px 9px;border:1px solid var(--line);border-radius:5px;background:white;color:#5e695f}
+.user-exit:hover{background:var(--soft)}
+:root[data-theme=dark] .user-exit{background:#202622;border-color:#2c332e;color:#aab4a9}
+
+.user.signed-in{flex-wrap:wrap;row-gap:10px}
+.user.signed-in>div{font-size:11px}
+.user.signed-in .user-exit{flex:1 1 100%;justify-content:center;padding:8px 9px;font-size:11px}

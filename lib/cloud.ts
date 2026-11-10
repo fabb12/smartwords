@@ -109,7 +109,9 @@ export async function startCloud(session: Session): Promise<CloudAccount> {
       clearSyncedSettings(localStorage, userId);           // a shared computer keeps nothing of this account
       store.forget();
       setActiveCloud(null);
-      const { error } = await c.auth.signOut(); if (error) throw authError(error);
+      // Without a connection the global sign-out cannot reach the server: close at least this device.
+      const { error } = await c.auth.signOut();
+      if (error) { const local = await c.auth.signOut({ scope: 'local' }); if (local.error) throw authError(local.error); }
     },
     async syncNow() { await sync.push(); await sync.pull(); },
     localData() { const plan = planImport(localStorage, userId); return { documents: plan.documents.length, profiles: plan.profiles.length }; },
