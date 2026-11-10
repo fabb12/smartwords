@@ -912,3 +912,17 @@ button.group-title:hover{background:var(--soft)}
 .activity-day small{font-size:9px;color:#97a18b}
 :root[data-theme=dark] .info-item{background:#222a24}:root[data-theme=dark] .activity-bar{background:#4c6b57}:root[data-theme=dark] .activity-bar.today{background:#7fb08e}
 @media(max-width:720px){.info-grid{grid-template-columns:1fr}.auth-card{padding:24px}}
+
+/* Amministrazione degli account */
+.admin-bar{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:10px 0}.admin-bar label{margin:0;flex:1 1 220px}
+.admin-list{display:flex;flex-direction:column}
+.admin-row{display:flex;gap:14px;justify-content:space-between;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)}
+.admin-row.suspended .admin-main strong{text-decoration:line-through;opacity:.7}
+.admin-main{min-width:0;display:flex;flex-direction:column;gap:4px}.admin-main strong{font-size:12px;overflow-wrap:anywhere}.admin-main small{font-size:10px;color:#8d9a81}
+.admin-badges{display:flex;flex-wrap:wrap;gap:5px}.admin-badges em{font-style:normal;font-size:9px;padding:2px 6px;border-radius:9px;background:#e9efdf;color:#5d7650}
+.admin-badges em.admin{background:var(--green);color:#fff}.admin-badges em.off{background:#fde4df;color:#a33e37}
+.admin-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;flex:0 0 auto;max-width:52%}
+.admin-actions button{font-size:10px;padding:6px 9px;border:1px solid var(--line);border-radius:5px;background:white}.admin-actions button:hover{background:var(--soft)}
+.admin-actions button.danger{color:#a33e37;border-color:#efc9c3}
+:root[data-theme=dark] .admin-actions button{background:#202622;border-color:#2c332e}:root[data-theme=dark] .admin-badges em{background:#26302a;color:#a9c4a5}
+@media(max-width:720px){.admin-row{flex-direction:column}.admin-actions{max-width:100%;justify-content:flex-start}}

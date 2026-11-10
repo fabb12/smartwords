@@ -6,7 +6,7 @@ import { createClient, type Session, type SupabaseClient } from '@supabase/supab
 import { createSettingsSync, clearSyncedSettings, type SettingsSync, type SyncBackend } from './cloud-sync.ts';
 import { cloudError, createCloudApi } from './cloud-store.ts';
 import { importLocalData, planImport } from './cloud-import.ts';
-import { CLOUD_KEY as KEY_, CLOUD_URL as URL_, setActiveCloud, type CloudAccount } from './cloud-state.ts';
+import { CLOUD_KEY as KEY_, CLOUD_URL as URL_, setActiveCloud, type AdminApi, type AdminUser, type CloudAccount } from './cloud-state.ts';
 import { usageToday } from './local-backend.ts';
 import { desktop } from './desktop.ts';
 
@@ -25,6 +25,7 @@ export function authError(e: { message?: string; status?: number; code?: string 
   if (code === 'email_not_confirmed' || /Email not confirmed/i.test(m)) return new Error('Conferma prima l’email: controlla la posta e apri il link che ti abbiamo inviato.');
   if (code === 'user_already_exists' || /already registered/i.test(m)) return new Error('Esiste già un account con questa email: accedi oppure recupera la password.');
   if (code === 'weak_password' || /Password should be/i.test(m)) return new Error('Password troppo debole: usa almeno 8 caratteri, meglio con lettere e numeri.');
+  if (code === 'user_banned' || /banned/i.test(m)) return new Error('Questo account è stato sospeso. Contatta l’amministratore.');
   if (code === 'over_email_send_rate_limit' || e?.status === 429 || /rate limit/i.test(m)) return new Error('Troppi tentativi: attendi qualche minuto e riprova.');
   if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return new Error('Connessione non riuscita: controlla la rete e riprova.');
   return new Error(m || 'Accesso non riuscito. Riprova.');
@@ -57,6 +58,23 @@ export async function setNewPassword(password: string) { const { error } = await
 
 const reveal = (data: string) => desktop()?.reveal(data) || '';
 
+const when = (v: unknown) => typeof v === 'string' ? Date.parse(v) : null;
+function adminApi(c: SupabaseClient): AdminApi {
+  const run = async (fn: string, args: Record<string, unknown>) => { const r = await c.rpc(fn, args); if (r.error) throw cloudError(r.error); };
+  return {
+    async users() {
+      const r = await c.rpc('admin_list_users'); if (r.error) throw cloudError(r.error);
+      return ((r.data || []) as Record<string, unknown>[]).map((u): AdminUser => ({ id: String(u.id), email: String(u.email || ''), created: when(u.created_at), lastSignIn: when(u.last_sign_in_at),
+        confirmed: u.confirmed === true, suspended: u.suspended === true, isAdmin: u.is_admin === true, documents: Number(u.documents) || 0, words: Number(u.words) || 0,
+        workSeconds: Number(u.work_seconds) || 0, lastActivity: typeof u.last_activity === 'string' ? u.last_activity : null, aiProfiles: Number(u.ai_profiles) || 0 }));
+    },
+    setSuspended: (id, suspended) => run('admin_set_suspended', { p_user: id, p_suspended: suspended }),
+    setAdmin: (id, admin) => run('admin_set_admin', { p_user: id, p_admin: admin }),
+    remove: id => run('admin_delete_user', { p_user: id }),
+    async sendPasswordReset(email) { const { error } = await c.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); if (error) throw authError(error); },
+  };
+}
+
 let running: SettingsSync | undefined;
 
 // Starts the cloud session of a signed-in user: applies the cloud settings to this device, then keeps them in sync.
@@ -77,8 +95,12 @@ export async function startCloud(session: Session): Promise<CloudAccount> {
   await sync.pull();
   if (lastSyncError) throw new Error(lastSyncError);
 
+  // Administrators get the account management tools; for everyone else (or before the schema update) there are none.
+  const flag = await c.rpc('is_admin');
+  const admin: AdminApi | null = flag.data === true ? adminApi(c) : null;
+
   const account: CloudAccount = {
-    userId, email,
+    userId, email, admin,
     api: store.api,
     resolveProfile: store.resolveProfile,
     async signOut() {

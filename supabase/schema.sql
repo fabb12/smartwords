@@ -86,6 +86,13 @@ create table if not exists public.user_secrets (
   primary key (user_id, name)
 );
 
+-- Amministratori: gestiscono gli account (vedi le funzioni admin_* più sotto). Nessun accesso diretto alla
+-- tabella: si assegna dal SQL Editor, vedi in fondo al file.
+create table if not exists public.app_admins (
+  user_id    uuid primary key references auth.users (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
 -- ---------------------------------------------------------------------------------------------
 -- Trigger
 -- ---------------------------------------------------------------------------------------------
@@ -131,6 +138,17 @@ end $$;
 drop trigger if exists api_profiles_after_delete on public.api_profiles;
 create trigger api_profiles_after_delete after delete on public.api_profiles
   for each row execute function public.api_profiles_after_delete();
+
+-- Eliminando un account (o un segreto) si elimina anche il valore cifrato in Vault.
+create or replace function public.user_secrets_after_delete() returns trigger
+language plpgsql security definer set search_path = '' as $$
+begin
+  delete from vault.secrets where id = old.key_secret_id;
+  return old;
+end $$;
+drop trigger if exists user_secrets_after_delete on public.user_secrets;
+create trigger user_secrets_after_delete after delete on public.user_secrets
+  for each row execute function public.user_secrets_after_delete();
 
 -- ---------------------------------------------------------------------------------------------
 -- Funzioni richiamabili dall'app
@@ -243,6 +261,76 @@ language sql stable security definer set search_path = '' as $$
 $$;
 
 -- ---------------------------------------------------------------------------------------------
+-- Amministrazione degli account. Gli amministratori vedono email, date e numeri d'uso degli utenti e
+-- possono sospenderli, promuoverli o eliminarli; non vedono mai testi dei documenti né chiavi API.
+-- ---------------------------------------------------------------------------------------------
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = '' as $$
+  select exists (select 1 from public.app_admins where user_id = auth.uid());
+$$;
+
+create or replace function public.admin_require() returns void
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  if auth.uid() is null or not exists (select 1 from public.app_admins where user_id = auth.uid()) then
+    raise exception 'Operazione riservata agli amministratori.';
+  end if;
+end $$;
+
+create or replace function public.admin_list_users()
+returns table (id uuid, email text, created_at timestamptz, last_sign_in_at timestamptz, confirmed boolean,
+               suspended boolean, is_admin boolean, documents bigint, words bigint, work_seconds bigint,
+               last_activity date, ai_profiles bigint)
+language plpgsql stable security definer set search_path = '' as $$
+begin
+  perform public.admin_require();
+  return query
+    select u.id, u.email::text, u.created_at, u.last_sign_in_at, u.email_confirmed_at is not null,
+           coalesce(u.banned_until > now(), false),
+           exists (select 1 from public.app_admins a where a.user_id = u.id),
+           (select count(*) from public.documents d where d.user_id = u.id),
+           (select coalesce(sum(d.word_count), 0)::bigint from public.documents d where d.user_id = u.id),
+           (select coalesce(sum(d.work_seconds), 0)::bigint from public.documents d where d.user_id = u.id),
+           (select max(w.day) from public.writing_activity w where w.user_id = u.id),
+           (select count(*) from public.api_profiles p where p.user_id = u.id)
+      from auth.users u order by u.created_at desc limit 1000;
+end $$;
+
+-- Sospende o riattiva un account: chi è sospeso non può più accedere e le sue sessioni vengono chiuse.
+create or replace function public.admin_set_suspended(p_user uuid, p_suspended boolean) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  perform public.admin_require();
+  if p_user = auth.uid() then raise exception 'Non puoi sospendere il tuo stesso account.'; end if;
+  update auth.users set banned_until = case when p_suspended then now() + interval '100 years' else null end where id = p_user;
+  if not found then raise exception 'Utente non trovato.'; end if;
+  if p_suspended then delete from auth.sessions where user_id = p_user; end if;
+end $$;
+
+create or replace function public.admin_set_admin(p_user uuid, p_admin boolean) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  perform public.admin_require();
+  if not exists (select 1 from auth.users where id = p_user) then raise exception 'Utente non trovato.'; end if;
+  if p_admin then
+    insert into public.app_admins (user_id) values (p_user) on conflict do nothing;
+  else
+    if (select count(*) from public.app_admins) <= 1 then raise exception 'Deve restare almeno un amministratore.'; end if;
+    delete from public.app_admins where user_id = p_user;
+  end if;
+end $$;
+
+-- Elimina l'account con tutti i suoi dati (documenti, profili, segreti cifrati).
+create or replace function public.admin_delete_user(p_user uuid) returns void
+language plpgsql security definer set search_path = '' as $$
+begin
+  perform public.admin_require();
+  if p_user = auth.uid() then raise exception 'Non puoi eliminare il tuo stesso account.'; end if;
+  delete from auth.users where id = p_user;
+  if not found then raise exception 'Utente non trovato.'; end if;
+end $$;
+
+-- ---------------------------------------------------------------------------------------------
 -- Permessi: ogni utente accede solo ai propri dati.
 -- ---------------------------------------------------------------------------------------------
 alter table public.documents          enable row level security;
@@ -251,6 +339,7 @@ alter table public.writing_activity   enable row level security;
 alter table public.user_settings      enable row level security;
 alter table public.api_profiles       enable row level security;
 alter table public.user_secrets       enable row level security;
+alter table public.app_admins         enable row level security;
 
 drop policy if exists documents_owner on public.documents;
 create policy documents_owner on public.documents for all to authenticated
@@ -277,7 +366,7 @@ create policy profiles_owner on public.api_profiles for all to authenticated
 
 -- user_secrets: nessun accesso diretto, solo le funzioni set_secret / get_secret / delete_secret.
 revoke all on public.documents, public.document_revisions, public.writing_activity,
-              public.user_settings, public.api_profiles, public.user_secrets from anon, authenticated;
+              public.user_settings, public.api_profiles, public.user_secrets, public.app_admins from anon, authenticated;
 grant select, insert, update, delete on public.document_revisions, public.user_settings to authenticated;
 grant select, delete on public.documents, public.api_profiles to authenticated;
 grant select on public.writing_activity to authenticated;
@@ -292,6 +381,11 @@ grant select (id, user_id, name, provider, model, daily_limit, key_hint, created
 grant insert (name, provider, model, daily_limit) on public.api_profiles to authenticated;
 grant update (name, provider, model, daily_limit) on public.api_profiles to authenticated;
 
+revoke all on function public.admin_require(), public.is_admin(), public.admin_list_users(),
+  public.admin_set_suspended(uuid, boolean), public.admin_set_admin(uuid, boolean), public.admin_delete_user(uuid) from public, anon;
+grant execute on function public.is_admin(), public.admin_list_users(), public.admin_set_suspended(uuid, boolean),
+  public.admin_set_admin(uuid, boolean), public.admin_delete_user(uuid) to authenticated;
+
 revoke all on function public.set_api_key(uuid, text), public.get_api_key(uuid),
   public.set_secret(text, text), public.get_secret(text), public.delete_secret(text),
   public.log_activity(uuid, integer, integer, date), public.mark_opened(uuid),
@@ -300,3 +394,9 @@ grant execute on function public.set_api_key(uuid, text), public.get_api_key(uui
   public.set_secret(text, text), public.get_secret(text), public.delete_secret(text),
   public.log_activity(uuid, integer, integer, date), public.mark_opened(uuid),
   public.user_stats(integer) to authenticated;
+
+-- ---------------------------------------------------------------------------------------------
+-- Primo amministratore: dopo esserti registrato nell'app, esegui questa riga nel SQL Editor
+-- con la tua email (togli i due trattini iniziali). Gli altri si promuovono poi dall'app.
+-- ---------------------------------------------------------------------------------------------
+-- insert into public.app_admins (user_id) select id from auth.users where email = 'tua@email.it' on conflict do nothing;

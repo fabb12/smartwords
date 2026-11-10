@@ -5,7 +5,19 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Body = any;
 
+// An account as the administrator sees it: dates and usage numbers only, never texts or keys.
+export type AdminUser = { id: string; email: string; created: number | null; lastSignIn: number | null; confirmed: boolean; suspended: boolean; isAdmin: boolean;
+  documents: number; words: number; workSeconds: number; lastActivity: string | null; aiProfiles: number };
+export type AdminApi = {
+  users(): Promise<AdminUser[]>;
+  setSuspended(userId: string, suspended: boolean): Promise<void>;
+  setAdmin(userId: string, admin: boolean): Promise<void>;
+  remove(userId: string): Promise<void>;
+  sendPasswordReset(email: string): Promise<void>;
+};
+
 export type CloudAccount = {
+  admin: AdminApi | null; // only for administrators
   userId: string;
   email: string;
   // Same routes as localApi (documents, revisions, profiles, projects, activity, opened, stats), on Supabase.

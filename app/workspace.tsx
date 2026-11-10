@@ -785,6 +785,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {repoOpen&&<GitHubDocuments intent={repoOpen} onSave={saveToRepository} onLoad={loadFromRepository} onClose={()=>setRepoOpen(null)}/>}
     {settings&&<SettingsModal tab={settings} setTab={setSettings} onClose={()=>setSettings(null)}
       provider={{local:LOCAL&&!cloud,owner,profiles,vaultReady,error,form,setForm,formBusy,onSave:()=>void saveProfile(),onRemove:p=>void removeProfile(p)}}
+      admin={cloud?.admin?{api:cloud.admin,selfId:cloud.userId}:null}
       account={cloud?{email:cloud.email,busy:cloudBusy,message:cloudMessage,local:cloud.localData(),onImport:()=>void cloudImport(),onSync:()=>void cloudSync(),onSignOut:()=>void cloudSignOut()}:null}
       github={{busy:repoBusy,loaded,onSaveNow:()=>{setSettings(null);void requestRepositorySave();},onOpenDocuments:()=>{setSettings(null);setRepoOpen('load');}}}
       rules={{rules,onChange:changeRules}}

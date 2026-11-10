@@ -51,6 +51,18 @@ Al primo accesso da un browser che ha già documenti e profili: **Impostazioni �
 
 Con l’account i comandi «Salva su GitHub» e «Carica da GitHub» non compaiono più: i documenti sono già salvati a ogni modifica (il pulsante «Salva ora nel cloud» forza un salvataggio). Resta il token GitHub dello Studio LaTeX, perché lì il repository è il progetto stesso.
 
+### Amministratori
+
+Un amministratore vede **Impostazioni → Amministrazione**: l'elenco degli account con email, data di registrazione, ultimo accesso, ultima scrittura, documenti, parole, tempo di scrittura e profili AI, con ricerca. Per ogni account può **sospendere** (chiude le sessioni e impedisce nuovi accessi), **riattivare**, **rendere o togliere amministratore**, **inviare l'email di reimpostazione della password** ed **eliminare** (cancella per sempre documenti, profili, chiavi e statistiche; chiede di scrivere l'email per confermare). Non può sospendere o eliminare il proprio account e deve restare almeno un amministratore. Un amministratore **non può leggere i testi dei documenti né le chiavi API** degli altri: le funzioni riservate (`admin_*` in `supabase/schema.sql`) restituiscono solo date e numeri d'uso.
+
+Il primo amministratore si assegna una volta dal SQL Editor di Supabase, dopo che si è registrato nell'app (sostituisci l'email):
+
+```sql
+insert into public.app_admins (user_id) select id from auth.users where email = 'tua@email.it' on conflict do nothing;
+```
+
+Gli altri si promuovono poi dall'app. Chi vuole limitare le registrazioni lo fa da Supabase (Authentication → Sign In / Providers → «Allow new users to sign up»); un account sospeso mantiene l'accesso già aperto fino alla scadenza della sessione (al massimo circa un'ora). Se hai già eseguito lo schema, riesegui `supabase/schema.sql` dopo ogni aggiornamento.
+
 ### Limiti
 
 - Con l’account serve la connessione per aprire e salvare i documenti. L’app resta installabile e si avvia anche offline, ma senza rete i documenti non si caricano; il testo che stai scrivendo resta nell’editor e si salva appena la rete torna.

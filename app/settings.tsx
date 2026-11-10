@@ -1,16 +1,18 @@
 'use client';
 import type { Dispatch, SetStateAction } from 'react';
-import { ChevronRight, Cloud, GitBranch, KeyRound, Monitor, Moon, PenLine, Settings2, ShieldCheck, SlidersHorizontal, Sun, X } from 'lucide-react';
+import { ChevronRight, Cloud, Users, GitBranch, KeyRound, Monitor, Moon, PenLine, Settings2, ShieldCheck, SlidersHorizontal, Sun, X } from 'lucide-react';
 import { ALL_PROVIDERS as PROVIDERS, DEVICE_PROVIDERS, DEVICE_CONNECTION_HELP, isDeviceProfile, isDeviceProvider, type AiProvider as Provider } from '../lib/device-models';
 import { DEFAULT_WRITING_RULES, QUOTE_STYLES, RULES_MAX, writingRulesInstruction, type QuoteStyle, type WritingRules } from '../lib/writing-rules';
 import { githubConnected, githubSettings } from '../lib/github-documents';
 import { ModelPicker } from './model-picker';
+import { AdminPanel } from './admin-panel';
+import type { AdminApi } from '../lib/cloud-state';
 import { TokenStats } from './token-stats';
 import { GitHubConnection } from './github-documents';
 import type { AiPreferences } from '../lib/ai-preferences';
 import { INTERVENTION_LEVELS } from '../lib/intervention';
 
-export type SettingsTab = 'ai' | 'github' | 'rules' | 'general' | 'account';
+export type SettingsTab = 'ai' | 'github' | 'rules' | 'general' | 'account' | 'admin';
 export type Profile = {id:string;name:string;provider:Provider;model:string;baseUrl?:string;hint:string;daily_limit:number;used:number};
 export type ProfileForm = {id:string;name:string;provider:Provider;model:string;key:string;baseUrl:string;dailyLimit:number};
 export type Theme = 'light' | 'dark' | 'system';
@@ -18,6 +20,7 @@ export const EMPTY_PROFILE_FORM: ProfileForm = {id:'',name:'',provider:'openai',
 
 const TABS: {id:SettingsTab;label:string;hint:string;icon:typeof KeyRound}[] = [
   {id:'account',label:'Account',hint:'Cloud, sincronizzazione e accesso',icon:Cloud},
+  {id:'admin',label:'Amministrazione',hint:'Gestisci gli account degli utenti',icon:Users},
   {id:'ai',label:'Provider AI',hint:'Account, chiavi API e consumi',icon:KeyRound},
   {id:'github',label:'GitHub',hint:'Salvataggio e sincronizzazione',icon:GitBranch},
   {id:'rules',label:'Regole di scrittura',hint:'Preferenze valide per ogni risposta',icon:PenLine},
@@ -30,9 +33,9 @@ type GitHubProps = {busy:boolean;loaded:boolean;onSaveNow:()=>void;onOpenDocumen
 type RulesProps = {rules:WritingRules;onChange:(rules:WritingRules)=>void};
 type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void};
 
-export function SettingsModal({tab,setTab,onClose,provider,github,rules,general,account}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps;account:AccountProps|null}) {
+export function SettingsModal({tab,setTab,onClose,provider,github,rules,general,account,admin}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps;account:AccountProps|null;admin:{api:AdminApi;selfId:string}|null}) {
   // With a cloud account documents are saved in the account: no GitHub token is needed for them.
-  const tabs=TABS.filter(t=>t.id==='account'?!!account:t.id==='github'?!account:true);
+  const tabs=TABS.filter(t=>t.id==='account'?!!account:t.id==='admin'?!!admin:t.id==='github'?!account:true);
   const shown=tabs.some(t=>t.id===tab)?tab:tabs[0].id;
   return <div className="modal-backdrop" onClick={onClose}><section className="modal settings-modal" role="dialog" aria-modal="true" aria-label="Impostazioni" onClick={e=>e.stopPropagation()}>
     <button className="modal-close tool" aria-label="Chiudi impostazioni" onClick={onClose}><X size={20}/></button>
@@ -40,6 +43,7 @@ export function SettingsModal({tab,setTab,onClose,provider,github,rules,general,
     <nav className="settings-tabs" role="tablist" aria-label="Sezioni delle impostazioni">{tabs.map(t=><button key={t.id} role="tab" type="button" aria-selected={shown===t.id} className={shown===t.id?'active':''} onClick={()=>setTab(t.id)}><t.icon size={16}/><span>{t.label}<small>{t.hint}</small></span></button>)}</nav>
     <div className="settings-panel" role="tabpanel">
       {shown==='account'&&account&&<AccountSettings {...account}/>}
+      {shown==='admin'&&admin&&<AdminPanel admin={admin.api} selfId={admin.selfId}/>}
       {shown==='ai'&&<ProviderSettings {...provider}/>}
       {shown==='github'&&<GitHubSettingsPanel {...github}/>}
       {shown==='rules'&&<RulesSettings {...rules}/>}
