@@ -7,8 +7,8 @@ import { FORMULA_FONT, isFormulaText } from './formulas.ts';
 // here is deterministic: the AI never sees captions or formulas, so they stay untouched.
 
 export const CAPTION_STYLE = { fontSize: '14px', color: '#5f6368' };
-const CONTENT_WIDTH = A4.width - 2 * A4.margin;
-const CONTENT_HEIGHT = A4.height - 2 * A4.margin - 24;
+export const CONTENT_WIDTH = A4.width - 2 * A4.margin;
+export const CONTENT_HEIGHT = A4.height - 2 * A4.margin - 24;
 
 // "Figura 3:", "Fig. 2 –", "Foto:", "Tavola IV.", "Fonte: ISTAT", "© Mario Rossi".
 const LABEL = /^(?:fig(?:ura|ure)?\.?|foto(?:grafia)?|immagine|img\.?|tav(?:ola)?\.?|illustrazione|grafico|schema|mappa|didascalia|formula|equazione|eq\.?|photo|picture|image|chart|plate|equation)(?:\s*(?:n\.?\s*)?\(?[\dIVXLC]+(?:[.\-–][\dIVXLC]+)?[a-z]?\)?)?\s*[:.\-–—)]\s*/iu;
@@ -55,8 +55,12 @@ export type ImageLayoutOp = {
   size?: { width: number; height: number };
   caption?: { pos: number; side: 'after' | 'before'; label: boolean };
   empties: number[];
+  grouped?: boolean;     // the image belongs to a sequence that keeps one common width
+  newCaption?: string;   // caption written by the AI for an image that had none
+  alt?: string;          // description for screen readers, written by the AI
 };
-export type ImageLayoutPlan = { ops: ImageLayoutOp[]; captions: number[]; formulas: number[]; images: number };
+// uncaptioned: top-level images in scope that have no caption yet.
+export type ImageLayoutPlan = { ops: ImageLayoutOp[]; captions: number[]; formulas: number[]; images: number; uncaptioned: { pos: number; grouped: boolean }[] };
 
 type Child = { node: Node; pos: number };
 
@@ -108,6 +112,7 @@ export function planImageLayout(doc: Node, from = 0, to = doc.content.size): Ima
     sequences.push([op]);
   });
   for (const sequence of sequences) {
+    if (sequence.length > 1) for (const op of sequence) op.grouped = true;
     const sized = sequence.map(op => ({ op, attrs: doc.nodeAt(op.image)!.attrs })).filter(({ attrs }) => Number(attrs.width) > 0 && Number(attrs.height) > 0);
     if (!sized.length) continue;
     const widths = sized.map(({ attrs }) => Math.min(Number(attrs.width), CONTENT_WIDTH)).sort((a, b) => a - b);
@@ -125,7 +130,8 @@ export function planImageLayout(doc: Node, from = 0, to = doc.content.size): Ima
     return overlaps(op.image, op.image + image.nodeSize) || (!!op.caption && overlaps(op.caption.pos, op.caption.pos + doc.nodeAt(op.caption.pos)!.nodeSize));
   };
   const kept = ops.filter(inScope).filter(op => op.kind === 'formula' || op.caption || op.size || op.empties.length);
-  return { ops: kept, captions: kept.flatMap(op => op.caption ? [op.caption.pos] : []), formulas: kept.filter(op => op.kind === 'formula').map(op => op.image), images: ops.filter(inScope).filter(op => op.kind === 'image').length };
+  const uncaptioned = ops.filter(inScope).filter(op => op.kind === 'image' && !op.caption).map(op => ({ pos: op.image, grouped: !!op.grouped }));
+  return { ops: kept, captions: kept.flatMap(op => op.caption ? [op.caption.pos] : []), formulas: kept.filter(op => op.kind === 'formula').map(op => op.image), images: ops.filter(inScope).filter(op => op.kind === 'image').length, uncaptioned };
 }
 
 // Caption look: centered, small, muted, italic; an explicit "Figura 2:" label in bold.
@@ -177,7 +183,11 @@ export function applyImageLayout(tr: Transaction, ops: ImageLayoutOp[], map: (po
     const image = tr.doc.nodeAt(op.image);
     if (op.kind === 'formula' ? !isFormula(image ?? undefined) : !isImage(image ?? undefined)) continue;
     if (op.kind === 'formula') tr.replaceWith(op.image, op.image + image!.nodeSize, styleFormula(image!));
-    if (op.size) tr.setNodeMarkup(op.image, undefined, { ...image!.attrs, ...op.size });
+    if (op.size || op.alt) tr.setNodeMarkup(op.image, undefined, { ...image!.attrs, ...op.size, ...(op.alt ? { alt: op.alt } : {}) });
+    if (op.newCaption && !op.caption && op.kind === 'image') {
+      const schema = tr.doc.type.schema, paragraph = schema.nodes.paragraph.create(null, schema.text(op.newCaption));
+      tr.insert(op.image + tr.doc.nodeAt(op.image)!.nodeSize, styleCaption(paragraph, false));
+    }
     const caption = op.caption && tr.doc.nodeAt(op.caption.pos);
     const valid = caption && caption.type.name === 'paragraph';
     const empties = op.empties.filter(pos => { const node = tr.doc.nodeAt(pos); return node && isEmpty(node); }).sort((a, b) => b - a);
@@ -193,7 +203,7 @@ export function applyImageLayout(tr: Transaction, ops: ImageLayoutOp[], map: (po
   return tr;
 }
 
-export function describeImageLayout(plan: ImageLayoutPlan): string {
+export function describeImageLayout(plan: Pick<ImageLayoutPlan, 'ops' | 'captions' | 'formulas'>): string {
   if (!plan.ops.length) return '';
   const parts: string[] = [];
   const formulas = plan.formulas.length;
@@ -201,6 +211,8 @@ export function describeImageLayout(plan: ImageLayoutPlan): string {
   if (n) parts.push(n === 1 ? '1 didascalia riconosciuta e messa sotto' : `${n} didascalie riconosciute e messe sotto`);
   if (moved) parts.push(moved === 1 ? '1 spostata da sopra a sotto' : `${moved} spostate da sopra a sotto`);
   if (formulas) parts.push(formulas === 1 ? '1 formula centrata su una riga propria' : `${formulas} formule centrate su righe proprie`);
-  if (sized) parts.push(sized === 1 ? '1 immagine ridimensionata' : `${sized} immagini allineate alla stessa larghezza`);
+  if (sized) parts.push(sized === 1 ? '1 immagine ridimensionata' : `${sized} immagini ridimensionate`);
+  const written = plan.ops.filter(op => op.newCaption).length;
+  if (written) parts.push(written === 1 ? '1 didascalia scritta leggendo l’immagine' : `${written} didascalie scritte leggendo le immagini`);
   return parts.join(', ') + '.';
 }

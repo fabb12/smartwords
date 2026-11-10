@@ -47,3 +47,19 @@ export async function clipboardImage(): Promise<Blob> {
   for (const item of items) { const type = item.types.find(t => TYPES.includes(t)); if (type) return item.getType(type); }
   throw new Error('Gli appunti non contengono un’immagine. Copia un’immagine oppure scegli un file.');
 }
+
+// Display size of an image at a share of the page width (never taller than the page, never below 40 px).
+export function imageSizeAt(width: number, height: number, share: number) {
+  if (!(width > 0) || !(height > 0)) throw new Error('Dimensioni dell’immagine non valide.');
+  const maxWidth = A4.width - 2 * A4.margin, maxHeight = A4.height - 2 * A4.margin - 24;
+  const ratio = Math.min(maxWidth * Math.min(1, Math.max(0.05, share)) / width, maxHeight / height);
+  return { width: Math.max(40, Math.round(width * ratio)), height: Math.max(40, Math.round(height * ratio)) };
+}
+// A typed width in pixels, with the height following the proportions and both kept inside the page.
+export function imageSizeForWidth(width: number, height: number, wanted: number) {
+  if (!(width > 0) || !(height > 0) || !Number.isFinite(wanted)) throw new Error('Dimensioni dell’immagine non valide.');
+  const maxWidth = A4.width - 2 * A4.margin, maxHeight = A4.height - 2 * A4.margin - 24;
+  const w = Math.min(maxWidth, Math.max(40, wanted)), ratio = Math.min(w / width, maxHeight / height);
+  return { width: Math.max(40, Math.round(width * ratio)), height: Math.max(40, Math.round(height * ratio)) };
+}
+export const pageShare = (width: number) => Math.round(width / (A4.width - 2 * A4.margin) * 100);

@@ -8,7 +8,7 @@ import StarterKit from '@tiptap/starter-kit';
 import { TableKit } from '@tiptap/extension-table';
 import { TextStyleKit } from '@tiptap/extension-text-style';
 import TextAlign from '@tiptap/extension-text-align';
-import Image from '@tiptap/extension-image';
+import { ResizableImage } from '../lib/resizable-image';
 import Highlight from '@tiptap/extension-highlight';
 import { Ghost, ghostKey } from '../lib/ghost';
 import { ReadingHighlight } from '../lib/read-aloud-player';
@@ -22,6 +22,7 @@ import { AiFormatPreview } from './ai-format-preview';
 import { AiBatchFormatPreview } from './ai-batch-format-preview';
 import { formatRanges, formatPlanReplacement, sourceHeadings, withProposedTitles, type FormatReplacement } from '../lib/format-only';
 import { applyImageLayout, describeImageLayout, planImageLayout, type ImageLayoutOp } from '../lib/image-layout';
+import { captionJobs, captionPayload, parseCaptionAnswer, withCaptions, MAX_CAPTION_IMAGES, type CaptionAnswer, type CaptionJob } from '../lib/image-caption';
 import { AiGovernor, sameText, sentenceTarget, wordDiff } from '../lib/ai-governor';
 import { applyInlineEdits } from '../lib/inline-diff';
 import { assistPrompts, splitWarning } from '../lib/providers';
@@ -35,6 +36,9 @@ import { EMPTY_WRITING_MEMORY, PERSONAL_VOICE_MODES, authorVoiceInstruction, lea
 import { GitHubDocuments } from './github-documents';
 import { bindGitHubDocument, githubConnected, githubLocalId, githubLocalUnchanged, saveGitHubDocument, type RepositoryDocument } from '../lib/github-documents';
 import { localApi, localAssist } from '../lib/local-backend';
+import { activeCloud } from '../lib/cloud-state';
+import { WorkClock, localDay, wordCount, type DocStats } from '../lib/activity';
+import { DocumentInfo, type InfoTab } from './document-info';
 import { blocksFromDoc, chapters, describeFingerprint, detectIntent, locate, fingerprint, memorySummary, wordsOf, styleSimilarity, INTENTS, type DetectedIntent, type Fingerprint } from '../lib/narrative';
 import { sanitizeBlend, voiceName, voiceInstruction } from '../lib/author-styles';
 import { KB_MODES, buildKbIndex, kbInstruction, parsePersona, personaSample, styleSource, type KnowledgeBase } from '../lib/knowledge-base';
@@ -55,6 +59,7 @@ import { readToolbarLayout, storeToolbarLayout, toolbarLayoutKey } from '../lib/
 import { readWorkspacePresets, storeWorkspacePresets, readWorkspaceFrame, storeWorkspaceFrame, workspaceFrameKey, TABLET_WORKSPACE_FRAME, type WorkspaceFrame, type WorkspacePreset } from '../lib/workspace-presets';
 import { clipboardImage, prepareEditorImage } from '../lib/editor-images';
 import { ZoomControls } from './editor-zoom';
+import { ImageSizeBar } from './image-size-bar';
 import { readEditorZoom, sanitizeZoom, storeEditorZoom, type EditorZoom } from '../lib/editor-zoom';
 import { InstallSteps, Sheet, useSimpleMode, useStandalone, useTablet, useVisibleHeight } from './mobile';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
@@ -64,7 +69,7 @@ import { DocumentLibrary, useDocGroups } from './document-library';
 import { forgetDoc } from '../lib/document-groups';
 const LatexStudio = lazy(() => import('./latex-studio').then(m => ({ default: m.LatexStudio })));
 
-type Doc = {id:string; title:string; updated:number; version:number};
+type Doc={id:string; title:string; updated:number; version:number; stats?:DocStats};
 // base/para: paragraph text and start for completions; original: the text a rewrite would replace;
 // trail: whitespace between the rewritten sentence and the cursor, kept after accepting.
 type Suggestion = {text:string;from:number;to:number;revision:number;mode:string;done:boolean;base?:string;para?:number;original?:string;cached?:boolean;trail?:number;content?:JSONContent[];replacements?:FormatReplacement[];layout?:ImageLayoutOp[];layoutNote?:string};
@@ -118,6 +123,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const kbRef=useRef<{kb:KnowledgeBase|null;index:ReturnType<typeof buildKbIndex>|null}>({kb:null,index:null});kbRef.current={kb:activeKb,index:kbIndex};
   const [docs,setDocs]=useState<Doc[]>([]),[active,setActive]=useState(''),[title,setTitle]=useState('Senza titolo'),[loaded,setLoaded]=useState(false);
   const [profiles,setProfiles]=useState<Profile[]>([]),[profile,setProfile]=useState(''),[vaultReady,setVaultReady]=useState(false);
+  const cloud=activeCloud(),[infoOpen,setInfoOpen]=useState<InfoTab|null>(null),[cloudBusy,setCloudBusy]=useState(false),[cloudMessage,setCloudMessage]=useState('');
+  const clock=useRef(new WorkClock()),wordsRef=useRef(0),activity=useRef({doc:'',words:0,flushing:false});
   const [repoOpen,setRepoOpen]=useState<null|'save'|'load'>(null),[repoBusy,setRepoBusy]=useState(false),[repoError,setRepoError]=useState('');
   const [settings,setSettings]=useState<SettingsTab|null>(null),[history,setHistory]=useState<Revision[]|null>(null),[menu,setMenu]=useState(false),[focus,setFocus]=useState(false),[sidebar,setSidebar]=useState(true),[mobileAI,setMobileAI]=useState(false);
   const [toolbarReset,setToolbarReset]=useState(0),[toolbarReload,setToolbarReload]=useState(0);
@@ -239,7 +246,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     return `Memoria aggiornata da ${samples.length} documenti letti.${failed?' '+failed+' documenti non sono stati letti; puoi riprovare.':''}`;
   }
   const editor=useEditor({immediatelyRender:false,shouldRerenderOnTransaction:true,
-    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),Image.configure({allowBase64:true}),Highlight.configure({multicolor:true}),Ghost,ReadingHighlight,Pagination.configure({onPages:setPageCount})],
+    extensions:[StarterKit.configure({link:{openOnClick:false}}),TextStyleKit,TableKit.configure({table:{resizable:true}}),TextAlign.configure({types:['heading','paragraph']}),ResizableImage.configure({allowBase64:true,resize:{enabled:true,directions:['top-left','top-right','bottom-left','bottom-right'],minWidth:40,minHeight:40,alwaysPreserveAspectRatio:true}}),Highlight.configure({multicolor:true}),Ghost,ReadingHighlight,Pagination.configure({onPages:setPageCount})],
     content:EMPTY,editorProps:{attributes:{class:'manuscript',role:'textbox','aria-label':'Contenuto del documento',spellcheck:'true'},handleKeyDown:(_view,event)=>{
       if(callbacks.current.key(event)){event.preventDefault();return true;}
       if(event.key==='Tab' && callbacks.current.tab(event)){event.preventDefault();return true;}
@@ -302,8 +309,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
 
   const save=useCallback(async():Promise<boolean>=>{
     if(saving.current)return saving.current;
-    const job=(async()=>{while(dirty.current){const e=editorRef.current;if(!e)return false;const rev=revision.current;const payload={...current.current,content:e.getJSON()};setStatus('Salvataggio…');
-      try{const result=await api('documents',payload);current.current={...current.current,id:result.id,version:result.version};setActive(result.id);
+    const job=(async()=>{while(dirty.current){const e=editorRef.current;if(!e)return false;const rev=revision.current;const text=e.getText(),payload={...current.current,content:e.getJSON(),words:wordCount(text),chars:text.length};setStatus('Salvataggio…');
+      try{const result=await api('documents',payload);current.current={...current.current,id:result.id,version:result.version};if(activity.current.doc!==result.id)activity.current={...activity.current,doc:result.id,words:0};setActive(result.id);
         setDocs(old=>[{id:result.id,title:payload.title,updated:result.updated,version:result.version},...old.filter(d=>d.id!==result.id)]);
         if(rev===revision.current){dirty.current=false;rememberWriting(result.id,payload.title,e.getText({blockSeparator:'\n'}));}setStatus(dirty.current?'Salvataggio…':'Tutte le modifiche salvate');setError('');
       }catch(err){setStatus('Non salvato');setError((err as Error).message);return false;}}
@@ -344,6 +351,32 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     // Analyses quoting the manuscript verbatim (memory, check, persona) are left untouched so quotes still match.
     return mode==='directions'||mode==='ask'?clean(answer):answer;};
 
+  // «Sistema formattazione» on images: the AI reads each image without a caption and the text around it.
+  // A model that cannot read images only costs the captions: the text formatting goes on.
+  async function writeCaptions(jobs:CaptionJob[],signal:AbortSignal,rev:number){
+    const answers=new Map<number,CaptionAnswer>();let problem='',stopped=false;const profileId=options.current.profile;
+    for(let i=0;i<jobs.length&&!problem;i++){
+      if(signal.aborted||rev!==revision.current){stopped=true;break;}
+      setFormatProgress(`Leggo le immagini: ${i+1} di ${jobs.length}. Il testo originale resta invariato fino ad Accetta.`);
+      const payload=captionPayload(profileId,jobs[i]),key=AiGovernor.key([payload]);let answer=governor.cached(key);
+      try{
+        if(answer===undefined){const wait=governor.wait(false);if(wait>0){problem=`il provider richiede una pausa di ${Math.ceil(wait/1000)} secondi`;break;}governor.started();
+          const result=await streamAssist(payload,signal);if(result===null){stopped=true;break;}answer=result;}
+      }catch(err){if(signal.aborted){stopped=true;break;}problem=(err as Error).message;break;}
+      const parsed=parseCaptionAnswer(answer);if(parsed){answers.set(jobs[i].pos,parsed);governor.remember(key,answer);}
+    }
+    return {answers,problem,stopped};
+  }
+  function captionNotes(found:ReturnType<typeof captionJobs>,written:{answers:Map<number,CaptionAnswer>;problem:string}){
+    const failed=found.jobs.length-written.answers.size;
+    return [found.unreadable?`${found.unreadable===1?'Un’immagine non è stata letta dall’AI':found.unreadable+' immagini non sono state lette dall’AI'}: sono leggibili solo PNG, JPEG e WebP inserite nel documento.`:'',
+      found.over?`Ho letto le prime ${MAX_CAPTION_IMAGES} immagini: ripeti il comando per le altre.`:'',
+      written.problem?`Didascalie non scritte: ${written.problem}. Controlla che il modello scelto sappia leggere le immagini.`:failed>0?`Per ${failed===1?'un’immagine':failed+' immagini'} il modello non ha restituito una didascalia valida.`:''].filter(Boolean);
+  }
+  function captionPreview(ops:ImageLayoutOp[],base:string){
+    const written=ops.filter(op=>op.newCaption).map(op=>`«${op.newCaption}»`);
+    return [base,written.length?'Didascalie proposte: '+written.join(' · '):''].filter(Boolean).join(' ');
+  }
   async function formatOnly(scope:'selection'|'page'|'document') {
     const e=editorRef.current,opts=options.current;if(!e?.isEditable||!loaded)return;
     if(!opts.profile){setSettings('ai');return;}
@@ -352,10 +385,20 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     if(scope==='page'&&!pages){setAiError('Scegli una vista A4 da «Visualizza» per formattare la pagina corrente.');return;}
     const bounds=scope==='document'?{from:0,to:e.state.doc.content.size}:scope==='page'?currentPageRange(e.view,e.state.selection.from):e.state.selection;
     const original=e.state.doc,rev=revision.current,layout=planImageLayout(original,bounds.from,bounds.to),{ranges,skipped}=formatRanges(original,bounds.from,bounds.to,3000,new Set([...layout.captions,...layout.formulas]));
+    const found=captionJobs(original,layout);
     if(!ranges.length){
       // Only images and captions in scope: arrange them right away, as one undoable step.
-      if(layout.ops.length){e.view.dispatch(closeHistory(e.state.tr));e.chain().focus().command(({tr})=>{applyImageLayout(tr,layout.ops);return true;}).run();e.view.dispatch(closeHistory(e.state.tr));setNotice('Immagini e formule sistemate: '+describeImageLayout(layout));return;}
-      setAiError('Non ci sono paragrafi di testo da formattare in questo ambito.');return;}
+      if(!layout.ops.length&&!found.jobs.length){setAiError('Non ci sono paragrafi di testo da formattare in questo ambito.');return;}
+      const solo=new AbortController();pending.current=solo;setBusy(true);
+      try{
+        const written=found.jobs.length?await writeCaptions(found.jobs,solo.signal,rev):{answers:new Map<number,CaptionAnswer>(),problem:'',stopped:false};
+        if(written.stopped||solo.signal.aborted||rev!==revision.current)return;
+        const ops=withCaptions(layout.ops,found.jobs,written.answers);
+        if(ops.length){e.view.dispatch(closeHistory(e.state.tr));e.chain().focus().command(({tr})=>{applyImageLayout(tr,ops);return true;}).run();e.view.dispatch(closeHistory(e.state.tr));setNotice('Immagini e formule sistemate: '+captionPreview(ops,describeImageLayout({...layout,ops}))+' Puoi annullare con Ctrl+Z.');}
+        const notes=captionNotes(found,written);if(notes.length)setAiWarning(notes.join(' '));
+      }catch(err){if(!solo.signal.aborted)setAiError((err as Error).message);}
+      finally{if(pending.current===solo){pending.current=null;setBusy(false);setFormatProgress('');}}
+      return;}
     const controller=new AbortController();pending.current=controller;setBusy(true);
     const parts:FormatReplacement[]=[],outline:string[]=[],unchanged:number[]=[];
     try {
@@ -383,8 +426,11 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       }
       if(controller.signal.aborted||rev!==revision.current)return;
       if(!parts.length)throw new Error(FORMAT_PLAN_ERROR);
-      showSuggestion({from:bounds.from,to:bounds.to,text:parts[0].text,content:parts[0].content,replacements:parts,layout:layout.ops,layoutNote:describeImageLayout(layout),revision:rev,mode:'format',done:true});
-      const notes=[unchanged.length?`${unchanged.length===1?'La parte':'Le parti'} ${unchanged.join(', ')} di ${ranges.length} ${unchanged.length===1?'è rimasta invariata':'sono rimaste invariate'}: il modello non ha restituito una formattazione valida. Puoi riprovare su quel punto.`:'',skipped?'Immagini, blocchi di codice e paragrafi con elementi incorporati sono stati conservati senza modifiche.':''].filter(Boolean);
+      const written=found.jobs.length?await writeCaptions(found.jobs,controller.signal,rev):{answers:new Map<number,CaptionAnswer>(),problem:'',stopped:false};
+      if(written.stopped||controller.signal.aborted||rev!==revision.current)return;
+      const ops=withCaptions(layout.ops,found.jobs,written.answers);
+      showSuggestion({from:bounds.from,to:bounds.to,text:parts[0].text,content:parts[0].content,replacements:parts,layout:ops,layoutNote:captionPreview(ops,describeImageLayout({...layout,ops})),revision:rev,mode:'format',done:true});
+      const notes=[...captionNotes(found,written),unchanged.length?`${unchanged.length===1?'La parte':'Le parti'} ${unchanged.join(', ')} di ${ranges.length} ${unchanged.length===1?'è rimasta invariata':'sono rimaste invariate'}: il modello non ha restituito una formattazione valida. Puoi riprovare su quel punto.`:'',skipped?'Immagini, blocchi di codice e paragrafi con elementi incorporati sono stati conservati senza modifiche.':''].filter(Boolean);
       if(notes.length)setAiWarning(notes.join(' '));
     } catch(err) {if(!controller.signal.aborted){showSuggestion(null);setAiError((err as Error).message);}}
     finally {if(pending.current===controller){pending.current=null;setBusy(false);setFormatProgress('');}}
@@ -412,8 +458,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const contextEnd=mode==='continue'?Math.max(0,from-2000):start,n=narrativeRef.current;
     let existingFormatting=$from.parent.type.name!=='paragraph';const emphasis:{text:string;marks:string[]}[]=[];
     if(formatting)e.state.doc.nodesBetween(start,end,(node,pos)=>{const marks=node.marks.map(m=>m.type.name).filter(m=>['bold','italic','underline','strike','highlight'].includes(m));if(marks.length){existingFormatting=true;if(emphasis.length<5)emphasis.push({text:(node.text||'').slice(Math.max(0,start-pos),Math.min((node.text||'').length,end-pos)).slice(0,80),marks});}});
-    const payload={profile:opts.profile,mode,...voiceFields(mode,text),text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+1000),'\n'),tone:opts.tone,
-      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='continue'||mode==='voice'?n.memory:'',direction,formatting,intervention:opts.intervention,formatContext:formatting?JSON.stringify({block:$from.parent.type.name,level:$from.parent.attrs.level,emphasis}):'',...rulesField()};
+    const payload={profile:opts.profile,mode,...voiceFields(mode,text),text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+(mode==='rewrite'?2500:1000)),'\n'),tone:opts.tone,
+      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='rewrite'&&!automatic?n.memory.slice(0,2500):mode==='continue'||mode==='voice'?n.memory:'',direction,formatting,intervention:opts.intervention,formatContext:formatting?JSON.stringify({block:$from.parent.type.name,level:$from.parent.attrs.level,emphasis}):'',...rulesField()};
     const rev=revision.current,scope=String(para),key=AiGovernor.key([payload]);let lastPreview=0;
     const extra=mode==='complete'?{base:beforeCursor($from),para}:mode==='continue'?{}:{original:text,trail:sentence?from-end:0};
     // A generated scene starting right after a word needs a separating space.
@@ -467,15 +513,45 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   useEffect(()=>{if(!projectDirty.current)return;if(projectTimer.current)clearTimeout(projectTimer.current);projectTimer.current=setTimeout(()=>void saveProject(),800);},[project,saveProject]);
   async function attachProject(id:string){await saveProject();projectDoc.current=id;projectDirty.current=false;setProjectState(EMPTY_PROJECT);if(!id)return;
     try{const data=await api('projects?document='+encodeURIComponent(id));if(projectDoc.current===id&&!projectDirty.current)setProjectState(data);}catch(err){setError((err as Error).message);}}
-  async function loadDocument(id:string) { if(!await save())return;clearSuggestion();setError('');try{const d=await api('documents?id='+encodeURIComponent(id));suppress.current=true;editorRef.current?.commands.setContent(JSON.parse(d.content));suppress.current=false;
-    current.current={id:d.id,version:d.version,title:d.title};setActive(d.id);setTitle(d.title);dirty.current=false;revision.current++;setStatus('Tutte le modifiche salvate');setWords(editorRef.current?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(editorRef.current?.getText().length||0);analyseLocally(true);await attachProject(d.id);rememberWriting(d.id,d.title,editorRef.current?.getText({blockSeparator:'\n'})||'');
+  async function loadDocument(id:string) { if(!await save())return;await flushActivity();clearSuggestion();setError('');try{const d=await api('documents?id='+encodeURIComponent(id));suppress.current=true;editorRef.current?.commands.setContent(JSON.parse(d.content));suppress.current=false;
+    current.current={id:d.id,version:d.version,title:d.title};setActive(d.id);setTitle(d.title);dirty.current=false;revision.current++;setStatus('Tutte le modifiche salvate');setWords(editorRef.current?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(editorRef.current?.getText().length||0);analyseLocally(true);activity.current={...activity.current,doc:d.id,words:wordCount(editorRef.current?.getText()||'')};void api('opened',{document:d.id}).catch(()=>{});await attachProject(d.id);rememberWriting(d.id,d.title,editorRef.current?.getText({blockSeparator:'\n'})||'');
   }catch(err){setError((err as Error).message);}}
-  async function newDocument(){if(!await save())return;clearSuggestion();suppress.current=true;editorRef.current?.commands.setContent(EMPTY);suppress.current=false;current.current={id:'',version:0,title:'Senza titolo'};setActive('');setTitle('Senza titolo');setWords(0);setCharacters(0);markDirty();await save();await attachProject(current.current.id);analyseLocally(true);editorRef.current?.commands.focus();}
+  async function newDocument(){if(!await save())return;await flushActivity();clearSuggestion();suppress.current=true;editorRef.current?.commands.setContent(EMPTY);suppress.current=false;current.current={id:'',version:0,title:'Senza titolo'};setActive('');setTitle('Senza titolo');setWords(0);setCharacters(0);markDirty();await save();activity.current={...activity.current,doc:current.current.id,words:0};await attachProject(current.current.id);analyseLocally(true);editorRef.current?.commands.focus();}
   async function reloadProfiles(){const data=await api('profiles');setProfiles(data.profiles);setVaultReady(data.vaultReady);setProfile(p=>data.profiles.some((x:Profile)=>x.id===p)?p:data.profiles[0]?.id||'');}
   useEffect(()=>{if(!editor)return;let cancelled=false;(async()=>{try{const list=await api('documents');if(cancelled)return;setDocs(list);await reloadProfiles();if(cancelled)return;if(list.length)await loadDocument(list[0].id);else{suppress.current=true;editor.commands.setContent(EMPTY);suppress.current=false;markDirty();await save();await attachProject(current.current.id);}setMode(readMode());setLoaded(true);}catch(err){setError((err as Error).message);setStatus('Connessione non riuscita');}})();return()=>{cancelled=true;};},[editor]);
   useEffect(()=>{const before=(e:BeforeUnloadEvent)=>{void saveProject();if(dirty.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',before);return()=>{window.removeEventListener('beforeunload',before);void saveProject();if(fpTimer.current)clearTimeout(fpTimer.current);pending.current?.abort();if(aiTimer.current)clearTimeout(aiTimer.current);if(saveTimer.current)clearTimeout(saveTimer.current);};},[saveProject]);
   useEffect(()=>{clearSuggestion();setAiWarning('');},[profile,aiOn,autoMode,tone,mode,aiPreferences]);
   useEffect(()=>{if(!loaded)return;const timer=setInterval(()=>{void (async()=>{if(await save())await saveProject();})();},5*60*1000);return()=>clearInterval(timer);},[loaded,save,saveProject]);
+  // Working time: counted only while the page is visible and the writer is active; sent every minute,
+  // when the document changes, when the page is hidden and on exit.
+  wordsRef.current=words;
+  async function flushActivity(){
+    const a=activity.current;if(!LOCAL||!a.doc||a.doc!==current.current.id||a.flushing)return;
+    const seconds=clock.current.take(),added=Math.max(0,wordsRef.current-a.words);
+    if(seconds<1&&added<1){return;}
+    a.flushing=true;
+    try{await api('activity',{document:a.doc,seconds,words:added,day:localDay()});a.words=wordsRef.current;}
+    catch{clock.current.restore(seconds);}
+    finally{a.flushing=false;}
+  }
+  useEffect(()=>{
+    if(!loaded)return;
+    const touch=()=>clock.current.touch(Date.now()),events=['keydown','pointerdown','wheel','touchstart'];
+    events.forEach(name=>window.addEventListener(name,touch,{passive:true,capture:true}));
+    const tick=setInterval(()=>clock.current.tick(Date.now(),document.visibilityState==='visible'&&document.hasFocus()),1000);
+    const send=setInterval(()=>void flushActivity(),60000);
+    const hide=()=>{if(document.visibilityState==='hidden')void flushActivity();};
+    document.addEventListener('visibilitychange',hide);window.addEventListener('pagehide',hide);
+    return()=>{events.forEach(name=>window.removeEventListener(name,touch,{capture:true}));clearInterval(tick);clearInterval(send);document.removeEventListener('visibilitychange',hide);window.removeEventListener('pagehide',hide);void flushActivity();};
+  },[loaded]);
+  const loadDocInfo=useCallback(async():Promise<DocStats|null>=>{await flushActivity();const list:Doc[]=await api('documents');return list.find(d=>d.id===current.current.id)?.stats||null;},[]);
+  const loadUserStats=useCallback(async()=>api('stats'),[]);
+  // Cloud account: import what is saved in this browser, refresh from the cloud, sign out.
+  async function saveEverything(){if(!await save())throw new Error('Il documento non è ancora salvato: riprova tra poco.');await saveProject();await flushActivity();}
+  async function cloudImport(){if(!cloud)return;setCloudBusy(true);setCloudMessage('');try{await saveEverything();const r=await cloud.importLocalData();setDocs(await api('documents'));await reloadProfiles();setCloudMessage(r.documents||r.profiles?`Importati ${r.documents} documenti e ${r.profiles} profili AI nel tuo account.`:'Non c’era nulla di nuovo da importare.');}catch(err){setCloudMessage((err as Error).message);}finally{setCloudBusy(false);}}
+  async function cloudSync(){if(!cloud)return;setCloudBusy(true);setCloudMessage('');try{await saveEverything();await cloud.syncNow();window.location.reload();}catch(err){setCloudMessage((err as Error).message);setCloudBusy(false);}}
+  async function cloudSignOut(){if(!cloud)return;setCloudBusy(true);setCloudMessage('');try{await saveEverything();await cloud.signOut();}catch(err){setCloudMessage((err as Error).message);setCloudBusy(false);}}
+  async function saveNow(){try{await saveEverything();setNotice(cloud?'Salvato nel cloud':'Salvato');}catch(err){setError((err as Error).message);}}
   function changeMode(next:Mode){setMode(next);try{localStorage.setItem('scrivia:mode',next);}catch{}}
   useEffect(()=>{setTheme(readTheme());},[]);
   // The static build registers the service worker in site/main.tsx; the server build does it here.
@@ -485,7 +561,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   function cycleTheme(){changeTheme(THEMES[(THEMES.indexOf(theme)+1)%THEMES.length]);}
   const themeLabel=theme==='light'?'Tema chiaro':theme==='dark'?'Tema scuro':'Tema di sistema';
   useEffect(()=>{editor?.setEditable(loaded&&!repoBusy,false);},[editor,loaded,repoBusy]);
-  useEffect(()=>{if(!settings&&!history&&!projectOpen&&!repoOpen&&!memoryOpen&&!presetsOpen&&!shortcutsOpen)return;const previous=document.activeElement as HTMLElement|null;const modal=document.querySelector('[role="dialog"]') as HTMLElement|null;const controls=()=>Array.from(modal?.querySelectorAll<HTMLElement>('button:not(:disabled),input,select,textarea,[tabindex="0"]')||[]);controls()[0]?.focus();const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSettings(null);setHistory(null);setProjectOpen(false);setMemoryOpen(false);setPresetsOpen(false);setShortcutsOpen(false);}if(event.key==='Tab'){const list=controls();if(!list.length)return;const first=list[0],last=list[list.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}};document.addEventListener('keydown',key);return()=>{document.removeEventListener('keydown',key);previous?.focus();};},[settings,history,projectOpen,repoOpen,memoryOpen,presetsOpen,shortcutsOpen]);
+  useEffect(()=>{if(!settings&&!history&&!projectOpen&&!repoOpen&&!memoryOpen&&!presetsOpen&&!shortcutsOpen&&!infoOpen)return;const previous=document.activeElement as HTMLElement|null;const modal=document.querySelector('[role="dialog"]') as HTMLElement|null;const controls=()=>Array.from(modal?.querySelectorAll<HTMLElement>('button:not(:disabled),input,select,textarea,[tabindex="0"]')||[]);controls()[0]?.focus();const key=(event:KeyboardEvent)=>{if(event.key==='Escape'){setSettings(null);setHistory(null);setProjectOpen(false);setMemoryOpen(false);setPresetsOpen(false);setShortcutsOpen(false);}if(event.key==='Tab'){const list=controls();if(!list.length)return;const first=list[0],last=list[list.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}};document.addEventListener('keydown',key);return()=>{document.removeEventListener('keydown',key);previous?.focus();};},[settings,history,projectOpen,repoOpen,memoryOpen,presetsOpen,shortcutsOpen,infoOpen]);
   // Full screen covers the whole browser window; the browser's own exit (Esc, F11) keeps the button in sync.
   useEffect(()=>{setCanFullscreen(!!document.fullscreenEnabled);const sync=()=>{const active=!!document.fullscreenElement;setFullscreen(active);if(active){setFullToolGroups(ESSENTIAL_TOOLS);setFullSidebar(false);setFullAssistant(false);setFullInfo(false);}};sync();document.addEventListener('fullscreenchange',sync);return()=>document.removeEventListener('fullscreenchange',sync);},[]);
   function toggleFullscreen(){(document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()).catch(()=>setNotice('Il browser non consente lo schermo intero.'));}
@@ -613,14 +689,14 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       <div className="library-label">IL TUO SPAZIO</div><div className="library-current"><FileText size={17}/>Tutti i documenti <small>{docs.length}</small></div>
       <label className="doc-search" data-tip="Filtra l’elenco dei documenti per titolo"><Search size={15}/><input placeholder="Cerca un documento" value={search} onChange={e=>setSearch(e.target.value)}/></label>
       <DocumentLibrary docs={docs} active={active} search={search} loaded={loaded} groups={groups} setGroups={setGroups} onOpen={id=>{setSheet(null);if(tablet)showLibrary(false);void loadDocument(id);}} onDelete={d=>void deleteDocument(d)} onAddToBook={(ids,part)=>void addToBook(ids,part)}/>
-      <div className="library-bottom"><div className="privacy-mini"><ShieldCheck size={18}/><div><strong>Il tuo spazio privato</strong><small>{LOCAL?'Documenti salvati in questo browser':'Documenti salvati nel cloud'}</small></div></div><button data-tip="Provider AI e chiavi API, salvataggio GitHub, regole di scrittura e aspetto in un unico posto" onClick={()=>setSettings('ai')}><Settings2 size={18}/>Impostazioni<ChevronRight size={15}/></button><div className="user"><span>F</span><div>Il mio spazio<small>Scrivia · personale</small></div></div></div>
+      <div className="library-bottom"><div className="privacy-mini"><ShieldCheck size={18}/><div><strong>Il tuo spazio privato</strong><small>{cloud?'Documenti salvati nel tuo account cloud':LOCAL?'Documenti salvati in questo browser':'Documenti salvati nel cloud'}</small></div></div><button data-tip="Provider AI e chiavi API, salvataggio GitHub, regole di scrittura e aspetto in un unico posto" onClick={()=>setSettings('ai')}><Settings2 size={18}/>Impostazioni<ChevronRight size={15}/></button><div className="user"><span>F</span><div>Il mio spazio<small>Scrivia · personale</small></div></div></div>
     </aside>
     {shortcutsOpen&&<KeyboardShortcuts onClose={()=>setShortcutsOpen(false)}/>}{latexOpen&&<Suspense fallback={null}><LatexStudio onClose={()=>{setLatexOpen(false);setBookRequest(null);}} onOpenInEditor={openFromLatex} currentDocument={()=>editor?{title:title||'Documento',content:editor.getJSON()}:null} library={{docs,groups:groups.groups.map(g=>({id:g.id,name:g.name,ids:docs.filter(d=>groups.assign[d.id]===g.id).map(d=>d.id)})),active:current.current.id,load:bookDocument}} bookRequest={bookRequest} onBookRequestHandled={()=>setBookRequest(null)}/></Suspense>}<main className="main"><header className="topbar"><div className="document-heading">{simple&&<button className="m-btn" aria-label="I tuoi documenti" onClick={()=>setSheet('docs')}><Menu size={24}/></button>}<button className="tool sidebar-toggle" aria-label="Mostra o nascondi documenti" data-tip="Mostra o nascondi l’elenco dei documenti a sinistra" onClick={()=>showLibrary(!visibleSidebar)}><PanelLeftClose size={19}/></button><div className="document-meta"><input aria-label="Titolo documento" disabled={repoBusy} maxLength={150} value={title} onChange={e=>{setTitle(e.target.value);current.current.title=e.target.value.trim()||'Senza titolo';markDirty();}}/><div className={'save-state '+(status==='Non salvato'?'bad':'')} title={status} role="status"><span className="save-dot"/><span className="save-state-text">{status}</span></div></div></div><div className="header-actions">{simple&&<>{!standalone&&<button className="m-btn m-install m-keep" onClick={installApp}><Download size={18}/>Installa</button>}<button className="m-btn m-keep" aria-label="Altre azioni" onClick={()=>setSheet('more')}><Ellipsis size={24}/></button></>}{!simple&&!standalone&&(installable||tablet)&&<button className="t-install" data-tip="Installa Scrivia come app: icona sulla schermata Home, a tutto schermo e anche senza rete" onClick={installApp}><Download size={16}/>Installa</button>}{tablet&&<button className={'tool t-ai'+(visibleAssistant?' active':'')} aria-label="Assistente AI" aria-pressed={visibleAssistant} data-tip="Apri o chiudi il pannello dell’assistente AI" onClick={()=>showAssistant(!visibleAssistant)}><Sparkles size={19}/></button>}{narrow&&!simple&&<button className="m-full" data-tip="Torna alla modalità semplice per telefono" onClick={()=>setSimple(true)}><Sparkles size={15}/>Semplice</button>}<button className="tool mobile-ai-toggle" aria-label="Mostra assistente AI" data-tip="Apri o chiudi il pannello dell’assistente AI" onClick={()=>setMobileAI(!mobileAI)}><Sparkles size={17}/></button><button className="tool" aria-label="Impostazioni" data-tip="Impostazioni: provider AI, GitHub, regole di scrittura e aspetto" onClick={()=>setSettings('ai')}><Settings2 size={17}/></button><div className="export-wrap"><button className="export icon-export" aria-label="Esporta" data-tip="Scarica il documento in un altro formato o stampalo" onClick={()=>setMenu(!menu)}><ArrowDownToLine size={16}/><ChevronDown size={14}/></button>{menu&&<div className="dropdown">{[['docx','Word (.docx)','Documento modificabile con Word, LibreOffice o Google Docs'],['pdf','Stampa / PDF','Apre la stampa del browser: scegli «Salva come PDF» per ottenere il file'],['txt','Testo (.txt)','Solo il testo, senza formattazione'],['html','Pagina HTML','Pagina web apribile in qualsiasi browser'],['tex','LaTeX (.tex)','Sorgente LaTeX compilabile: titoli, stili, elenchi, citazioni e tabelle'],['json','Backup Scrivia','Copia completa da reimportare in Scrivia con «Importa»']].map(([v,l,t])=><button key={v} data-tip={t} onClick={()=>void exportFile(v)}>{l}</button>)}</div>}</div></div></header>
       <EditorToolbars owner={owner} fullscreen={fullscreen} disabled={simple} resetToken={toolbarReset} reloadToken={toolbarReload} groups={[
-        {id:'primary',label:'Comandi principali',content:<>        <Tool label="Salva su GitHub" icon={Save} disabled={!loaded||repoBusy} action={()=>void requestRepositorySave()}/>
+        {id:'primary',label:'Comandi principali',content:<>        {cloud?<Tool label="Salva ora nel cloud" tip="Salva subito il documento nel tuo account (il salvataggio automatico è già attivo)" icon={Save} disabled={!loaded} action={()=>void saveNow()}/>:<Tool label="Salva su GitHub" icon={Save} disabled={!loaded||repoBusy} action={()=>void requestRepositorySave()}/>}
         <Tool label="Chiedi all’AI" icon={WandSparkles} disabled={busy||!loaded||repoBusy} action={()=>void ask(editor?.state.selection.empty?autoMode:'rewrite')}/>
 </>},
-        ...(visibleTools.document?[{id:'document' as const,label:'Documento',content:<><div className="toolbar-section" role="group" aria-label="Comandi documento"><Tool label="Carica da GitHub" icon={FolderOpen} disabled={!loaded||repoBusy} action={()=>setRepoOpen('load')}/><label className="tool icon-import" role="button" tabIndex={0} aria-label="Importa documento" onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.currentTarget.querySelector<HTMLInputElement>('input')?.click();}}} data-tip="Apri un file Word (.docx), di testo (.txt), LaTeX (.tex) o un backup Scrivia (.json) come nuovo documento"><FileUp size={17}/><input type="file" aria-label="File da importare" accept=".docx,.txt,.json,.tex" onChange={e=>{const f=e.target.files?.[0];if(f)void importFile(f);e.target.value='';}}/></label><Tool label="Studio LaTeX" tip="Studio LaTeX: sorgenti con anteprima, salvataggio su GitHub e compilazione del PDF" icon={FileCode} action={()=>setLatexOpen(true)}/><Tool label="Aggiungi al libro" tip="Aggiungi questo documento al libro dello Studio LaTeX, come capitolo pronto da compilare" icon={BookPlus} disabled={!loaded} action={()=>void addToBook([current.current.id])}/><Tool label="Cronologia" icon={Clock3} action={()=>void openHistory()}/><Tool label="Trova e sostituisci" icon={Search} action={()=>setShowFind(!showFind)}/><Tool label="La mia voce" icon={Drama} action={()=>setMemoryOpen(true)}/><Tool label="Knowledge base" icon={BookOpen} action={()=>setKbOpen(true)}/><Tool label="Progetto creativo" icon={PenLine} action={()=>setProjectOpen(true)}/><Tool label={themeLabel+': cambia tema'} icon={theme==='light'?Sun:theme==='dark'?Moon:Monitor} action={cycleTheme}/><Tool label="Modalità concentrazione" icon={Maximize2} on={focus} action={()=>setFocus(!focus)}/></div></>}]:[]),
+        ...(visibleTools.document?[{id:'document' as const,label:'Documento',content:<><div className="toolbar-section" role="group" aria-label="Comandi documento">{!cloud&&<Tool label="Carica da GitHub" icon={FolderOpen} disabled={!loaded||repoBusy} action={()=>setRepoOpen('load')}/>}<label className="tool icon-import" role="button" tabIndex={0} aria-label="Importa documento" onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.currentTarget.querySelector<HTMLInputElement>('input')?.click();}}} data-tip="Apri un file Word (.docx), di testo (.txt), LaTeX (.tex) o un backup Scrivia (.json) come nuovo documento"><FileUp size={17}/><input type="file" aria-label="File da importare" accept=".docx,.txt,.json,.tex" onChange={e=>{const f=e.target.files?.[0];if(f)void importFile(f);e.target.value='';}}/></label><Tool label="Studio LaTeX" tip="Studio LaTeX: sorgenti con anteprima, salvataggio su GitHub e compilazione del PDF" icon={FileCode} action={()=>setLatexOpen(true)}/><Tool label="Aggiungi al libro" tip="Aggiungi questo documento al libro dello Studio LaTeX, come capitolo pronto da compilare" icon={BookPlus} disabled={!loaded} action={()=>void addToBook([current.current.id])}/><Tool label="Cronologia" icon={Clock3} action={()=>void openHistory()}/><Tool label="Trova e sostituisci" icon={Search} action={()=>setShowFind(!showFind)}/><Tool label="La mia voce" icon={Drama} action={()=>setMemoryOpen(true)}/><Tool label="Knowledge base" icon={BookOpen} action={()=>setKbOpen(true)}/><Tool label="Progetto creativo" icon={PenLine} action={()=>setProjectOpen(true)}/><Tool label={themeLabel+': cambia tema'} icon={theme==='light'?Sun:theme==='dark'?Moon:Monitor} action={cycleTheme}/><Tool label="Modalità concentrazione" icon={Maximize2} on={focus} action={()=>setFocus(!focus)}/></div></>}]:[]),
         {id:'view',label:'Visualizza',content:<>        <Tool label="Navigazione documento" icon={ListTree} on={visibleNavigation} action={()=>showNavigation(!visibleNavigation)}/><Tool label="Preset area di lavoro" icon={PanelsTopLeft} action={()=>setPresetsOpen(true)}/><CommandMenu label="Visualizza" icon={Eye}><button onClick={()=>setShortcutsOpen(true)}>Scorciatoie da tastiera (F1)</button><p className="view-menu-heading">Strumenti visibili</p>{([['document','Comandi documento'],['text','Carattere e formattazione'],['paragraph','Paragrafo e allineamento'],['insert','Strumenti di inserimento']] as [ToolbarGroup,string][]).map(([key,label])=><label className="view-toggle" key={key}><input type="checkbox" checked={visibleTools[key]} onChange={e=>changeToolGroup(key,e.target.checked)}/><span>{label}</span></label>)}<label className="view-toggle"><input type="checkbox" checked={visibleNavigation} onChange={e=>showNavigation(e.target.checked)}/><span>Navigazione documento</span></label><label className="view-toggle"><input type="checkbox" checked={visibleSidebar} onChange={e=>showLibrary(e.target.checked)}/><span>Elenco documenti</span></label><label className="view-toggle"><input type="checkbox" checked={visibleAssistant} onChange={e=>showAssistant(e.target.checked)}/><span>Assistente AI</span></label><label className="view-toggle"><input type="checkbox" checked={fullscreen?fullInfo:viewInfo} onChange={e=>(fullscreen?setFullInfo:setViewInfo)(e.target.checked)}/><span>Informazioni documento</span></label><button onClick={()=>showTools(true)}>Mostra tutti gli strumenti</button><button onClick={()=>showTools(false)}>Solo strumenti essenziali</button><button onClick={()=>setToolbarReset(n=>n+1)}>Ripristina posizione strumenti</button><label className="page-view" data-tip="Vista continua, oppure il testo diviso in pagine A4: 1, 2, 3, 4 o 6 pagine visibili insieme, al massimo due per riga"><Columns2 size={14}/><select aria-label="Pagine visibili" value={pages} onChange={e=>changePages(+e.target.value)}>{PAGE_VIEWS.map(n=><option key={n} value={n}>{n?n===1?'1 pagina':n+' pagine':'Vista continua'}</option>)}</select></label>{installer&&<button onClick={()=>{location.href=installer.url;}}><MonitorDown size={17}/>Scarica app desktop</button>}{installable&&<button onClick={()=>void promptInstall()}><Download size={17}/>Installa Scrivia</button>}</CommandMenu>
         {canFullscreen&&<Tool label={fullscreen?'Esci da schermo intero':'Schermo intero'} icon={fullscreen?Minimize:Fullscreen} on={fullscreen} action={toggleFullscreen}/>}
 </>},
@@ -635,6 +711,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       ]}>
       {editor&&!editor.state.selection.empty&&<div className="ai-selection-actions"><button disabled={busy||!loaded} onMouseDown={e=>e.preventDefault()} onClick={()=>void ask('rewrite')}><WandSparkles size={16}/>Migliora selezione con AI</button><span>Modifica solo il testo selezionato, con anteprima prima di accettare.</span></div>}
       {editor?.isActive('table')&&<div className="table-actions"><button data-tip="Aggiunge una riga sotto quella del cursore" onClick={()=>editor.chain().focus().addRowAfter().run()}>+ Riga</button><button data-tip="Aggiunge una colonna a destra di quella del cursore" onClick={()=>editor.chain().focus().addColumnAfter().run()}>+ Colonna</button><button data-tip="Elimina la riga in cui si trova il cursore" onClick={()=>editor.chain().focus().deleteRow().run()}>Elimina riga</button><button data-tip="Elimina la colonna in cui si trova il cursore" onClick={()=>editor.chain().focus().deleteColumn().run()}>Elimina colonna</button><button data-tip="Elimina l’intera tabella" onClick={()=>editor.chain().focus().deleteTable().run()}>Rimuovi tabella</button></div>}
+      {editor?.isActive('image')&&<ImageSizeBar editor={editor}/>}
       {showFind&&<div className="findbar"><Search size={15}/><input aria-label="Cerca nel testo" placeholder="Trova nel testo" value={find} onChange={e=>setFind(e.target.value)}/><input aria-label="Sostituisci con" placeholder="Sostituisci con" value={replace} onChange={e=>setReplace(e.target.value)}/><button data-tip="Seleziona la prossima occorrenza nel testo (senza distinzione tra maiuscole e minuscole)" onClick={()=>findNext()}>Trova</button><button data-tip="Sostituisce l’occorrenza selezionata e passa alla successiva con «Trova»" onClick={()=>findNext(true)}>Sostituisci selezione</button><button aria-label="Chiudi ricerca" onClick={()=>setShowFind(false)}><X size={16}/></button></div>}
       {/* AI progress and errors live in the assistant panel only: a bar above the page would make the text jump. */}
       {repoError&&<div role="alert" className="error-banner">{repoError}<button onClick={()=>setRepoOpen('load')}>Apri GitHub</button><button aria-label="Chiudi errore GitHub" onClick={()=>setRepoError('')}><X size={15}/></button></div>}
@@ -672,7 +749,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
         <button className={'tool m-read'+(readAloud.reading?' active':'')} aria-label={readAloud.reading?'Ferma lettura':'Leggi ad alta voce'} aria-pressed={readAloud.reading} onMouseDown={e=>e.preventDefault()} onClick={readAloud.toggle}>{readAloud.reading?<Square size={19}/>:<Volume2 size={21}/>}</button>
         <button className={'m-ai'+(suggestion?' has-proposal':'')} aria-label="Assistente AI" onClick={()=>setMobileAI(true)}><Sparkles size={20}/><span>AI</span></button>
       </nav>}
-      <footer className="statusbar"><span>{words} parole<span className="status-divider">|</span>{characters} caratteri</span><span data-tip="Le parole sottolineate in rosso sono segnalate dal correttore del browser: clic destro per i suggerimenti">Controllo ortografico del browser</span><span data-tip="Versione in uso: numero, commit e data di pubblicazione. Se ne esce una nuova, compare il pulsante «Aggiorna»"><span className="tiny-dot"/>Scrivia · Argument writing{versionLabel&&<span className="build-label"> · {versionLabel}</span>}</span></footer>
+      <footer className="statusbar"><span>{words} parole<span className="status-divider">|</span>{characters} caratteri{LOCAL&&<><span className="status-divider">|</span><button type="button" className="status-link" data-tip="Creazione, ultima modifica, tempo di scrittura e statistiche" onClick={()=>setInfoOpen('document')}>Info e statistiche</button></>}</span><span data-tip="Le parole sottolineate in rosso sono segnalate dal correttore del browser: clic destro per i suggerimenti">Controllo ortografico del browser</span><span data-tip="Versione in uso: numero, commit e data di pubblicazione. Se ne esce una nuova, compare il pulsante «Aggiorna»"><span className="tiny-dot"/>Scrivia · Argument writing{versionLabel&&<span className="build-label"> · {versionLabel}</span>}</span></footer>
     </main>
     {update!==null&&<div className="update-banner" role="status"><RefreshCw size={16}/><span>È disponibile una nuova versione di Scrivia{update?' ('+update+')':''}.</span><button data-tip="Salva il documento e ricarica la pagina con la nuova versione" onClick={()=>void loadUpdate()}>Aggiorna ora</button><button aria-label="Più tardi" data-tip="Nascondi: l’aggiornamento verrà caricato alla prossima apertura" onClick={()=>setUpdate(null)}><X size={14}/></button></div>}
     {simple&&sheet==='docs'&&<div className="drawer-backdrop" onClick={closeSheet}/>}
@@ -680,7 +757,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {simple&&mobileAI&&<div className="drawer-backdrop ai-backdrop" onClick={()=>setMobileAI(false)}/>}
     {sheet==='more'&&<Sheet title="Azioni" onClose={closeSheet}>
       <div className="sheet-list"><button onClick={()=>{setSheet(null);setMobileNavigation(true);}}><ListTree size={20}/>Navigazione documento</button><button onClick={()=>{setSheet(null);setPresetsOpen(true);}}><PanelsTopLeft size={20}/>Preset area di lavoro</button>
-        <button onClick={()=>{setSheet(null);void newDocument();}}><Plus size={20}/>Nuovo documento</button><button disabled={!loaded||repoBusy} onClick={()=>{setSheet(null);void requestRepositorySave();}}>Salva su GitHub</button><button disabled={!loaded||repoBusy} onClick={()=>{setSheet(null);setRepoOpen('load');}}>Carica da GitHub</button>
+        <button onClick={()=>{setSheet(null);void newDocument();}}><Plus size={20}/>Nuovo documento</button>{cloud?<button disabled={!loaded} onClick={()=>{setSheet(null);void saveNow();}}>Salva ora nel cloud</button>:<button disabled={!loaded||repoBusy} onClick={()=>{setSheet(null);void requestRepositorySave();}}>Salva su GitHub</button>}{!cloud&&<button disabled={!loaded||repoBusy} onClick={()=>{setSheet(null);setRepoOpen('load');}}>Carica da GitHub</button>}{LOCAL&&<button onClick={()=>{setSheet(null);setInfoOpen('document');}}>Info e statistiche</button>}
         <label><FileText size={20}/>Importa un file (Word, testo, backup)<input type="file" accept=".docx,.txt,.json,.tex" onChange={e=>{const f=e.target.files?.[0];setSheet(null);if(f)void importFile(f);e.target.value='';}}/></label>
         <label><ImagePlus size={20}/>Inserisci immagine da file<input type="file" accept="image/png,image/jpeg,image/webp,image/avif" disabled={imageBusy} onChange={e=>{const f=e.target.files?.[0];setSheet(null);if(f)void insertEditorImage(f);e.target.value='';}}/></label>
         <button disabled={imageBusy} onClick={()=>{setSheet(null);void insertEditorImage();}}><ClipboardPaste size={20}/>Incolla immagine dagli appunti</button>
@@ -704,9 +781,11 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {notice&&<div className="toast" role="status"><Check size={16}/>{notice}</div>}
     {kbOpen&&<KnowledgeBaseModal bases={kbs} activeId={activeKbId} ready={!!activeProfile} error={kbError} onActivate={activateKb} onSave={saveKb} onDelete={removeKb} distill={distillKb} onClose={()=>setKbOpen(false)}/>}
     {memoryOpen&&<WritingMemoryModal memory={writingMemory} currentId={current.current.id} persistenceError={memoryError} onChange={changeWritingMemory} onLearn={learnSavedWriting} onClose={()=>setMemoryOpen(false)}/>}
+    {infoOpen&&<DocumentInfo title={title} tab={infoOpen} setTab={setInfoOpen} words={words} characters={characters} cloud={!!cloud} load={loadDocInfo} loadStats={loadUserStats} onClose={()=>setInfoOpen(null)}/>}
     {repoOpen&&<GitHubDocuments intent={repoOpen} onSave={saveToRepository} onLoad={loadFromRepository} onClose={()=>setRepoOpen(null)}/>}
     {settings&&<SettingsModal tab={settings} setTab={setSettings} onClose={()=>setSettings(null)}
-      provider={{local:LOCAL,owner,profiles,vaultReady,error,form,setForm,formBusy,onSave:()=>void saveProfile(),onRemove:p=>void removeProfile(p)}}
+      provider={{local:LOCAL&&!cloud,owner,profiles,vaultReady,error,form,setForm,formBusy,onSave:()=>void saveProfile(),onRemove:p=>void removeProfile(p)}}
+      account={cloud?{email:cloud.email,busy:cloudBusy,message:cloudMessage,local:cloud.localData(),onImport:()=>void cloudImport(),onSync:()=>void cloudSync(),onSignOut:()=>void cloudSignOut()}:null}
       github={{busy:repoBusy,loaded,onSaveNow:()=>{setSettings(null);void requestRepositorySave();},onOpenDocuments:()=>{setSettings(null);setRepoOpen('load');}}}
       rules={{rules,onChange:changeRules}}
       general={{theme,setTheme:changeTheme,pages:pagePref,pageViews:PAGE_VIEWS,setPages:changePages,pagesAvailable:!simple,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences:changeAiPreferences}}/>}

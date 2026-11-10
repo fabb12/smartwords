@@ -2,3 +2,5 @@
 declare module '*?url' { const src: string; export default src; }
 // Raw text imports (e.g. the files of the LaTeX template): the module resolves to the file's content.
 declare module '*?raw' { const text: string; export default text; }
+// Cloud account (Supabase): set at build time, see lib/cloud.ts.
+interface ImportMetaEnv { readonly VITE_SUPABASE_URL?: string; readonly VITE_SUPABASE_ANON_KEY?: string }

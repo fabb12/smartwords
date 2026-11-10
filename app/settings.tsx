@@ -1,6 +1,6 @@
 'use client';
 import type { Dispatch, SetStateAction } from 'react';
-import { ChevronRight, GitBranch, KeyRound, Monitor, Moon, PenLine, Settings2, ShieldCheck, SlidersHorizontal, Sun, X } from 'lucide-react';
+import { ChevronRight, Cloud, GitBranch, KeyRound, Monitor, Moon, PenLine, Settings2, ShieldCheck, SlidersHorizontal, Sun, X } from 'lucide-react';
 import { ALL_PROVIDERS as PROVIDERS, DEVICE_PROVIDERS, DEVICE_CONNECTION_HELP, isDeviceProfile, isDeviceProvider, type AiProvider as Provider } from '../lib/device-models';
 import { DEFAULT_WRITING_RULES, QUOTE_STYLES, RULES_MAX, writingRulesInstruction, type QuoteStyle, type WritingRules } from '../lib/writing-rules';
 import { githubConnected, githubSettings } from '../lib/github-documents';
@@ -10,13 +10,14 @@ import { GitHubConnection } from './github-documents';
 import type { AiPreferences } from '../lib/ai-preferences';
 import { INTERVENTION_LEVELS } from '../lib/intervention';
 
-export type SettingsTab = 'ai' | 'github' | 'rules' | 'general';
+export type SettingsTab = 'ai' | 'github' | 'rules' | 'general' | 'account';
 export type Profile = {id:string;name:string;provider:Provider;model:string;baseUrl?:string;hint:string;daily_limit:number;used:number};
 export type ProfileForm = {id:string;name:string;provider:Provider;model:string;key:string;baseUrl:string;dailyLimit:number};
 export type Theme = 'light' | 'dark' | 'system';
 export const EMPTY_PROFILE_FORM: ProfileForm = {id:'',name:'',provider:'openai',model:PROVIDERS.openai.model,key:'',baseUrl:'',dailyLimit:500};
 
 const TABS: {id:SettingsTab;label:string;hint:string;icon:typeof KeyRound}[] = [
+  {id:'account',label:'Account',hint:'Cloud, sincronizzazione e accesso',icon:Cloud},
   {id:'ai',label:'Provider AI',hint:'Account, chiavi API e consumi',icon:KeyRound},
   {id:'github',label:'GitHub',hint:'Salvataggio e sincronizzazione',icon:GitBranch},
   {id:'rules',label:'Regole di scrittura',hint:'Preferenze valide per ogni risposta',icon:PenLine},
@@ -24,22 +25,27 @@ const TABS: {id:SettingsTab;label:string;hint:string;icon:typeof KeyRound}[] = [
 ];
 
 type ProviderProps = {local:boolean;owner:string;profiles:Profile[];vaultReady:boolean;error:string;form:ProfileForm;setForm:Dispatch<SetStateAction<ProfileForm>>;formBusy:boolean;onSave:()=>void;onRemove:(p:Profile)=>void};
+type AccountProps = {email:string;busy:boolean;message:string;local:{documents:number;profiles:number};onImport:()=>void;onSync:()=>void;onSignOut:()=>void};
 type GitHubProps = {busy:boolean;loaded:boolean;onSaveNow:()=>void;onOpenDocuments:()=>void};
 type RulesProps = {rules:WritingRules;onChange:(rules:WritingRules)=>void};
 type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void};
 
-export function SettingsModal({tab,setTab,onClose,provider,github,rules,general}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps}) {
+export function SettingsModal({tab,setTab,onClose,provider,github,rules,general,account}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps;account:AccountProps|null}) {
+  // With a cloud account documents are saved in the account: no GitHub token is needed for them.
+  const tabs=TABS.filter(t=>t.id==='account'?!!account:t.id==='github'?!account:true);
+  const shown=tabs.some(t=>t.id===tab)?tab:tabs[0].id;
   return <div className="modal-backdrop" onClick={onClose}><section className="modal settings-modal" role="dialog" aria-modal="true" aria-label="Impostazioni" onClick={e=>e.stopPropagation()}>
     <button className="modal-close tool" aria-label="Chiudi impostazioni" onClick={onClose}><X size={20}/></button>
     <div className="settings-head"><span className="modal-icon"><Settings2 size={23}/></span><div><h2>Impostazioni</h2><p className="modal-subtitle">Tutto in un unico posto: AI, salvataggio, regole e aspetto.</p></div></div>
-    <nav className="settings-tabs" role="tablist" aria-label="Sezioni delle impostazioni">{TABS.map(t=><button key={t.id} role="tab" type="button" aria-selected={tab===t.id} className={tab===t.id?'active':''} onClick={()=>setTab(t.id)}><t.icon size={16}/><span>{t.label}<small>{t.hint}</small></span></button>)}</nav>
+    <nav className="settings-tabs" role="tablist" aria-label="Sezioni delle impostazioni">{tabs.map(t=><button key={t.id} role="tab" type="button" aria-selected={shown===t.id} className={shown===t.id?'active':''} onClick={()=>setTab(t.id)}><t.icon size={16}/><span>{t.label}<small>{t.hint}</small></span></button>)}</nav>
     <div className="settings-panel" role="tabpanel">
-      {tab==='ai'&&<ProviderSettings {...provider}/>}
-      {tab==='github'&&<GitHubSettingsPanel {...github}/>}
-      {tab==='rules'&&<RulesSettings {...rules}/>}
-      {tab==='general'&&<GeneralSettings {...general}/>}
+      {shown==='account'&&account&&<AccountSettings {...account}/>}
+      {shown==='ai'&&<ProviderSettings {...provider}/>}
+      {shown==='github'&&<GitHubSettingsPanel {...github}/>}
+      {shown==='rules'&&<RulesSettings {...rules}/>}
+      {shown==='general'&&<GeneralSettings {...general}/>}
     </div>
-    <div className="form-footer"><span className="form-note">Le modifiche si salvano subito su questo dispositivo.</span><button type="button" className="quiet" onClick={onClose}>Chiudi</button></div>
+    <div className="form-footer"><span className="form-note">{account?'Le modifiche si salvano su questo dispositivo e nel tuo account.':'Le modifiche si salvano subito su questo dispositivo.'}</span><button type="button" className="quiet" onClick={onClose}>Chiudi</button></div>
   </section></div>;
 }
 
@@ -52,6 +58,17 @@ function ProviderSettings({local,owner,profiles,vaultReady,error,form,setForm,fo
     <TokenStats owner={owner}/>
     <form onSubmit={e=>{e.preventDefault();onSave();}}><h3>{form.id?'Modifica profilo':'Aggiungi un profilo'}</h3><div className="form-grid"><label>Nome del profilo<input required maxLength={80} placeholder="Es. Account personale" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></label><label>Provider<select value={form.provider} onChange={e=>{const p=e.target.value as Provider;setForm({...form,id:isDeviceProfile(form.id)!==isDeviceProvider(p)?'':form.id,provider:p,model:PROVIDERS[p].model,key:'',baseUrl:isDeviceProvider(p)?DEVICE_PROVIDERS[p].baseUrl:''});}}>{Object.entries(PROVIDERS).map(([id,p])=><option key={id} value={id}>{p.name}</option>)}</select></label>{isDeviceProvider(form.provider)&&<label>Indirizzo del server locale<input required type="url" value={form.baseUrl} placeholder={DEVICE_PROVIDERS[form.provider].baseUrl} onChange={e=>setForm({...form,baseUrl:e.target.value})}/></label>}<ModelPicker key={form.provider+':'+form.baseUrl+':'+form.id} provider={form.provider} model={form.model} baseUrl={form.baseUrl} token={form.key} profileId={form.id} onChange={model=>setForm(current=>({...current,model}))}/><label>Limite richieste al giorno<input type="number" min={1} max={10000} required value={form.dailyLimit} onChange={e=>setForm({...form,dailyLimit:+e.target.value})}/></label></div><label>{isDeviceProvider(form.provider)?'Token del server locale (facoltativo)':'Chiave API'} {form.id&&<small>(lascia vuoto per mantenerla)</small>}<input autoComplete="off" type="password" required={!form.id&&!isDeviceProvider(form.provider)} maxLength={4096} placeholder={isDeviceProvider(form.provider)?'Solo se il server richiede autenticazione':'Incolla la chiave del provider'} value={form.key} onChange={e=>setForm({...form,key:e.target.value})}/></label><p className="form-note">{isDeviceProvider(form.provider)?<>Il modello e il profilo restano su questo dispositivo. {DEVICE_CONNECTION_HELP}</>:<>Le richieste usano il credito del tuo account provider. Il limite conta i tentativi, anche quelli interrotti; non è un tetto di spesa in euro. Puoi modificare liberamente l’identificativo del modello; la disponibilità dipende dal tuo account provider.</>}</p>
       <div className="settings-actions">{form.id&&<button type="button" className="quiet" onClick={()=>setForm(EMPTY_PROFILE_FORM)}>Annulla modifica</button>}<button className="primary" disabled={formBusy||(!vaultReady&&!isDeviceProvider(form.provider))} type="submit">{formBusy?'Salvataggio…':form.id?'Salva modifiche':'Collega provider'}<ChevronRight size={16}/></button></div></form>
+  </>;
+}
+
+function AccountSettings({email,busy,message,local,onImport,onSync,onSignOut}:AccountProps) {
+  return <>
+    <h3>Il tuo account</h3>
+    <div className="security-note"><ShieldCheck size={18}/><span>Accesso come <strong>{email}</strong>. Documenti, versioni, impostazioni, regole di scrittura, profili AI e statistiche sono salvati nel tuo account e li ritrovi su ogni dispositivo. Le chiavi API sono cifrate nel database (Supabase Vault) e visibili solo a te. Non serve alcun token GitHub per salvare i documenti.</span></div>
+    {(local.documents>0||local.profiles>0)&&<div className="warning" role="status"><strong>Dati di questo browser non ancora nel cloud.</strong> Ci sono {local.documents} documenti e {local.profiles} profili AI salvati solo qui. L’importazione li copia nel tuo account (con impostazioni e chiavi) senza cancellare nulla da questo browser.<div className="settings-actions start"><button type="button" className="primary" disabled={busy} onClick={onImport}>{busy?'Operazione in corso…':'Importa nel mio account'}</button></div></div>}
+    {message&&<p className="form-note" role="status">{message}</p>}
+    <div className="settings-actions start"><button type="button" className="quiet" disabled={busy} onClick={onSync} data-tip="Invia le modifiche, scarica quelle fatte da altri dispositivi e ricarica Scrivia">Sincronizza ora</button><button type="button" className="quiet" disabled={busy} onClick={onSignOut} data-tip="Salva, esce dall’account e rimuove le impostazioni da questo dispositivo">Esci dall’account</button></div>
+    <p className="form-note">Dopo l’uscita le impostazioni dell’account vengono rimosse da questo dispositivo: su un computer condiviso nessuno le vedrà. Il token dello Studio LaTeX resta invece un’impostazione del dispositivo.</p>
   </>;
 }
 
