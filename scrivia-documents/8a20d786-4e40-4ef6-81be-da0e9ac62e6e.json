@@ -1,0 +1,35 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "8a20d786-4e40-4ef6-81be-da0e9ac62e6e",
+  "title": "Senza titolo",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        }
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "",
+      "premise": "",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mine",
+      "intensity": "medium",
+      "custom": ""
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1794299025072
+}
