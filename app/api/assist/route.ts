@@ -15,8 +15,8 @@ export async function POST(request: Request) {
     if (!quota) throw new HttpError(429,'Limite giornaliero del profilo raggiunto.');
     await db.prepare('DELETE FROM usage WHERE id LIKE ? AND id != ?').bind(owner+':minute:%',minute).run();
     const key=await unseal(p.secret,master,owner);
-    const {system,prompt,maxTokens}=assistPrompts(b);
-    const config=providerRequest(p.provider,p.model,key,system,prompt,maxTokens); const controller=new AbortController();
+    const {system,prompt,maxTokens,images}=assistPrompts(b);
+    const config=providerRequest(p.provider,p.model,key,system,prompt,maxTokens,images); const controller=new AbortController();
     const timer=setTimeout(()=>controller.abort(),b.text.length>2000&&['complete','rewrite','format','voice','formal'].includes(b.mode)?120000:45000);
     request.signal.addEventListener('abort',()=>controller.abort(),{once:true});
     let upstream: Response;

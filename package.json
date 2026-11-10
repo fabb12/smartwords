@@ -23,6 +23,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@hookform/resolvers": "^5.7.1",
     "@shadcn/react": "^0.3.0",
+    "@supabase/supabase-js": "^2.119.0",
     "@tiptap/extension-highlight": "^3.32.0",
     "@tiptap/extension-image": "^3.32.0",
     "@tiptap/extension-placeholder": "^3.32.0",

@@ -1,6 +1,6 @@
 // Local inference always runs on the user's device, even in the cloud-backed app.
 // These profiles are deliberately separate from server-side profiles and keys.
-import { PROVIDERS, ASSIST_MODES, assistPrompts, type Provider } from './providers.ts';
+import { PROVIDERS, ASSIST_MODES, assistPrompts, userContent, type Provider } from './providers.ts';
 import { assistStream } from './assist-stream.ts';
 import { desktop } from './desktop.ts';
 import { localModelFetch } from './local-transport.ts';
@@ -90,14 +90,14 @@ export async function deviceAssist(b:Record<string,unknown>,signal:AbortSignal):
   const used=counts();if((used[p.id]||0)>=p.daily_limit)return fail('Limite giornaliero del profilo raggiunto.',429);
   const token=reveal(p.key);if(p.key&&!token)return fail('Token locale non leggibile: inseriscilo di nuovo nel profilo.');
   const baseUrl=deviceBaseUrl(p.baseUrl);
-  const {system,prompt,maxTokens}=assistPrompts(b);
+  const {system,prompt,maxTokens,images}=assistPrompts(b);
   const controller=new AbortController();
   const combined=AbortSignal.any([signal,controller.signal,AbortSignal.timeout(120000)]);
   let upstream:Response;
   try {
     used[p.id]=(used[p.id]||0)+1;write(USAGE,{day:today(),counts:used});
     upstream=await localModelFetch(baseUrl+'/v1/chat/completions',{method:'POST',token,
-      body:JSON.stringify({model:p.model,messages:[{role:'system',content:system},{role:'user',content:prompt}],max_tokens:maxTokens,stream:true,stream_options:{include_usage:true}}),signal:combined});
+      body:JSON.stringify({model:p.model,messages:[{role:'system',content:system},{role:'user',content:userContent('openai',prompt,images)}],max_tokens:maxTokens,stream:true,stream_options:{include_usage:true}}),signal:combined});
   } catch {if(signal.aborted)throw new DOMException('Richiesta annullata.','AbortError');return fail(deviceConnectionError(p.provider),502);}
   if(!upstream.ok||!upstream.body){await upstream.body?.cancel();return fail(upstream.status===401||upstream.status===403?'Il server locale richiede un token valido: aggiorna il profilo nelle impostazioni.':upstream.status===404?'Modello o endpoint non trovato. Premi «Verifica connessione» e scegli un modello installato.':`Il server locale ha rifiutato la richiesta (${upstream.status}). In LM Studio abilita il caricamento automatico (Just-In-Time) oppure carica il modello in Developer.`,502);}
   return new Response(assistStream(upstream.body,'openai',{provider:p.provider,model:p.model,system,prompt},()=>controller.abort(),'Risposta del modello locale interrotta. Riprova.'),{headers:{'Content-Type':'application/x-ndjson','Cache-Control':'no-store'}});

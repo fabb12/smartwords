@@ -40,6 +40,8 @@ function precache(): Plugin {
 
 export default defineConfig({
   root,
+  // .env files of the project folder (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY), not of ./site.
+  envDir: fileURLToPath(new URL("./", import.meta.url)),
   base: "./",
   publicDir: fileURLToPath(new URL("./public", import.meta.url)),
   define: { __SCRIVIA_BUILD__: JSON.stringify(BUILD) },
