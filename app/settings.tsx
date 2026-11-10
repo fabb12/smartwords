@@ -10,6 +10,7 @@ import type { AdminApi } from '../lib/cloud-state';
 import { TokenStats } from './token-stats';
 import { GitHubConnection } from './github-documents';
 import type { AiPreferences } from '../lib/ai-preferences';
+import type { AutoSavePrefs } from '../lib/autosave';
 import { INTERVENTION_LEVELS } from '../lib/intervention';
 
 export type SettingsTab = 'ai' | 'github' | 'rules' | 'general' | 'account' | 'admin';
@@ -31,7 +32,7 @@ type ProviderProps = {local:boolean;owner:string;profiles:Profile[];vaultReady:b
 type AccountProps = {email:string;admin:boolean;documents:number;busy:boolean;message:string;local:{documents:number;profiles:number};onImport:()=>void;onSync:()=>void;onSignOut:()=>void};
 type GitHubProps = {busy:boolean;loaded:boolean;onSaveNow:()=>void;onOpenDocuments:()=>void};
 type RulesProps = {rules:WritingRules;onChange:(rules:WritingRules)=>void};
-type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void};
+type GeneralProps = {theme:Theme;setTheme:(t:Theme)=>void;pages:number;pageViews:number[];setPages:(n:number)=>void;pagesAvailable:boolean;delay:number;setDelay:(n:number)=>void;aiOn:boolean;setAiOn:(on:boolean)=>void;narrow:boolean;simple:boolean;setSimple:(on:boolean)=>void;aiPreferences:AiPreferences;setAiPreferences:(p:AiPreferences)=>void;autoSave:AutoSavePrefs;setAutoSave:(p:AutoSavePrefs)=>void;githubAuto:boolean|null};
 
 export function SettingsModal({tab,setTab,onClose,provider,github,rules,general,account,admin}:{tab:SettingsTab;setTab:(t:SettingsTab)=>void;onClose:()=>void;provider:ProviderProps;github:GitHubProps;rules:RulesProps;general:GeneralProps;account:AccountProps|null;admin:{api:AdminApi;selfId:string}|null}) {
   // With a cloud account documents are saved in the account: no GitHub token is needed for them.
@@ -107,11 +108,10 @@ function RulesSettings({rules,onChange}:RulesProps) {
   </>;
 }
 
-function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences}:GeneralProps) {
+function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences,autoSave,setAutoSave,githubAuto}:GeneralProps) {
   const themes:[Theme,string,typeof Sun][]=[['light','Chiaro',Sun],['dark','Scuro',Moon],['system','Di sistema',Monitor]];
   return <>
     <h3>Aspetto</h3>
-    <p className="form-note">Il documento si salva dopo le modifiche, con un ulteriore salvataggio automatico di documento e progetto ogni 5 minuti.</p>
     <div className="segmented settings-segmented" role="radiogroup" aria-label="Tema">{themes.map(([id,label,Icon])=><button key={id} type="button" role="radio" aria-checked={theme===id} className={theme===id?'active':''} onClick={()=>setTheme(id)}><Icon size={14}/>{label}</button>)}</div>
     {pagesAvailable&&<label>Vista del documento<select value={pages} onChange={e=>setPages(+e.target.value)}>{pageViews.map(n=><option key={n} value={n}>{n?n===1?'1 pagina A4':n===2?'2 pagine A4 affiancate':n+' pagine A4 in griglia (2 per riga)':'Vista continua'}</option>)}</select></label>}
     {narrow&&<label className="rule-toggle"><input type="checkbox" checked={simple} onChange={e=>setSimple(e.target.checked)}/><span>Modalità semplice per telefono<small>Barra degli strumenti in basso e pannelli a scomparsa</small></span></label>}
@@ -125,5 +125,8 @@ function GeneralSettings({theme,setTheme,pages,pageViews,setPages,pagesAvailable
     <label>Livello di intervento dell’AI<select aria-label="Livello di intervento dell’AI" value={aiPreferences.intervention} onChange={e=>setAiPreferences({...aiPreferences,intervention:Number(e.target.value) as AiPreferences['intervention']})}>{INTERVENTION_LEVELS.map(l=><option key={l.level} value={l.level}>{l.level} · {l.name} — {l.short}</option>)}</select></label>
     <p className="form-note">{INTERVENTION_LEVELS[aiPreferences.intervention-1].tip} Vale per completamenti, «Migliora frase» e riscritture; la sola formattazione non cambia mai le parole.</p>
     <label className="rule-toggle"><input type="checkbox" checked={aiPreferences.formatting} onChange={e=>setAiPreferences({...aiPreferences,formatting:e.target.checked})}/><span>Sistema anche la formattazione<small>Nei completamenti e in «Migliora frase», l’AI sceglie titoli, paragrafi, elenchi, grassetti e corsivi in base al significato e all’importanza del passaggio. Li vedi nell’anteprima prima di accettare.</small></span></label>
+    <h3>Salvataggio</h3>
+    <label className="rule-toggle"><input type="checkbox" checked={autoSave.enabled} onChange={e=>setAutoSave({...autoSave,enabled:e.target.checked})}/><span>Salvataggio automatico ogni 5 minuti<small>Il documento si salva comunque poco dopo ogni modifica; ogni 5 minuti vengono salvati anche documento e progetto creativo, pure durante la scrittura continua. Ctrl+S (⌘S) salva subito, ovunque nella pagina.</small></span></label>
+    {githubAuto!==null&&(githubAuto?<label className="rule-toggle"><input type="checkbox" disabled={!autoSave.enabled} checked={autoSave.enabled&&autoSave.github} onChange={e=>setAutoSave({...autoSave,github:e.target.checked})}/><span>Invia anche a GitHub ogni 5 minuti<small>Solo se il documento è cambiato dall’ultimo invio: un commit per salvataggio nel repository scelto in «GitHub».</small></span></label>:<p className="form-note">Per inviare anche a GitHub ogni 5 minuti, collega prima GitHub nella scheda «GitHub».</p>)}
   </>;
 }

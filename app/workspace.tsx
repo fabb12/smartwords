@@ -61,10 +61,17 @@ import { clipboardImage, prepareEditorImage } from '../lib/editor-images';
 import { LogOut } from 'lucide-react';
 import { ZoomControls } from './editor-zoom';
 import { ImageSizeBar } from './image-size-bar';
+import { EditorContextMenu, type ContextItem } from './editor-context-menu';
+import { ImageIdeaDialog, type InsertedChart } from './image-idea-dialog';
+import { contextAround, insertFigure, type IdeaContext } from '../lib/image-ideas';
+import { svgToPng } from '../lib/idea-chart';
+import { AUTOSAVE_MS, DEFAULT_AUTOSAVE, readAutoSave, shouldAutoSaveToGithub, storeAutoSave, type AutoSavePrefs } from '../lib/autosave';
+import { Selection } from '@tiptap/pm/state';
+import type { Node as PMNode } from '@tiptap/pm/model';
 import { readEditorZoom, sanitizeZoom, storeEditorZoom, type EditorZoom } from '../lib/editor-zoom';
 import { InstallSteps, Sheet, useSimpleMode, useStandalone, useTablet, useVisibleHeight } from './mobile';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
-import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X , FileCode } from 'lucide-react';
+import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X , FileCode, ChartColumn, Captions, Copy, Scissors, TextCursorInput } from 'lucide-react';
 // The LaTeX studio is loaded only when opened.
 import { DocumentLibrary, useDocGroups } from './document-library';
 import { forgetDoc } from '../lib/document-groups';
@@ -116,6 +123,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   useEffect(()=>{const restore=setTimeout(()=>setAiPreferencesState(readAiPreferences(owner)),0);const sync=(event:StorageEvent)=>{if(event.key===aiPreferencesKey(owner)||event.key===null){clearSuggestion();setAiPreferencesState(readAiPreferences(owner));}};window.addEventListener('storage',sync);return()=>{clearTimeout(restore);window.removeEventListener('storage',sync);};},[owner]);
   function changeAiPreferences(next:AiPreferences){clearSuggestion();setAiPreferencesState(next);if(!storeAiPreferences(next,ownerRef.current))setNotice('Preferenze AI in uso, ma non salvate sul dispositivo.');}
   useEffect(()=>{rulesRef.current=rules;},[rules]);
+  useEffect(()=>{const restore=setTimeout(()=>setAutoSaveState(readAutoSave(owner)),0);return()=>clearTimeout(restore);},[owner]);
+  function changeAutoSave(next:AutoSavePrefs){setAutoSaveState(next);if(!storeAutoSave(next,ownerRef.current))setNotice('Preferenza in uso, ma non salvata sul dispositivo.');}
   const writingRef=useRef(writingMemory),writingReady=useRef(false),ownerRef=useRef(owner);ownerRef.current=owner;
   // Knowledge bases (style + mindset of an author) and the one guiding the predictions.
   const [kbs,setKbs]=useState<KnowledgeBase[]>([]),[activeKbId,setActiveKbId]=useState(''),[kbOpen,setKbOpen]=useState(false),[kbError,setKbError]=useState('');
@@ -142,6 +151,10 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   // Document groups in the list and the documents waiting to be added to the LaTeX book.
   const [groups,setGroups]=useDocGroups(owner),[bookRequest,setBookRequest]=useState<{ids:string[];part?:string}|null>(null);
   const [formatProgress,setFormatProgress]=useState(''),[imageBusy,setImageBusy]=useState(false);const imagePending=useRef(false);
+  // Tasto destro nell'editor: idee per un'immagine, didascalia automatica, sistemare il testo scelto.
+  const [ctxMenu,setCtxMenu]=useState<{x:number;y:number;from:number;to:number;image:number|null;captionable:boolean;context:IdeaContext}|null>(null),[idea,setIdea]=useState<{kind:'prompt'|'chart';context:string;block:PMNode|null}|null>(null);const ctxFile=useRef<HTMLInputElement>(null);
+  // Salvataggio automatico ogni 5 minuti (e, se richiesto, su GitHub); Ctrl+S salva subito.
+  const [autoSave,setAutoSaveState]=useState<AutoSavePrefs>(DEFAULT_AUTOSAVE),autoSaveRef=useRef(autoSave),autoTick=useRef<()=>Promise<void>>(async()=>{}),githubCommitted=useRef(''),saveNowRef=useRef<()=>Promise<void>>(async()=>{});autoSaveRef.current=autoSave;
   const [suggestion,setSuggestion]=useState<Suggestion|null>(null),[includeTitles,setIncludeTitlesState]=useState(true),[busy,setBusy]=useState(false),[aiError,setAiError]=useState(''),[aiWarning,setAiWarning]=useState('');
   const [theme,setTheme]=useState<Theme>('system'),[installable,setInstallable]=useState(false),[fullscreen,setFullscreen]=useState(false),[canFullscreen,setCanFullscreen]=useState(false),[pagePref,setPages]=useState(0),[update,setUpdate]=useState<string|null>(null),[versionLabel,setVersionLabel]=useState(''),[installer,setInstaller]=useState<Installer|null>(null);
   // Phones: simplified mode (bottom toolbar, panels as sheets); the A4 page view is desktop-only.
@@ -191,7 +204,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const [governor]=useState(()=>new AiGovernor());
   const localOffline=useRef(new Set<string>());
   useEffect(()=>{governor.resetBackoff();localOffline.current.delete(profile);},[profile,governor]);
-  const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,key:(()=>false) as (event:KeyboardEvent)=>boolean,tab:(()=>false) as (event:KeyboardEvent)=>boolean,cancel:()=>{},paste:((()=>false) as (event:ClipboardEvent)=>boolean)});
+  const callbacks=useRef({update:()=>{},selection:(()=>{}) as (typing:boolean)=>void,accept:():boolean=>false,key:(()=>false) as (event:KeyboardEvent)=>boolean,tab:(()=>false) as (event:KeyboardEvent)=>boolean,cancel:()=>{},paste:((()=>false) as (event:ClipboardEvent)=>boolean),menu:((()=>false) as (event:MouseEvent)=>boolean)});
   const source=useMemo(()=>{const voiceId=project.voice.id==='mix'&&sanitizeBlend(project.voice.blend).length<2?'mine':project.voice.id;
     return styleSource({kb:activeKb?.chunks.length?activeKb:null,voiceId,voiceName:voiceName(voiceId,project.voice.blend),memoryActive:writingMemory.enabled&&(writingMemory.sources.length>0||!!writingMemory.notes.trim())});},[activeKb,project.voice,writingMemory]);
   const proposalDiff=useMemo(()=>suggestion?.done&&(!suggestion.content||plainContent(suggestion.content))&&suggestion.original!==undefined?wordDiff(suggestion.original,suggestion.text):null,[suggestion]);
@@ -253,7 +266,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       if(event.key==='Tab' && callbacks.current.tab(event)){event.preventDefault();return true;}
       if(event.key==='Escape'){callbacks.current.cancel();return false;}
       return false;
-    },handlePaste:(_view,event)=>callbacks.current.paste(event)},onUpdate:()=>callbacks.current.update(),onSelectionUpdate:({transaction})=>callbacks.current.selection(transaction.docChanged),
+    },handlePaste:(_view,event)=>callbacks.current.paste(event),handleDOMEvents:{contextmenu:(_view,event)=>callbacks.current.menu(event as MouseEvent)}},onUpdate:()=>callbacks.current.update(),onSelectionUpdate:({transaction})=>callbacks.current.selection(transaction.docChanged),
   }); editorRef.current=editor;
   const readAloud=useReadAloud({editor,profiles,local:LOCAL});
 
@@ -289,7 +302,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const e=editorRef.current;if(!e?.isEditable||e.view.composing)return false;
     const action=editorShortcut(event);if(!action)return false;
     if(action==='format'&&(e.isActive('table')||e.isActive('codeBlock')))return false;
-    if(action==='save'){void save();return true;}
+    if(action==='save'){void saveNowRef.current();return true;}
     if(action==='find'){setShowFind(true);return true;}
     if(action==='shortcuts'){setShortcutsOpen(true);return true;}
     if(pending.current)return true;
@@ -505,7 +518,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   callbacks.current={update:()=>{if(suppress.current||!loaded)return;const next=continued();if(!next)clearSuggestion();markDirty();const e=editorRef.current;setWords(e?.getText().trim().split(/\s+/).filter(Boolean).length||0);setCharacters(e?.getText().length||0);const opts=options.current;analyseLocally();
     if(next){showSuggestion({...next,revision:revision.current});return;}
     if(opts.mode==='assistita'&&opts.trigger==='pause'&&opts.aiOn&&opts.profile)aiTimer.current=setTimeout(()=>void ask(opts.autoMode,true),opts.delay);
-  },selection:(typing)=>{if(!typing)clearSuggestion();},accept:acceptSuggestion,key:handleEditorShortcut,tab:handleAiTab,cancel:clearSuggestion,paste:(event)=>{const file=Array.from(event.clipboardData?.files||[]).find(f=>f.type.startsWith('image/'));if(!file)return false;event.preventDefault();void insertEditorImage(file);return true;}};
+  },selection:(typing)=>{if(!typing)clearSuggestion();},accept:acceptSuggestion,key:handleEditorShortcut,tab:handleAiTab,cancel:clearSuggestion,paste:(event)=>{const file=Array.from(event.clipboardData?.files||[]).find(f=>f.type.startsWith('image/'));if(!file)return false;event.preventDefault();void insertEditorImage(file);return true;},menu:openContextMenu};
 
   // The creative project (brief, voice, story memory) is saved separately from the text, per document.
   const setProject=useCallback((update:(p:Project)=>Project)=>{projectDirty.current=true;setProjectState(p=>update(p));},[]);
@@ -522,7 +535,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   useEffect(()=>{if(!editor)return;let cancelled=false;(async()=>{try{const list=await api('documents');if(cancelled)return;setDocs(list);await reloadProfiles();if(cancelled)return;if(list.length)await loadDocument(list[0].id);else{suppress.current=true;editor.commands.setContent(EMPTY);suppress.current=false;markDirty();await save();await attachProject(current.current.id);}setMode(readMode());setLoaded(true);}catch(err){setError((err as Error).message);setStatus('Connessione non riuscita');}})();return()=>{cancelled=true;};},[editor]);
   useEffect(()=>{const before=(e:BeforeUnloadEvent)=>{void saveProject();if(dirty.current){e.preventDefault();e.returnValue='';}};window.addEventListener('beforeunload',before);return()=>{window.removeEventListener('beforeunload',before);void saveProject();if(fpTimer.current)clearTimeout(fpTimer.current);pending.current?.abort();if(aiTimer.current)clearTimeout(aiTimer.current);if(saveTimer.current)clearTimeout(saveTimer.current);};},[saveProject]);
   useEffect(()=>{clearSuggestion();setAiWarning('');},[profile,aiOn,autoMode,tone,mode,aiPreferences]);
-  useEffect(()=>{if(!loaded)return;const timer=setInterval(()=>{void (async()=>{if(await save())await saveProject();})();},5*60*1000);return()=>clearInterval(timer);},[loaded,save,saveProject]);
+  useEffect(()=>{if(!loaded||!autoSave.enabled)return;const timer=setInterval(()=>void autoTick.current(),AUTOSAVE_MS);return()=>clearInterval(timer);},[loaded,autoSave.enabled]);
   // Working time: counted only while the page is visible and the writer is active; sent every minute,
   // when the document changes, when the page is hidden and on exit.
   wordsRef.current=words;
@@ -558,6 +571,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     try{await cloud.signOut();}catch(err){setCloudMessage((err as Error).message);setCloudBusy(false);}
   }
   async function saveNow(){try{await saveEverything();setNotice(cloud?'Salvato nel cloud':'Salvato');}catch(err){setError((err as Error).message);}}
+  saveNowRef.current=saveNow;
+  // Ctrl+S (⌘S) salva ovunque nella pagina, anche con il cursore nel titolo, invece di aprire «Salva pagina» del browser.
+  useEffect(()=>{const key=(event:KeyboardEvent)=>{if(event.defaultPrevented||editorShortcut(event)!=='save')return;event.preventDefault();void saveNowRef.current();};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key);},[]);
   function changeMode(next:Mode){setMode(next);try{localStorage.setItem('scrivia:mode',next);}catch{}}
   useEffect(()=>{setTheme(readTheme());},[]);
   // The static build registers the service worker in site/main.tsx; the server build does it here.
@@ -599,13 +615,23 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   useEffect(()=>{if(!editor)return;layoutPages();editor.on('update',layoutPages);const observer=new ResizeObserver(()=>layoutPages());if(canvasRef.current)observer.observe(canvasRef.current);return()=>{editor.off('update',layoutPages);observer.disconnect();};},[editor,layoutPages]);
   useEffect(()=>{if(!notice)return;const timer=setTimeout(()=>setNotice(''),3500);return()=>clearTimeout(timer);},[notice]);
 
-  async function saveToRepository(copy=false){
-    setRepoBusy(true);clearSuggestion();
+  async function saveToRepository(copy=false,silent=false){
+    if(!silent){setRepoBusy(true);clearSuggestion();}
     try{if(!await save())throw new Error('La copia nell’app non è ancora salvata. Riprova prima di inviare a GitHub.');await saveProject();if(projectDirty.current)throw new Error('Salva il progetto creativo prima di inviare a GitHub.');
       const e=editorRef.current;if(!e||!current.current.id)throw new Error('Apri un documento prima di salvarlo su GitHub.');
-      await saveGitHubDocument(current.current.id,current.current.title,e.getJSON(),projectRef.current,copy);setNotice(copy?'Copia salvata su GitHub':'Documento salvato su GitHub');setError('');setRepoError('');
-    }finally{setRepoBusy(false);}
+      const stamp=current.current.id+':'+revision.current;await saveGitHubDocument(current.current.id,current.current.title,e.getJSON(),projectRef.current,copy);if(!copy)githubCommitted.current=stamp;if(!silent)setNotice(copy?'Copia salvata su GitHub':'Documento salvato su GitHub');setError('');setRepoError('');
+    }finally{if(!silent)setRepoBusy(false);}
   }
+  // Salvataggio programmato: documento e progetto; su GitHub solo se richiesto, collegato e cambiato dall'ultimo commit.
+  async function autoSaveTick(){
+    const prefs=autoSaveRef.current;if(!loaded||!prefs.enabled)return;
+    const version=current.current.id+':'+revision.current,saved=await save();if(saved)await saveProject();
+    const e=editorRef.current;
+    if(saved&&e&&!e.isDestroyed&&shouldAutoSaveToGithub({prefs,connected:githubConnected(),cloud:!!cloud,busy:repoBusy||imagePending.current,hasText:e.getText().trim().length>0,version,committed:githubCommitted.current})){
+      try{await saveToRepository(false,true);githubCommitted.current=version;setNotice('Salvato anche su GitHub (automatico)');}catch(err){setRepoError((err as Error).message);}
+    }
+  }
+  autoTick.current=autoSaveTick;
   async function requestRepositorySave(){if(!githubConnected()){setRepoOpen('save');return;}try{await saveToRepository();}catch(err){setRepoError((err as Error).message);}}
   async function loadFromRepository(remote:RepositoryDocument){
     setRepoBusy(true);clearSuggestion();
@@ -668,6 +694,72 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     else if(fallback!==undefined&&fallback<=e.state.doc.content.size){e.chain().focus().setTextSelection(fallback).scrollIntoView().run();setNotice('Il passaggio è cambiato: ti porto dove si trovava.');}
     else setNotice('Il passaggio non è più nel testo.');}
 
+
+  // ---- Tasto destro: didascalia sull'immagine, «Sistema questo testo», prompt e grafico nel punto scelto ----
+  function openContextMenu(event:MouseEvent):boolean{
+    const e=editorRef.current;if(!e||e.isDestroyed||!e.isEditable||!loaded||event.shiftKey)return false;
+    const hit=e.view.posAtCoords({left:event.clientX,top:event.clientY});if(!hit)return false;
+    event.preventDefault();
+    const doc=e.state.doc,sel=e.state.selection,target=hit.inside>=0?doc.nodeAt(hit.inside):null,image=target?.type.name==='image'?hit.inside:null;
+    if(image!==null)e.commands.setNodeSelection(image);
+    else if(sel.empty||hit.pos<sel.from||hit.pos>sel.to)e.view.dispatch(e.state.tr.setSelection(Selection.near(doc.resolve(hit.pos))));
+    const now=e.state.selection,captionable=image!==null&&planImageLayout(e.state.doc).uncaptioned.some(u=>u.pos===image);
+    setCtxMenu({x:event.clientX,y:event.clientY,from:now.from,to:now.to,image,captionable,context:contextAround(e.state.doc,now.from,now.to)});
+    return true;
+  }
+  function startIdea(kind:'prompt'|'chart'){
+    const m=ctxMenu;if(!m)return;
+    if(!options.current.profile){setSettings('ai');return;}
+    if(!m.context.hasText){setNotice('Scrivi o seleziona del testo vicino al punto: serve per capire cosa illustrare.');return;}
+    setIdea({kind,context:m.context.text,block:m.context.block});
+  }
+  // Didascalia automatica: l'AI guarda l'immagine e il testo attorno, la didascalia va sotto l'immagine in un solo passo annullabile.
+  async function captionImageAt(imagePos:number){
+    const e=editorRef.current,opts=options.current;if(!e?.isEditable||!loaded)return;
+    if(!opts.profile){setSettings('ai');return;}
+    clearSuggestion();setAiError('');setAiWarning('');
+    const original=e.state.doc,plan=planImageLayout(original),entry=plan.uncaptioned.find(u=>u.pos===imagePos);
+    if(!entry){setNotice('Questa immagine ha già una didascalia.');return;}
+    const found=captionJobs(original,{uncaptioned:[entry]});
+    if(!found.jobs.length){const message='L’AI legge solo immagini PNG, JPEG o WebP inserite nel documento: questa non è leggibile.';setAiError(message);setNotice(message);return;}
+    const rev=revision.current,solo=new AbortController();pending.current=solo;setBusy(true);
+    try{
+      const written=await writeCaptions(found.jobs,solo.signal,rev);
+      if(written.stopped||solo.signal.aborted||rev!==revision.current)return;
+      const ops=withCaptions(plan.ops.filter(op=>op.image===imagePos),found.jobs,written.answers),made=ops.find(op=>op.newCaption);
+      if(made){e.view.dispatch(closeHistory(e.state.tr));e.chain().focus().command(({tr})=>{applyImageLayout(tr,ops);return true;}).run();e.view.dispatch(closeHistory(e.state.tr));setNotice('Didascalia inserita: «'+made.newCaption+'». Puoi annullare con Ctrl+Z.');}
+      const notes=captionNotes(found,written);if(notes.length){setAiWarning(notes.join(' '));if(!made)setNotice(notes[0]);}
+    }catch(err){if(!solo.signal.aborted){setAiError((err as Error).message);setNotice((err as Error).message);}}
+    finally{if(pending.current===solo){pending.current=null;setBusy(false);setFormatProgress('');}}
+  }
+  // Il grafico (SVG) diventa un'immagine PNG adattata alla pagina e viene inserito dopo il punto scelto, con la didascalia sotto.
+  async function insertChart(chart:InsertedChart):Promise<string>{
+    const e=editorRef.current,block=idea?.block;if(!e?.isEditable||!block)return 'Il documento non è modificabile.';
+    try{
+      const image=await prepareEditorImage(await svgToPng(chart.svg,chart.width,chart.height));
+      if(e.isDestroyed||editorRef.current!==e)return 'Il documento è cambiato: ripeti il comando.';
+      clearSuggestion();e.view.dispatch(closeHistory(e.state.tr));
+      const tr=e.state.tr,end=insertFigure(tr,block,{...image,alt:chart.alt||chart.caption},chart.caption);
+      if(end===null)return 'Il punto scelto è cambiato: ripeti il comando dal punto desiderato.';
+      e.view.dispatch(tr.scrollIntoView());e.view.dispatch(closeHistory(e.state.tr));setNotice('Grafico e didascalia inseriti. Puoi annullare con Ctrl+Z.');return '';
+    }catch(err){return (err as Error).message;}
+  }
+  function clipboardCommand(kind:'cut'|'copy'){const e=editorRef.current;if(!e)return;e.commands.focus();if(!document.execCommand(kind))setNotice('Usa '+(kind==='cut'?'Ctrl+X per tagliare':'Ctrl+C per copiare')+'.');}
+  async function pasteText(){
+    const e=editorRef.current;if(!e?.isEditable)return;
+    try{const text=await navigator.clipboard.readText();if(!text)return;let chain=e.chain().focus();text.replace(/\r\n?/g,'\n').split('\n').forEach((line,i)=>{if(i)chain=chain.splitBlock();if(line)chain=chain.insertContent({type:'text',text:line});});chain.run();}
+    catch{setNotice('Accesso agli appunti non disponibile: usa Ctrl+V.');}
+  }
+  function contextItems():ContextItem[]{
+    const m=ctxMenu;if(!m)return [];
+    const selected=m.image===null&&m.from!==m.to,items:ContextItem[]=[];
+    if(m.image!==null){const at=m.image;items.push({label:m.captionable?'Scrivi la didascalia con l’AI':'Didascalia già presente',hint:m.captionable?'Legge l’immagine e il testo attorno':undefined,icon:Captions,disabled:!m.captionable||busy,action:()=>void captionImageAt(at)},'separator');}
+    if(selected)items.push({label:'Sistema questo testo con l’AI',hint:'Tiene conto del testo prima e dopo',icon:WandSparkles,disabled:busy,action:()=>void ask('rewrite')},{label:'Sistema la formattazione',hint:'Titoli, paragrafi, enfasi: le parole restano uguali',icon:Paintbrush,disabled:busy,action:()=>void formatOnly('selection')},'separator');
+    items.push({label:'Genera un prompt per un’immagine',hint:'Da incollare in un generatore di immagini',icon:Sparkles,action:()=>startIdea('prompt')},{label:'Genera un grafico con didascalia',hint:'Disegnato dal testo e inserito qui',icon:ChartColumn,action:()=>startIdea('chart')},'separator',
+      {label:'Inserisci immagine da file…',icon:ImagePlus,disabled:imageBusy||repoBusy,action:()=>ctxFile.current?.click()},{label:'Incolla immagine dagli appunti',icon:ClipboardPaste,disabled:imageBusy||repoBusy,action:()=>void insertEditorImage()},'separator',
+      {label:'Taglia',icon:Scissors,disabled:!selected,action:()=>clipboardCommand('cut')},{label:'Copia',icon:Copy,disabled:!selected,action:()=>clipboardCommand('copy')},{label:'Incolla testo',icon:TextCursorInput,action:()=>void pasteText()});
+    return items;
+  }
 
   async function insertEditorImage(file?:Blob) {
     const e=editorRef.current;if(!e?.isEditable||imagePending.current)return;
@@ -785,6 +877,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {sheet==='install'&&<Sheet title="Installa Scrivia" onClose={closeSheet}><InstallSteps/></Sheet>}
     {simple&&mobileNavigation&&editor&&<><div className="navigation-backdrop" onClick={()=>setMobileNavigation(false)}/><DocumentNavigation key={active} editor={editor} pages={pages} count={pageCount} onPages={enableNavigationPages} onClose={()=>setMobileNavigation(false)}/></>}
     {presetsOpen&&<WorkspacePresets presets={workspacePresets} onApply={applyPreset} onSave={saveWorkspacePreset} onDelete={deleteWorkspacePreset} onClose={()=>setPresetsOpen(false)}/>}
+    {ctxMenu&&<EditorContextMenu x={ctxMenu.x} y={ctxMenu.y} items={contextItems()} onClose={()=>setCtxMenu(null)}/>}
+    {idea&&<ImageIdeaDialog kind={idea.kind} context={idea.context} run={run} onInsertChart={insertChart} onClose={()=>setIdea(null)}/>}
+    <input ref={ctxFile} type="file" hidden aria-label="File immagine dal menu" accept="image/png,image/jpeg,image/webp,image/avif" onChange={e=>{const f=e.target.files?.[0];if(f)void insertEditorImage(f);e.target.value='';}}/>
     {notice&&<div className="toast" role="status"><Check size={16}/>{notice}</div>}
     {kbOpen&&<KnowledgeBaseModal bases={kbs} activeId={activeKbId} ready={!!activeProfile} error={kbError} onActivate={activateKb} onSave={saveKb} onDelete={removeKb} distill={distillKb} onClose={()=>setKbOpen(false)}/>}
     {memoryOpen&&<WritingMemoryModal memory={writingMemory} currentId={current.current.id} persistenceError={memoryError} onChange={changeWritingMemory} onLearn={learnSavedWriting} onClose={()=>setMemoryOpen(false)}/>}
@@ -796,7 +891,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       account={cloud?{email:cloud.email,admin:!!cloud.admin,documents:docs.length,busy:cloudBusy,message:cloudMessage,local:cloud.localData(),onImport:()=>void cloudImport(),onSync:()=>void cloudSync(),onSignOut:()=>void cloudSignOut()}:null}
       github={{busy:repoBusy,loaded,onSaveNow:()=>{setSettings(null);void requestRepositorySave();},onOpenDocuments:()=>{setSettings(null);setRepoOpen('load');}}}
       rules={{rules,onChange:changeRules}}
-      general={{theme,setTheme:changeTheme,pages:pagePref,pageViews:PAGE_VIEWS,setPages:changePages,pagesAvailable:!simple,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences:changeAiPreferences}}/>}
+      general={{theme,setTheme:changeTheme,pages:pagePref,pageViews:PAGE_VIEWS,setPages:changePages,pagesAvailable:!simple,delay,setDelay,aiOn,setAiOn,narrow,simple,setSimple,aiPreferences,setAiPreferences:changeAiPreferences,autoSave,setAutoSave:changeAutoSave,githubAuto:cloud?null:githubConnected()}}/>}
     {projectOpen&&<ProjectModal project={project} setProject={setProject} onClose={()=>setProjectOpen(false)}/>}
     {history&&<div className="modal-backdrop" onClick={()=>setHistory(null)}><section className="modal history-modal" role="dialog" aria-modal="true" aria-label="Cronologia versioni" onClick={e=>e.stopPropagation()}><button className="modal-close tool" aria-label="Chiudi cronologia" onClick={()=>setHistory(null)}><X size={20}/></button><Clock3 size={26}/><h2>La storia delle tue idee.</h2><p className="modal-subtitle">Fino a 30 versioni precedenti, registrate al massimo una volta al minuto.</p>{!history.length&&<p className="empty-state">Le versioni appariranno qui dopo le prossime modifiche salvate.</p>}{history.map(r=><div className="revision-row" key={r.id}><div><strong>{r.title}</strong><small>{new Date(r.created).toLocaleString('it-IT')}</small></div><button data-tip="Riporta il documento a questa versione; quella attuale resta nella cronologia" onClick={async()=>{if(!window.confirm('Ripristinare questa versione? La versione attuale sarà conservata nella cronologia.'))return;if(!await save())return;try{await api('revisions',{document:active,title:current.current.title,content:editor?.getJSON()});clearSuggestion();editor?.commands.setContent(JSON.parse(r.content));current.current.title=r.title;setTitle(r.title);markDirty();if(await save())setHistory(null);}catch(err){setError((err as Error).message);}}}>Ripristina</button></div>)}</section></div>}
   </div>;

@@ -661,7 +661,10 @@
 .page-grid .a4-sheets{display:grid;grid-template-columns:repeat(var(--cols,2),var(--page-width));gap:var(--page-gap);align-content:start}
 .page-grid .a4-sheet{margin-bottom:0}
 }
-@media print{.page-grid .manuscript{column-wrap:nowrap;column-height:auto;min-height:0}.page-grid .a4-sheets{display:none!important}}
+/* Stampa/PDF delle viste a più pagine: niente colonne né larghezza della griglia, altrimenti le colonne oltre il foglio A4 vengono tagliate e il testo va perso. */
+@media print{.page-grid .manuscript{width:auto;height:auto;min-height:0;padding:0;columns:auto;column-count:auto;column-gap:normal;column-height:auto;column-wrap:nowrap;row-gap:normal;background:none}.page-grid .a4-sheets{display:none!important}}
+/* Le viste A4 (anche in tema scuro) stampano su carta bianca, senza il grigio dell'area di lavoro. */
+@media print{:root,:root[data-theme=dark],:root body,:root[data-theme=dark] body{background:#fff!important;color-scheme:light}:root .paged .canvas,:root[data-theme=dark] .paged .canvas,:root[data-theme=dark] .paged .paper{background:#fff!important}}
 /* Titles proposed by the AI: new words, shown apart until accepted. */
 .ai-format-preview .proposed-title{border-left:3px dashed var(--muted);padding-left:8px}
 .proposed-badge{display:inline-block;margin-right:6px;padding:1px 5px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.3px;vertical-align:middle;background:var(--soft);color:var(--muted);border:1px solid var(--line)}
@@ -937,3 +940,41 @@ button.group-title:hover{background:var(--soft)}
 .user.signed-in{flex-wrap:wrap;row-gap:10px}
 .user.signed-in>div{font-size:11px}
 .user.signed-in .user-exit{flex:1 1 100%;justify-content:center;padding:8px 9px;font-size:11px}
+
+/* Tasto destro nell'editor e finestra «Prompt / Grafico per un'immagine». */
+.context-menu{position:fixed;z-index:95;min-width:250px;max-width:min(340px,calc(100vw - 16px));padding:6px;border:1px solid var(--line);border-radius:10px;background:var(--page-paper,#fff);color:inherit;box-shadow:0 10px 34px #17261b30;font-size:13px}
+.context-menu button{display:flex;align-items:flex-start;gap:10px;width:100%;min-height:34px;padding:7px 10px;border-radius:6px;text-align:left;font-size:13px;color:inherit;background:none}
+.context-menu button svg{flex:none;margin-top:2px;color:var(--green)}
+.context-menu button:hover:not(:disabled),.context-menu button:focus-visible{background:var(--soft);outline:none}
+.context-menu button:disabled{opacity:.45;cursor:default}
+.context-menu small{display:block;margin-top:1px;font-size:11px;color:var(--muted)}
+.context-menu hr{margin:5px 4px;border:0;border-top:1px solid var(--line)}
+.context-note{margin:4px 10px 3px;font-size:11px;color:var(--muted)}
+:root[data-theme=dark] .context-menu{background:#202622;border-color:#323a35;color:#d6dfd1}
+:root[data-theme=dark] .context-menu button:hover:not(:disabled),:root[data-theme=dark] .context-menu button:focus-visible{background:#2a322d}
+.idea-modal{max-width:760px}
+.idea-modal label{display:block;margin:14px 0 0;font-size:12px}
+.idea-modal textarea,.idea-modal input:not([type=checkbox]),.idea-modal select{display:block;width:100%;margin-top:6px;font:inherit;font-size:13px;border:1px solid var(--line);border-radius:6px;padding:9px;background:transparent;color:inherit}
+.idea-modal textarea{resize:vertical;line-height:1.45}
+.idea-status{display:flex;align-items:center;gap:8px;margin:18px 0;color:var(--muted)}
+.idea-chart{margin:14px 0 0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;line-height:0}
+.idea-chart svg{display:block;width:100%;height:auto}
+.idea-modal .form-footer{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;margin-top:16px}
+.idea-modal .form-footer button{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:transparent;color:inherit;font-size:13px}
+.idea-modal .form-footer button:hover:not(:disabled){background:var(--soft)}
+.idea-modal .form-footer .primary{flex:none;background:var(--green);border-color:var(--green);color:#fff}
+.idea-modal .form-footer .primary:hover:not(:disabled){background:#2c4a3b}
+@media print{.context-menu{display:none!important}}
+
+/* Barre laterali (sinistra e destra): i gruppi si dispongono in verticale, icona sotto icona, con la maniglia di
+   spostamento in cima e un filo orizzontale tra un gruppo e l'altro. In alto, in basso e nelle palette restano in riga. */
+.editor-toolbars-layout .editor-dock:is([data-dock=left],[data-dock=right]){width:auto;min-width:46px;max-width:150px;gap:8px;align-items:stretch}
+.editor-dock:is([data-dock=left],[data-dock=right]) .tool-group{flex-direction:column;align-items:stretch;gap:4px;border-left:0;padding-left:0;border-top:1px solid var(--line);padding-top:6px}
+.editor-dock:is([data-dock=left],[data-dock=right]) .tool-group:first-of-type{border-top:0;padding-top:0}
+.editor-dock:is([data-dock=left],[data-dock=right]) .tool-group .toolbar-grip{width:100%;min-width:0;height:14px}
+.editor-dock:is([data-dock=left],[data-dock=right]) .toolbar-grip svg{transform:rotate(90deg)}
+.editor-dock:is([data-dock=left],[data-dock=right]) :is(.tool-group-content,.tool-group-content>.toolbar-section){flex-direction:column;flex-wrap:nowrap;align-items:center;gap:4px}
+.editor-dock:is([data-dock=left],[data-dock=right]) .tool-group-content :is(select,.page-view,.editor-zoom select){width:100%;max-width:none}
+.editor-dock:is([data-dock=left],[data-dock=right]) .editor-zoom{flex-direction:column}
+.editor-dock:is([data-dock=left],[data-dock=right]) .command-group{width:100%;justify-content:center}
+.editor-dock:is([data-dock=left],[data-dock=right]) .command-trigger{justify-content:center}
