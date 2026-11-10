@@ -1,0 +1,272 @@
+{
+  "format": "scrivia-document",
+  "version": 1,
+  "id": "71fa01d0-09a7-4a0c-8010-d8969e215c92",
+  "title": "rimorsi e rimpiati",
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "heading",
+        "attrs": {
+          "textAlign": null,
+          "level": 1
+        },
+        "content": [
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "textStyle",
+                "attrs": {
+                  "backgroundColor": null,
+                  "color": null,
+                  "fontFamily": null,
+                  "fontSize": "38px",
+                  "lineHeight": null
+                }
+              }
+            ],
+            "text": "Differenza tra rimorsi e rimpianti"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Il rimorso è il dolore per ciò che abbiamo fatto: una ferita aperta sul passato che ancora sanguina perché sappiamo di avere agito male. È colpa, peso, il bisogno di espiare. Il rimpianto invece riguarda ciò che non abbiamo fatto, le strade non prese, le parole non dette; è il dispiacere per un'assenza, per una possibilità che si è chiusa."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "La distinzione è sottile ma decisiva. Il rimorso contiene energia, una spinta verso il pentimento e il cambiamento. Il rimpianto è più malinconico, più statico: porta con sé la rassegnazione del \"non si può tornare indietro\". Uno guarda alla colpa, l'altro alla perdita."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Eppure condividono qualcosa di profondo: entrambi nascono dal divario tra chi siamo e chi avremmo potuto essere. Entrambi ci interrogano sul significato delle nostre scelte, sulla fragilità del libero arbitrio, sulla strana matematica del destino che pesa ciò che è accaduto contro ciò che non accadrà mai."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Il rimorso si trasforma in perdono verso se stesso del passato; il rimpianto si trasforma in promessa verso il se stesso del futuro. Uno ricerca la riconciliazione, l'altro una via ancora da percorrere; eppure entrambi ci insegnano che il significato non sta nel pentimento o nel desiderio, bensì nel modo in cui impariamo a convivere con ciò che siamo diventati."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "O forse, più semplicemente, in un silenzio che impariamo a portare e che con il tempo diventa quasi una compagnia. Nella società d'oggi, come vengono gestiti i rimpianti? Come impariamo a convivere con ciò che non abbiamo fatto, con le strade non prese? In realtà ci spingono a cercare di evitare i rimorsi, come se bastasse fuggire da una ferita per guarirla. Ma il rimpianto non è un nemico da sconfiggere; è piuttosto una traccia che lasciamo dietro di noi, una firma del nostro passaggio attraverso le possibilità. Cosa genera in noi il rimpianto?"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Una mescolanza di desiderio e rassegnazione, probabilmente. Un sentimento che nasce quando guardiamo indietro e intravediamo il profilo di ciò che avremmo potuto scegliere, sapendo già che quella strada non la percorreremo più. Non è angoscia, come il rimorso; è piuttosto una "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "bold"
+              }
+            ],
+            "text": "malinconia consapevole"
+          },
+          {
+            "type": "text",
+            "text": ", quella che porta con sé una sorta di dignità, perché riconosce il limite della nostra vita finita e delle infinite possibilità che abbiamo dovuto abbandonare semplicemente vivendo. Questo ci permette di crescere, paradossalmente: accettare ciò che non sarà diventa il modo di abitare ciò che siamo."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Nelle altre lingue questi due concetti come vengono rappresentati? In tedesco "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Reue"
+          },
+          {
+            "type": "text",
+            "text": " e "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Sehnsucht "
+          },
+          {
+            "type": "text",
+            "text": " catturano qualcosa che l'italiano riduce a una sfumatura; la sfumatura è proprio il luogo dove la lingua tradisce i suoi limiti e rivela cosa una cultura sceglie di vedere o di nascondere. In tedesco la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Reue"
+          },
+          {
+            "type": "text",
+            "text": " è il rimorso consapevole e quasi corporeo, il peso della colpa che si porta addosso; la "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "Sehnsucht"
+          },
+          {
+            "type": "text",
+            "text": " invece è un desiderio più profondo, una nostalgia che contiene anche la bellezza di ciò che manca, non solo il dolore. È un sentimento che non ha un vero equivalente italiano perché mescola il rimpianto con una sorta di struggimento eroico, una tensione verso l'irraggiungibile che la nostra lingua separa invece in tanti piccoli pezzi. Invece in francese il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "regret"
+          },
+          {
+            "type": "text",
+            "text": " e il "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "remords"
+          },
+          {
+            "type": "text",
+            "text": " mantengono una distinzione simile alla nostra, ma con un'inclinazione più verso la nostalgia."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "attrs": {
+          "textAlign": null
+        },
+        "content": [
+          {
+            "type": "text",
+            "text": "Infine, l'inglese "
+          },
+          {
+            "type": "text",
+            "marks": [
+              {
+                "type": "italic"
+              }
+            ],
+            "text": "regret"
+          },
+          {
+            "type": "text",
+            "text": " appiattisce entrambi sotto una sola parola, come se la lingua anglo-sassone preferisse non insistere sulla frattura tra l'agito e il mancato. Ogni lingua, insomma, disegna una mappa diversa del dolore."
+          }
+        ]
+      }
+    ]
+  },
+  "project": {
+    "brief": {
+      "genre": "pisco",
+      "premise": "introspezione",
+      "audience": "",
+      "notes": ""
+    },
+    "voice": {
+      "id": "mix",
+      "intensity": "medium",
+      "custom": "",
+      "blend": [
+        {
+          "id": "eco",
+          "weight": 50
+        },
+        {
+          "id": "boncinelli",
+          "weight": 50
+        },
+        {
+          "id": "hemingway",
+          "weight": 50
+        },
+        {
+          "id": "rovelli",
+          "weight": 50
+        }
+      ]
+    },
+    "facts": [],
+    "analysed": {},
+    "dismissed": [],
+    "confirmed": []
+  },
+  "updated": 1793809578777
+}
