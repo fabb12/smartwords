@@ -872,6 +872,12 @@ button.group-title:hover{background:var(--soft)}
 .manuscript [data-resize-container]{justify-content:center;margin:12px auto;max-width:100%}
 .manuscript [data-resize-wrapper]{max-width:100%}
 .manuscript [data-resize-container] img{margin:0;max-width:100%}
+/* Allineamento dell'immagine (pulsanti Allinea/Centra/Giustifica): a sinistra, a destra o a tutta larghezza. */
+.manuscript [data-resize-container][data-align=left]{justify-content:flex-start}
+.manuscript [data-resize-container][data-align=right]{justify-content:flex-end}
+.manuscript [data-resize-container][data-align=justify] [data-resize-wrapper]{width:100%}
+.manuscript [data-resize-container][data-align=justify] img{width:100%!important;height:auto!important}
+.manuscript img[style*="text-align: left"]{margin-left:0}.manuscript img[style*="text-align: right"]{margin-right:0}.manuscript img[style*="text-align: justify"]{width:100%;height:auto}
 .manuscript [data-resize-handle]{width:12px;height:12px;background:var(--green);border:2px solid #fff;border-radius:3px;opacity:0;transition:opacity .12s;box-shadow:0 0 0 1px var(--green);z-index:2;touch-action:none}
 .manuscript [data-resize-container]:hover [data-resize-handle],.manuscript [data-resize-container].ProseMirror-selectednode [data-resize-handle],.manuscript [data-resize-container].resizing [data-resize-handle]{opacity:1}
 .manuscript [data-resize-container].ProseMirror-selectednode img{outline:2px solid var(--green);outline-offset:2px}

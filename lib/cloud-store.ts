@@ -93,6 +93,18 @@ export function createCloudApi(client: SupabaseClient, usage: (profileId: string
     return { ok: true };
   }
 
+  // Knowledge bases (texts of the writer or of a reference author): one row per base, the JSON as saved on the device.
+  async function knowledgeBases(body: Body, method: string) {
+    if (body === undefined) {
+      const rows = ok(await client.from('knowledge_bases').select('id,data')) as Row[];
+      return rows.map(r => r.data);
+    }
+    if (!validText(body?.id, 100)) throw new Error('Knowledge base non valida.');
+    if (method === 'DELETE') { ok(await client.from('knowledge_bases').delete().eq('id', body.id)); return { ok: true }; }
+    ok(await client.from('knowledge_bases').upsert({ id: body.id, data: body, updated_at: new Date().toISOString() }, { onConflict: 'user_id,id' }));
+    return { ok: true };
+  }
+
   async function profiles(body: Body, method: string) {
     if (body === undefined) {
       const rows = ok(await client.from('api_profiles').select('id,name,provider,model,daily_limit,key_hint,created_at').order('created_at')) as Row[];
@@ -125,6 +137,7 @@ export function createCloudApi(client: SupabaseClient, usage: (profileId: string
         case 'revisions': return revisions(body);
         case 'projects': return projects(params, body);
         case 'profiles': return profiles(body, method);
+        case 'knowledge-bases': return knowledgeBases(body, method);
         case 'activity': {
           if (!validText(body?.document, 100) || !validText(body?.day, 10)) throw new Error('Attività non valida.');
           ok(await client.rpc('log_activity', { p_document: body.document, p_seconds: int(body.seconds, 3600), p_words: int(body.words, 200000), p_day: body.day }));

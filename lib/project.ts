@@ -36,3 +36,12 @@ export function sanitizeProject(raw: unknown): Project {
 export function briefText(b: Brief): string {
   return [b.genre && `Genere: ${b.genre}`, b.premise && `Progetto e intenzioni: ${b.premise}`, b.audience && `Lettori: ${b.audience}`, b.notes && `Note dell'autore: ${b.notes}`].filter(Boolean).join('\n');
 }
+
+// The last voice the author chose: new documents start from it instead of "La mia voce".
+export const voiceDefaultKey = (owner = 'local') => 'scrivia:voice-default:' + encodeURIComponent(owner);
+export function readVoiceDefault(owner = 'local'): VoiceChoice {
+  try { return sanitizeProject({ voice: JSON.parse(localStorage.getItem(voiceDefaultKey(owner)) || 'null') }).voice; } catch { return EMPTY_PROJECT.voice; }
+}
+export function storeVoiceDefault(voice: VoiceChoice, owner = 'local') {
+  try { localStorage.setItem(voiceDefaultKey(owner), JSON.stringify(sanitizeProject({ voice }).voice)); } catch { /* the document keeps its own voice */ }
+}
