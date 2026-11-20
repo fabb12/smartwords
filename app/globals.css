@@ -959,6 +959,15 @@ button.group-title:hover{background:var(--soft)}
 .idea-status{display:flex;align-items:center;gap:8px;margin:18px 0;color:var(--muted)}
 .idea-chart{margin:14px 0 0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;line-height:0}
 .idea-chart svg{display:block;width:100%;height:auto}
+.idea-step{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--line);font-size:14px;font-weight:600}
+.idea-drop{margin-top:10px;padding:16px;border:2px dashed var(--line);border-radius:10px;text-align:center;color:var(--muted);transition:border-color .15s,background .15s}
+.idea-drop.over{border-color:var(--green);background:var(--soft)}
+.idea-drop.filled{border-style:solid}
+.idea-drop p{margin:6px 0 12px;font-size:13px}
+.idea-drop img{display:block;max-width:100%;max-height:260px;margin:0 auto 12px;border-radius:6px;object-fit:contain}
+.idea-drop-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+.idea-drop-actions button{display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:0 12px;border:1px solid var(--line);border-radius:8px;background:transparent;color:inherit;font-size:13px}
+.idea-drop-actions button:hover{background:var(--soft)}
 .idea-modal .form-footer{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px;margin-top:16px}
 .idea-modal .form-footer button{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border:1px solid var(--line);border-radius:8px;background:transparent;color:inherit;font-size:13px}
 .idea-modal .form-footer button:hover:not(:disabled){background:var(--soft)}

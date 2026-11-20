@@ -733,17 +733,21 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     }catch(err){if(!solo.signal.aborted){setAiError((err as Error).message);setNotice((err as Error).message);}}
     finally{if(pending.current===solo){pending.current=null;setBusy(false);setFormatProgress('');}}
   }
-  // Il grafico (SVG) diventa un'immagine PNG adattata alla pagina e viene inserito dopo il punto scelto, con la didascalia sotto.
-  async function insertChart(chart:InsertedChart):Promise<string>{
+  // Il grafico (SVG) diventa un'immagine PNG; l'immagine creata con il prompt arriva da file, appunti o trascinamento.
+  // In entrambi i casi è adattata alla pagina e inserita dopo il punto scelto, con la didascalia formattata sotto.
+  async function insertIdeaFigure(source:Blob,caption:string,alt:string,what:string):Promise<string>{
     const e=editorRef.current,block=idea?.block;if(!e?.isEditable||!block)return 'Il documento non è modificabile.';
     try{
-      const image=await prepareEditorImage(await svgToPng(chart.svg,chart.width,chart.height));
+      const image=await prepareEditorImage(source);
       if(e.isDestroyed||editorRef.current!==e)return 'Il documento è cambiato: ripeti il comando.';
       clearSuggestion();e.view.dispatch(closeHistory(e.state.tr));
-      const tr=e.state.tr,end=insertFigure(tr,block,{...image,alt:chart.alt||chart.caption},chart.caption);
+      const tr=e.state.tr,end=insertFigure(tr,block,{...image,alt:alt||caption},caption);
       if(end===null)return 'Il punto scelto è cambiato: ripeti il comando dal punto desiderato.';
-      e.view.dispatch(tr.scrollIntoView());e.view.dispatch(closeHistory(e.state.tr));setNotice('Grafico e didascalia inseriti. Puoi annullare con Ctrl+Z.');return '';
+      e.view.dispatch(tr.scrollIntoView());e.view.dispatch(closeHistory(e.state.tr));setNotice(what+' e didascalia inseriti. Puoi annullare con Ctrl+Z.');return '';
     }catch(err){return (err as Error).message;}
+  }
+  async function insertChart(chart:InsertedChart):Promise<string>{
+    try{return await insertIdeaFigure(await svgToPng(chart.svg,chart.width,chart.height),chart.caption,chart.alt,'Grafico');}catch(err){return (err as Error).message;}
   }
   // «Rendi questa frase la didascalia dell’immagine vicina»: la frase lascia il testo e va sotto l’immagine, in un solo passo annullabile.
   function textToCaption(from:number,to:number){
@@ -893,7 +897,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {simple&&mobileNavigation&&editor&&<><div className="navigation-backdrop" onClick={()=>setMobileNavigation(false)}/><DocumentNavigation key={active} editor={editor} pages={pages} count={pageCount} onPages={enableNavigationPages} onClose={()=>setMobileNavigation(false)}/></>}
     {presetsOpen&&<WorkspacePresets presets={workspacePresets} onApply={applyPreset} onSave={saveWorkspacePreset} onDelete={deleteWorkspacePreset} onClose={()=>setPresetsOpen(false)}/>}
     {ctxMenu&&<EditorContextMenu x={ctxMenu.x} y={ctxMenu.y} items={contextItems()} onClose={()=>setCtxMenu(null)}/>}
-    {idea&&<ImageIdeaDialog kind={idea.kind} context={idea.context} run={run} onInsertChart={insertChart} onClose={()=>setIdea(null)}/>}
+    {idea&&<ImageIdeaDialog kind={idea.kind} context={idea.context} run={run} onInsertChart={insertChart} onInsertImage={(file,caption,alt)=>insertIdeaFigure(file,caption,alt,'Immagine')} onClose={()=>setIdea(null)}/>}
     <input ref={ctxFile} type="file" hidden aria-label="File immagine dal menu" accept="image/png,image/jpeg,image/webp,image/avif" onChange={e=>{const f=e.target.files?.[0];if(f)void insertEditorImage(f);e.target.value='';}}/>
     {notice&&<div className="toast" role="status"><Check size={16}/>{notice}</div>}
     {kbOpen&&<KnowledgeBaseModal bases={kbs} activeId={activeKbId} ready={!!activeProfile} error={kbError} onActivate={activateKb} onSave={saveKb} onDelete={removeKb} distill={distillKb} onClose={()=>setKbOpen(false)}/>}
