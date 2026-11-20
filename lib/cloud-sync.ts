@@ -11,7 +11,7 @@ const GLOBAL_KEYS = ['scrivia:theme', 'scrivia:mode', 'scrivia:pages', 'scrivia:
 const OWNER_PREFIXES = [
   'scrivia:ai-preferences:', 'scrivia:writing-rules:', 'scrivia:writing-memory:', 'scrivia:token-usage:',
   'scrivia:toolbars:v1:', 'scrivia:workspace-presets:v1:', 'scrivia:workspace-frame:v1:', 'scrivia:doc-groups:',
-  'scrivia:usage:',
+  'scrivia:usage:', 'scrivia:autosave:', 'scrivia:kb-active:', 'scrivia:voice-default:',
 ];
 // Never synced, on purpose: GitHub tokens, local-model profiles (they point at this computer) and the
 // phone/tablet layout flag. API keys travel through the encrypted secret routes only.

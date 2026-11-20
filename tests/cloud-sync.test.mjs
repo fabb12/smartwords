@@ -24,9 +24,9 @@ function backend(rows = [], secrets = {}) {
 const U = '11111111-1111-1111-1111-111111111111';
 
 test('solo le impostazioni dell’utente corrente vengono sincronizzate, mai i token', () => {
-  for (const k of ['scrivia:theme', 'scrivia:read-aloud', `scrivia:ai-preferences:${U}`, `scrivia:writing-rules:${U}`, `scrivia:toolbars:v1:${U}:normal`, `scrivia:doc-groups:${U}`, `scrivia:usage:${U}`])
+  for (const k of ['scrivia:theme', 'scrivia:read-aloud', `scrivia:ai-preferences:${U}`, `scrivia:writing-rules:${U}`, `scrivia:toolbars:v1:${U}:normal`, `scrivia:doc-groups:${U}`, `scrivia:usage:${U}`, `scrivia:autosave:${U}`, `scrivia:kb-active:${U}`, `scrivia:voice-default:${U}`])
     assert.ok(isSyncedKey(k, U), k);
-  for (const k of ['scrivia:github-token', 'scrivia:github-settings', 'scrivia:device-profiles', 'scrivia:profiles', 'scrivia:documents', 'scrivia:simple', 'scrivia:ai-preferences:local', 'scrivia:ai-preferences:' + U + 'x', 'scrivia:ai-preferences:22222222-2222-2222-2222-222222222222', 'scrivia-auth', 'scrivia:kb-active:' + U])
+  for (const k of ['scrivia:github-token', 'scrivia:github-settings', 'scrivia:device-profiles', 'scrivia:profiles', 'scrivia:documents', 'scrivia:simple', 'scrivia:ai-preferences:local', 'scrivia:ai-preferences:' + U + 'x', 'scrivia:ai-preferences:22222222-2222-2222-2222-222222222222', 'scrivia-auth', 'scrivia:kb-cloud:' + U])
     assert.ok(!isSyncedKey(k, U), k);
 });
 

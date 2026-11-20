@@ -61,6 +61,16 @@ create table if not exists public.user_settings (
   primary key (user_id, key)
 );
 
+-- Knowledge base (testi propri o di un autore usati come esempio di scrittura): possono contenere
+-- interi libri, quindi hanno una tabella propria invece di user_settings.
+create table if not exists public.knowledge_bases (
+  user_id    uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  id         text not null check (char_length(id) between 1 and 100),
+  data       jsonb not null,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, id)
+);
+
 -- ---------------------------------------------------------------------------------------------
 -- Profili dei provider AI. La chiave vera sta in Supabase Vault, qui solo gli ultimi 4 caratteri.
 -- ---------------------------------------------------------------------------------------------
@@ -337,6 +347,7 @@ alter table public.documents          enable row level security;
 alter table public.document_revisions enable row level security;
 alter table public.writing_activity   enable row level security;
 alter table public.user_settings      enable row level security;
+alter table public.knowledge_bases    enable row level security;
 alter table public.api_profiles       enable row level security;
 alter table public.user_secrets       enable row level security;
 alter table public.app_admins         enable row level security;
@@ -360,14 +371,18 @@ drop policy if exists settings_owner on public.user_settings;
 create policy settings_owner on public.user_settings for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
+drop policy if exists knowledge_bases_owner on public.knowledge_bases;
+create policy knowledge_bases_owner on public.knowledge_bases for all to authenticated
+  using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
+
 drop policy if exists profiles_owner on public.api_profiles;
 create policy profiles_owner on public.api_profiles for all to authenticated
   using (user_id = (select auth.uid())) with check (user_id = (select auth.uid()));
 
 -- user_secrets: nessun accesso diretto, solo le funzioni set_secret / get_secret / delete_secret.
 revoke all on public.documents, public.document_revisions, public.writing_activity,
-              public.user_settings, public.api_profiles, public.user_secrets, public.app_admins from anon, authenticated;
-grant select, insert, update, delete on public.document_revisions, public.user_settings to authenticated;
+              public.user_settings, public.knowledge_bases, public.api_profiles, public.user_secrets, public.app_admins from anon, authenticated;
+grant select, insert, update, delete on public.document_revisions, public.user_settings, public.knowledge_bases to authenticated;
 grant select, delete on public.documents, public.api_profiles to authenticated;
 grant select on public.writing_activity to authenticated;
 -- Tempo di lavoro, aperture e date di modifica cambiano solo tramite le funzioni qui sotto e i trigger.
