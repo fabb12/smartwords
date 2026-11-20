@@ -64,6 +64,7 @@ import { ImageSizeBar } from './image-size-bar';
 import { EditorContextMenu, type ContextItem } from './editor-context-menu';
 import { ImageIdeaDialog, type InsertedChart } from './image-idea-dialog';
 import { contextAround, insertFigure, type IdeaContext } from '../lib/image-ideas';
+import { applyTextCaption, planTextCaption } from '../lib/text-caption';
 import { svgToPng } from '../lib/idea-chart';
 import { AUTOSAVE_MS, DEFAULT_AUTOSAVE, readAutoSave, shouldAutoSaveToGithub, storeAutoSave, type AutoSavePrefs } from '../lib/autosave';
 import { Selection } from '@tiptap/pm/state';
@@ -71,7 +72,7 @@ import type { Node as PMNode } from '@tiptap/pm/model';
 import { readEditorZoom, sanitizeZoom, storeEditorZoom, type EditorZoom } from '../lib/editor-zoom';
 import { InstallSteps, Sheet, useSimpleMode, useStandalone, useTablet, useVisibleHeight } from './mobile';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
-import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X , FileCode, ChartColumn, Captions, Copy, Scissors, TextCursorInput } from 'lucide-react';
+import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X , FileCode, ChartColumn, Captions, Copy, Scissors, TextCursorInput, TextQuote } from 'lucide-react';
 // The LaTeX studio is loaded only when opened.
 import { DocumentLibrary, useDocGroups } from './document-library';
 import { forgetDoc } from '../lib/document-groups';
@@ -744,6 +745,17 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
       e.view.dispatch(tr.scrollIntoView());e.view.dispatch(closeHistory(e.state.tr));setNotice('Grafico e didascalia inseriti. Puoi annullare con Ctrl+Z.');return '';
     }catch(err){return (err as Error).message;}
   }
+  // «Rendi questa frase la didascalia dell’immagine vicina»: la frase lascia il testo e va sotto l’immagine, in un solo passo annullabile.
+  function textToCaption(from:number,to:number){
+    const e=editorRef.current;if(!e?.isEditable||!loaded)return;
+    const found=planTextCaption(e.state.doc,from,to);
+    if('error' in found){setNotice(found.error);return;}
+    clearSuggestion();e.view.dispatch(closeHistory(e.state.tr));
+    const tr=applyTextCaption(e.state.tr,found.plan);
+    e.view.dispatch(tr.scrollIntoView());e.view.dispatch(closeHistory(e.state.tr));e.commands.focus();
+    const where=found.plan.side==='above'?'sopra':'sotto';
+    setNotice((found.plan.replaces?'Didascalia sostituita (prima era «'+found.plan.replaces+'»)':'Didascalia dell’immagine '+where)+': «'+found.plan.text+'». Puoi annullare con Ctrl+Z.');
+  }
   function clipboardCommand(kind:'cut'|'copy'){const e=editorRef.current;if(!e)return;e.commands.focus();if(!document.execCommand(kind))setNotice('Usa '+(kind==='cut'?'Ctrl+X per tagliare':'Ctrl+C per copiare')+'.');}
   async function pasteText(){
     const e=editorRef.current;if(!e?.isEditable)return;
@@ -755,6 +767,9 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const selected=m.image===null&&m.from!==m.to,items:ContextItem[]=[];
     if(m.image!==null){const at=m.image;items.push({label:m.captionable?'Scrivi la didascalia con l’AI':'Didascalia già presente',hint:m.captionable?'Legge l’immagine e il testo attorno':undefined,icon:Captions,disabled:!m.captionable||busy,action:()=>void captionImageAt(at)},'separator');}
     if(selected)items.push({label:'Sistema questo testo con l’AI',hint:'Tiene conto del testo prima e dopo',icon:WandSparkles,disabled:busy,action:()=>void ask('rewrite')},{label:'Sistema la formattazione',hint:'Titoli, paragrafi, enfasi: le parole restano uguali',icon:Paintbrush,disabled:busy,action:()=>void formatOnly('selection')},'separator');
+    const doc=editorRef.current?.state.doc,asCaption=m.image===null&&doc&&m.to<=doc.content.size?planTextCaption(doc,m.from,m.to):null;
+    if(asCaption&&!('error' in asCaption&&asCaption.error.startsWith('Nessuna immagine'))){const{from,to}=m,fail='error' in asCaption?asCaption.error:'',plan='plan' in asCaption?asCaption.plan:null;
+      items.push({label:selected?'Rendi la selezione didascalia dell’immagine vicina':'Rendi questa frase didascalia dell’immagine vicina',hint:fail||('Va sotto l’immagine '+(plan?.side==='above'?'sopra':'sotto')+(plan?.replaces?', al posto della didascalia attuale':'')),icon:TextQuote,disabled:busy||!!fail,action:()=>textToCaption(from,to)},'separator');}
     items.push({label:'Genera un prompt per un’immagine',hint:'Da incollare in un generatore di immagini',icon:Sparkles,action:()=>startIdea('prompt')},{label:'Genera un grafico con didascalia',hint:'Disegnato dal testo e inserito qui',icon:ChartColumn,action:()=>startIdea('chart')},'separator',
       {label:'Inserisci immagine da file…',icon:ImagePlus,disabled:imageBusy||repoBusy,action:()=>ctxFile.current?.click()},{label:'Incolla immagine dagli appunti',icon:ClipboardPaste,disabled:imageBusy||repoBusy,action:()=>void insertEditorImage()},'separator',
       {label:'Taglia',icon:Scissors,disabled:!selected,action:()=>clipboardCommand('cut')},{label:'Copia',icon:Copy,disabled:!selected,action:()=>clipboardCommand('copy')},{label:'Incolla testo',icon:TextCursorInput,action:()=>void pasteText()});
