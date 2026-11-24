@@ -75,5 +75,5 @@ test('voice instructions evoke style without copying and default to the author',
  assert.ok(voiceInstruction('mine','medium','','frasi: brevi').includes("author's own voice"));
  const calvino=voiceInstruction('calvino','light','','');assert.ok(calvino.includes('never copy'));assert.ok(calvino.includes('subtle'));
  assert.ok(voiceInstruction('custom','strong','Frasi secche, molto dialogo','').includes('Frasi secche'));
- for(const id of ['calvino','rovelli','boncinelli','carrere'])assert.ok(VOICES.some(v=>v.id===id));
+ for(const id of ['calvino','rovelli','boncinelli','augias','carrere'])assert.ok(VOICES.some(v=>v.id===id));
 });
