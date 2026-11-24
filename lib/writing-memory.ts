@@ -6,7 +6,7 @@ export type WritingSource = { id:string; title:string; sample:string; updated:nu
 export type WritingMemory = { version:1; enabled:boolean; examples:boolean; notes:string; sources:WritingSource[]; excluded:string[] };
 export const EMPTY_WRITING_MEMORY:WritingMemory={version:1,enabled:true,examples:true,notes:'',sources:[],excluded:[]};
 const MAX_SOURCES=40, SAMPLE_SIZE=6000;
-export const PERSONAL_VOICE_MODES:readonly string[]=['complete','rewrite','shorten','voice','continue','directions'];
+export const PERSONAL_VOICE_MODES:readonly string[]=['complete','rewrite','redo','shorten','voice','continue','directions'];
 const validId=(id:unknown):id is string=>typeof id==='string'&&id.length>0&&id.length<=100;
 
 // Retain the start, middle and most recent writing, without splitting words.

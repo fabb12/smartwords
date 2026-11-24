@@ -993,3 +993,6 @@ button.group-title:hover{background:var(--soft)}
 .editor-dock:is([data-dock=left],[data-dock=right]) .editor-zoom{flex-direction:column}
 .editor-dock:is([data-dock=left],[data-dock=right]) .command-group{width:100%;justify-content:center}
 .editor-dock:is([data-dock=left],[data-dock=right]) .command-trigger{justify-content:center}
+
+.ask-modal .ask-input{width:100%;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:transparent;color:inherit}
+.ask-modal .primary{display:inline-flex;align-items:center;gap:8px}
