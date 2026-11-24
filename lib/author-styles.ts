@@ -12,6 +12,8 @@ export const VOICES: Voice[] = [
     traits: 'Divulgazione scientifica dal tono lirico; paragrafi brevi; meraviglia e stupore; si rivolge direttamente al lettore; metafore tratte dall’esperienza quotidiana; richiami a poeti e filosofi; concetti difficili resi semplici senza banalizzarli.' },
   { id: 'boncinelli', name: 'Edoardo Boncinelli', tag: 'Saggio scientifico chiaro e razionale', family: 'saggio',
     traits: 'Saggistica scientifica chiara e didattica; argomentazione logica per passaggi; tono pacato, autorevole e talvolta ironico; domande filosofiche su mente, biologia ed evoluzione; esempi concreti; diffidenza verso la retorica.' },
+  { id: 'augias', name: 'Corrado Augias', tag: 'Divulgazione storica e civile, narrata', family: 'saggio',
+    traits: 'Divulgazione storica e culturale dal tono colto ma conversevole; narrazione limpida che intreccia storia, letteratura e cronaca; periodi equilibrati e prosa elegante senza ostentazione; aneddoti e personaggi per illuminare il quadro generale; sguardo laico, civile e misurato; ironia sobria; rispetto del lettore.' },
   { id: 'carrere', name: 'Emmanuel Carrère', tag: 'Romanzo-verità in prima persona', family: 'internazionale',
     traits: 'Romanzo non-fiction in prima persona; l’autore si mette in scena con onestà spietata; mescola inchiesta, cronaca e confessione; frasi ampie e digressive; dubbi espliciti sul proprio punto di vista; dettagli concreti e verificabili.' },
   { id: 'ginzburg', name: 'Natalia Ginzburg', tag: 'Semplicità, lessico famigliare', family: 'narrativa',

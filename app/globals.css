@@ -993,3 +993,13 @@ button.group-title:hover{background:var(--soft)}
 .editor-dock:is([data-dock=left],[data-dock=right]) .editor-zoom{flex-direction:column}
 .editor-dock:is([data-dock=left],[data-dock=right]) .command-group{width:100%;justify-content:center}
 .editor-dock:is([data-dock=left],[data-dock=right]) .command-trigger{justify-content:center}
+
+/* Resizable side panels (desktop only; widths persist in localStorage) */
+.side-resizer{flex:0 0 7px;width:7px;margin:0 -3px;z-index:5;cursor:col-resize;position:relative;touch-action:none}
+.side-resizer::after{content:"";position:absolute;top:0;bottom:0;left:3px;width:1px;background:transparent;transition:background .15s,width .15s,left .15s}
+.side-resizer:hover::after,.side-resizer:focus-visible::after,.side-resizing .side-resizer::after{background:var(--green,#4a7c59);width:3px;left:2px}
+.side-resizer:focus-visible{outline:none}
+body.side-resizing{cursor:col-resize;user-select:none}
+.app:not(.tablet):not(.simple).lib-custom .library{width:var(--lib-w);flex-basis:var(--lib-w)}
+.app:not(.tablet):not(.simple).asst-custom .assistant{width:var(--asst-w);flex-basis:var(--asst-w)}
+.tablet .side-resizer,.simple .side-resizer{display:none}
