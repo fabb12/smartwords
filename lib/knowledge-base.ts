@@ -28,7 +28,7 @@ export type KnowledgeBase = {
 
 export const KB_LIMITS = { chunks: 1600, chunkSize: 900, fileChars: 2_500_000, bases: 12 };
 // Modes where the knowledge base shapes the generated text.
-export const KB_MODES: readonly string[] = ['complete', 'rewrite', 'shorten', 'voice', 'continue', 'directions'];
+export const KB_MODES: readonly string[] = ['complete', 'rewrite', 'redo', 'shorten', 'voice', 'continue', 'directions'];
 const EMPTY_LOCAL: KbLocal = { words: 0, style: '', traits: [], themes: [], expressions: [], reliable: false };
 const str = (v: unknown, max: number) => typeof v === 'string' ? v.slice(0, max) : '';
 const validId = (v: unknown): v is string => typeof v === 'string' && v.length > 0 && v.length <= 100;

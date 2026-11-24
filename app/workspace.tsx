@@ -72,7 +72,7 @@ import type { Node as PMNode } from '@tiptap/pm/model';
 import { readEditorZoom, sanitizeZoom, storeEditorZoom, type EditorZoom } from '../lib/editor-zoom';
 import { InstallSteps, Sheet, useSimpleMode, useStandalone, useTablet, useVisibleHeight } from './mobile';
 import { Directions, FreeCard, IntentRow, isMode, ModeSwitch, ProjectChip, ProjectModal, Review, type Ctx, type Mode, type Run } from './companion';
-import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, X , FileCode, ChartColumn, Captions, Copy, Scissors, TextCursorInput, TextQuote } from 'lucide-react';
+import { Volume2, Square, BookPlus, PanelsTopLeft, ListTree, ArrowDownToLine, ClipboardPaste, Paintbrush, BookOpen, Eye, FileUp, FolderOpen, Save, AlignCenter, AlignJustify, AlignLeft, AlignRight, Bold, Check, ChevronDown, ChevronRight, Clock3, Columns2, Download, Ellipsis, FileText, Heading2, Menu, Fullscreen, GitBranch, Drama, PenLine, Highlighter, ImagePlus, Italic,  Link2, List, ListOrdered, Maximize2, Mic, Monitor, MonitorDown, Moon, PanelLeftClose, Plus, RefreshCw, Redo2, Search, Settings2, ShieldCheck, Minimize, Sparkles, Sun, Table2, TriangleAlert, Underline, Undo2, WandSparkles, MessageSquareText, X , FileCode, ChartColumn, Captions, Copy, Scissors, TextCursorInput, TextQuote } from 'lucide-react';
 // The LaTeX studio is loaded only when opened.
 import { DocumentLibrary, useDocGroups } from './document-library';
 import { forgetDoc } from '../lib/document-groups';
@@ -171,7 +171,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
   const [groups,setGroups]=useDocGroups(owner),[bookRequest,setBookRequest]=useState<{ids:string[];part?:string}|null>(null);
   const [formatProgress,setFormatProgress]=useState(''),[imageBusy,setImageBusy]=useState(false);const imagePending=useRef(false);
   // Tasto destro nell'editor: idee per un'immagine, didascalia automatica, sistemare il testo scelto.
-  const [ctxMenu,setCtxMenu]=useState<{x:number;y:number;from:number;to:number;image:number|null;captionable:boolean;context:IdeaContext}|null>(null),[idea,setIdea]=useState<{kind:'prompt'|'chart';context:string;block:PMNode|null}|null>(null);const ctxFile=useRef<HTMLInputElement>(null);
+  const [askBox,setAskBox]=useState<{from:number;to:number;text:string}|null>(null);const [ctxMenu,setCtxMenu]=useState<{x:number;y:number;from:number;to:number;image:number|null;captionable:boolean;context:IdeaContext}|null>(null),[idea,setIdea]=useState<{kind:'prompt'|'chart';context:string;block:PMNode|null}|null>(null);const ctxFile=useRef<HTMLInputElement>(null);
   // Salvataggio automatico ogni 5 minuti (e, se richiesto, su GitHub); Ctrl+S salva subito.
   const [autoSave,setAutoSaveState]=useState<AutoSavePrefs>(DEFAULT_AUTOSAVE),autoSaveRef=useRef(autoSave),autoTick=useRef<()=>Promise<void>>(async()=>{}),githubCommitted=useRef(''),saveNowRef=useRef<()=>Promise<void>>(async()=>{});autoSaveRef.current=autoSave;
   const [suggestion,setSuggestion]=useState<Suggestion|null>(null),[includeTitles,setIncludeTitlesState]=useState(true),[busy,setBusy]=useState(false),[aiError,setAiError]=useState(''),[aiWarning,setAiWarning]=useState('');
@@ -476,7 +476,7 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     // No proposal is drawn inside an IME composition (mobile keyboards): try again once it is over.
     if(automatic&&e.view.composing){aiTimer.current=setTimeout(()=>void ask(mode,true),opts.delay);return;}
     const inline=mode==='complete'||mode==='continue',para=$from.start();
-    const formatting=opts.formatting&&(mode==='complete'||mode==='rewrite');
+    const formatting=opts.formatting&&(mode==='complete'||mode==='rewrite'||mode==='redo');
     if(mode==='complete'&&!e.state.selection.empty){if(!automatic)setAiError('Posiziona il cursore per completare il testo, oppure scegli «Migliora frase» per elaborare una selezione.');return;}
     const cursorText=beforeCursor($from);
     const completion=mode==='complete'?(formatting&&cursorText.length<=4000?{start:0,end:$from.parentOffset}:sentenceTarget(cursorText)):null;
@@ -491,8 +491,8 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     const contextEnd=mode==='continue'?Math.max(0,from-2000):start,n=narrativeRef.current;
     let existingFormatting=$from.parent.type.name!=='paragraph';const emphasis:{text:string;marks:string[]}[]=[];
     if(formatting)e.state.doc.nodesBetween(start,end,(node,pos)=>{const marks=node.marks.map(m=>m.type.name).filter(m=>['bold','italic','underline','strike','highlight'].includes(m));if(marks.length){existingFormatting=true;if(emphasis.length<5)emphasis.push({text:(node.text||'').slice(Math.max(0,start-pos),Math.min((node.text||'').length,end-pos)).slice(0,80),marks});}});
-    const payload={profile:opts.profile,mode,...voiceFields(mode,text),text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+(mode==='rewrite'?2500:1000)),'\n'),tone:opts.tone,
-      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):mode==='rewrite'&&!automatic?n.memory.slice(0,2500):mode==='continue'||mode==='voice'?n.memory:'',direction,formatting,intervention:opts.intervention,formatContext:formatting?JSON.stringify({block:$from.parent.type.name,level:$from.parent.attrs.level,emphasis}):'',...rulesField()};
+    const payload={profile:opts.profile,mode,...voiceFields(mode,text),text:text.slice(-10000),context:e.state.doc.textBetween(Math.max(0,contextEnd-6000),contextEnd,'\n'),after:e.state.doc.textBetween(to,Math.min(e.state.doc.content.size,to+(mode==='rewrite'||mode==='redo'?2500:1000)),'\n'),tone:opts.tone,
+      style:mode==='formal'?'':n.style,intent:mode==='formal'?'':n.intent,brief:n.brief,memory:mode==='complete'?n.memory.slice(0,1500):(mode==='rewrite'||mode==='redo')&&!automatic?n.memory.slice(0,2500):mode==='continue'||mode==='voice'?n.memory:'',direction,formatting,intervention:opts.intervention,formatContext:formatting?JSON.stringify({block:$from.parent.type.name,level:$from.parent.attrs.level,emphasis}):'',...rulesField()};
     const rev=revision.current,scope=String(para),key=AiGovernor.key([payload]);let lastPreview=0;
     const extra=mode==='complete'?{base:beforeCursor($from),para}:mode==='continue'?{}:{original:text,trail:sentence?from-end:0};
     // A generated scene starting right after a word needs a separating space.
@@ -789,11 +789,18 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     try{const text=await navigator.clipboard.readText();if(!text)return;let chain=e.chain().focus();text.replace(/\r\n?/g,'\n').split('\n').forEach((line,i)=>{if(i)chain=chain.splitBlock();if(line)chain=chain.insertContent({type:'text',text:line});});chain.run();}
     catch{setNotice('Accesso agli appunti non disponibile: usa Ctrl+V.');}
   }
+  // «Chiedi al modello»: istruzione libera sul passaggio selezionato; il modello rigenera solo quella parte, conoscendo il racconto.
+  function submitAsk(){
+    const e=editorRef.current,box=askBox,direction=box?.text.trim();if(!e||!box||!direction)return;
+    if(!options.current.profile){setAskBox(null);setSettings('ai');return;}
+    setAskBox(null);e.chain().focus().setTextSelection({from:box.from,to:Math.min(box.to,e.state.doc.content.size)}).run();
+    void ask('redo',false,direction);
+  }
   function contextItems():ContextItem[]{
     const m=ctxMenu;if(!m)return [];
     const selected=m.image===null&&m.from!==m.to,items:ContextItem[]=[];
     if(m.image!==null){const at=m.image;items.push({label:m.captionable?'Scrivi la didascalia con l’AI':'Didascalia già presente',hint:m.captionable?'Legge l’immagine e il testo attorno':undefined,icon:Captions,disabled:!m.captionable||busy,action:()=>void captionImageAt(at)},'separator');}
-    if(selected)items.push({label:'Sistema questo testo con l’AI',hint:'Tiene conto del testo prima e dopo',icon:WandSparkles,disabled:busy,action:()=>void ask('rewrite')},{label:'Sistema la formattazione',hint:'Titoli, paragrafi, enfasi: le parole restano uguali',icon:Paintbrush,disabled:busy,action:()=>void formatOnly('selection')},'separator');
+    if(selected)items.push({label:'Chiedi al modello…',hint:'Scrivi cosa vuoi: rigenera solo questa parte, nel contesto del racconto',icon:MessageSquareText,disabled:busy,action:()=>setAskBox({from:m.from,to:m.to,text:''})},{label:'Sistema questo testo con l’AI',hint:'Tiene conto del testo prima e dopo',icon:WandSparkles,disabled:busy,action:()=>void ask('rewrite')},{label:'Sistema la formattazione',hint:'Titoli, paragrafi, enfasi: le parole restano uguali',icon:Paintbrush,disabled:busy,action:()=>void formatOnly('selection')},'separator');
     const doc=editorRef.current?.state.doc,asCaption=m.image===null&&doc&&m.to<=doc.content.size?planTextCaption(doc,m.from,m.to):null;
     if(asCaption&&!('error' in asCaption&&asCaption.error.startsWith('Nessuna immagine'))){const{from,to}=m,fail='error' in asCaption?asCaption.error:'',plan='plan' in asCaption?asCaption.plan:null;
       items.push({label:selected?'Rendi la selezione didascalia dell’immagine vicina':'Rendi questa frase didascalia dell’immagine vicina',hint:fail||('Va sotto l’immagine '+(plan?.side==='above'?'sopra':'sotto')+(plan?.replaces?', al posto della didascalia attuale':'')),icon:TextQuote,disabled:busy||!!fail,action:()=>textToCaption(from,to)},'separator');}
@@ -921,6 +928,14 @@ export default function Workspace({owner='local'}:{owner?:string}={}) {
     {sheet==='install'&&<Sheet title="Installa Scrivia" onClose={closeSheet}><InstallSteps/></Sheet>}
     {simple&&mobileNavigation&&editor&&<><div className="navigation-backdrop" onClick={()=>setMobileNavigation(false)}/><DocumentNavigation key={active} editor={editor} pages={pages} count={pageCount} onPages={enableNavigationPages} onClose={()=>setMobileNavigation(false)}/></>}
     {presetsOpen&&<WorkspacePresets presets={workspacePresets} onApply={applyPreset} onSave={saveWorkspacePreset} onDelete={deleteWorkspacePreset} onClose={()=>setPresetsOpen(false)}/>}
+    {askBox&&<div className="modal-backdrop" onClick={()=>setAskBox(null)}><section className="modal ask-modal" role="dialog" aria-modal="true" aria-label="Chiedi al modello" onClick={e=>e.stopPropagation()}>
+      <button className="modal-close tool" aria-label="Chiudi" onClick={()=>setAskBox(null)}><X size={20}/></button>
+      <span className="modal-icon"><MessageSquareText size={23}/></span><h2>Chiedi al modello.</h2>
+      <p className="modal-subtitle">Passaggio selezionato: «{editorRef.current?.state.doc.textBetween(askBox.from,Math.min(askBox.to,editorRef.current.state.doc.content.size),' ').slice(0,140)}»</p>
+      <textarea className="ask-input" autoFocus rows={4} value={askBox.text} placeholder="Es. rifallo con un’idea più filosofica; rendilo più teso; aggiungi un dettaglio sensoriale…" onChange={e=>setAskBox({...askBox,text:e.target.value})} onKeyDown={e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey||!e.shiftKey)){e.preventDefault();submitAsk();}if(e.key==='Escape')setAskBox(null);}}/>
+      <p className="modal-subtitle">Verrà riscritta solo la parte selezionata, tenendo conto del testo prima e dopo e della memoria della storia. Invio per inviare, Maiusc+Invio per andare a capo.</p>
+      <button className="primary" disabled={!askBox.text.trim()} onClick={submitAsk}><Sparkles size={16}/> Rigenera</button>
+    </section></div>}
     {ctxMenu&&<EditorContextMenu x={ctxMenu.x} y={ctxMenu.y} items={contextItems()} onClose={()=>setCtxMenu(null)}/>}
     {idea&&<ImageIdeaDialog kind={idea.kind} context={idea.context} run={run} onInsertChart={insertChart} onInsertImage={(file,caption,alt)=>insertIdeaFigure(file,caption,alt,'Immagine')} onClose={()=>setIdea(null)}/>}
     <input ref={ctxFile} type="file" hidden aria-label="File immagine dal menu" accept="image/png,image/jpeg,image/webp,image/avif" onChange={e=>{const f=e.target.files?.[0];if(f)void insertEditorImage(f);e.target.value='';}}/>

@@ -1003,3 +1003,6 @@ body.side-resizing{cursor:col-resize;user-select:none}
 .app:not(.tablet):not(.simple).lib-custom .library{width:var(--lib-w);flex-basis:var(--lib-w)}
 .app:not(.tablet):not(.simple).asst-custom .assistant{width:var(--asst-w);flex-basis:var(--asst-w)}
 .tablet .side-resizer,.simple .side-resizer{display:none}
+
+.ask-modal .ask-input{width:100%;margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:transparent;color:inherit}
+.ask-modal .primary{display:inline-flex;align-items:center;gap:8px}
